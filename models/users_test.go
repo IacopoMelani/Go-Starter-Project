@@ -1,28 +1,36 @@
 package models
 
 import (
+	"strings"
 	"testing"
 )
 
-const currentUserTableLen = 3
+func TestGetSaveQueryAndSetRecordID(t *testing.T) {
 
-func TestLoadAll(t *testing.T) {
+	u := new(User)
 
-	users := LoadAllUser()
-	if len(users) <= 0 {
-		t.Error("Impossibile completare il test nessun dato presente nella tabella")
+	u.Name = "Paolo"
+	u.Lastname = "Rossi"
+	u.Gender = "M"
+
+	queryString := strings.Split(u.GetSaveQuery(), " ")
+
+	if queryString[0] != "INSERT" {
+		t.Error("Errore: la prima parola dovrebbe essere INSERT")
 	}
 
-	if len(users) != currentUserTableLen {
-		t.Error("Numero di risultati errati")
+	u.RecordID = 1
+
+	u.SetRecordID(2)
+
+	if u.RecordID != 2 {
+		t.Error("Errore: il record dovrebbe essere 2")
 	}
 
-	users.PrintAll()
+	queryString = strings.Split(u.GetSaveQuery(), " ")
 
-	user := users[0]
-
-	if user.Name != "Iacopo" || user.Lastname != "Melani" || user.Gender != "M" {
-		t.Error("Errore risultati primo risultato errato!")
+	if queryString[0] != "UPDATE" {
+		t.Error("Errore: la prima parola dovrebbe essere UPDATE")
 	}
 
 }
