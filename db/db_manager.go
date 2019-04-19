@@ -17,10 +17,10 @@ type Salvable interface {
 
 // Selecter - Interfaccia per permettere di generalizzare una select di un model
 type Selecter interface {
-	GetSelectQuery(s int) (string, []interface{})
+	GetSelectQuery() (string, []interface{})
 }
 
-const stringConnection = "root:Suite&Table@2017@tcp(10.10.10.9:3306)/test"
+const stringConnection = "root:root@(127.0.0.1:3306)/test"
 
 var db *sql.DB
 
@@ -74,11 +74,11 @@ func Save(s Salvable, params []interface{}) error {
 }
 
 // Select - Metodo che si occupa di eseguire una select sul database
-func Select(s Selecter, query int, params []interface{}) error {
+func Select(s Selecter, query int, params ...interface{}) error {
 
 	db := GetConnection()
 
-	querySQL, scanFields := s.GetSelectQuery(query)
+	querySQL, scanFields := s.GetSelectQuery()
 
 	stmt, err := db.Prepare(querySQL)
 	if err != nil {
