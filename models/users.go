@@ -1,5 +1,9 @@
 package models
 
+import (
+	"Go-Starter-Project/db"
+)
+
 // ColUserRecordID - definisce il nome del campo RecordID
 const ColUserRecordID = "record_id"
 
@@ -23,8 +27,37 @@ type User struct {
 	Gender   string
 }
 
-// UserList - Tipo che definisce una lista di struct di User
-type UserList []User
+// UsersList - Tipo che definisce una lista di struct di User
+type UsersList []User
+
+// LoadAllUser - Restituisce la lista di tutti gli utenti
+func LoadAllUser() (UsersList, error) {
+
+	db := db.GetConnection()
+
+	querySQL := "SELECT * FROM " + TableUser
+	rows, err := db.Query(querySQL)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var usersList UsersList
+
+	for rows.Next() {
+
+		u := User{}
+
+		err := rows.Scan(&u.RecordID, &u.Name, &u.Lastname, &u.Gender)
+		if err != nil {
+			return nil, err
+		}
+
+		usersList = append(usersList, u)
+	}
+
+	return usersList, nil
+}
 
 // GetSaveQuery - Restituisce una query di inserimento nel caso in cui il record sia nuovo, altrimenti di modifica
 func (u *User) GetSaveQuery() string {
@@ -35,17 +68,9 @@ func (u *User) GetSaveQuery() string {
 }
 
 // GetSelectQuery Ritorna una possibile query tra quelle specificate
-func (u *User) GetSelectQuery(query int) (string, []interface{}) {
+func (u *User) GetSelectQuery() (string, []interface{}) {
 
-	var querySQL string
-
-	switch query {
-	case 0:
-		querySQL = "SELECT * FROM " + TableUser
-		break
-	case 1:
-		querySQL = "SELECT * FROM " + TableUser + " WHERE " + ColUserRecordID + " = ?"
-	}
+	querySQL := "SELECT * FROM " + TableUser + " WHERE " + ColUserRecordID + " = ?"
 
 	return querySQL, []interface{}{&u.RecordID, &u.Name, &u.Lastname, &u.Gender}
 

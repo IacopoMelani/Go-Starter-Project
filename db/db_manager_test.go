@@ -56,8 +56,13 @@ func TestSelect(t *testing.T) {
 
 	u := models.User{}
 
-	err := Select(&u, 1, []interface{}{7})
+	err := Select(&u, 1, 7)
 	if err != nil {
-		t.Error("Errore nella Select, errore restituito:", err.Error())
+		t.Error("Errore nella Select 1, errore restituito:", err.Error())
 	}
+
+	if u.RecordID != 7 {
+		t.Error("Errore 1: record non valido")
+	}
+
 }

@@ -34,3 +34,19 @@ func TestGetSaveQueryAndSetRecordID(t *testing.T) {
 	}
 
 }
+
+func TestLoadAllUser(t *testing.T) {
+
+	usersList, err := LoadAllUser()
+	if err != nil {
+		t.Error(err.Error())
+	}
+
+	if len(usersList) <= 0 {
+		t.Error("Errore nessun risultato prelevato")
+	}
+
+	if usersList[0].RecordID == usersList[1].RecordID {
+		t.Error("Errore record duplicati")
+	}
+}
