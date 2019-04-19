@@ -15,7 +15,12 @@ type Salvable interface {
 	SetRecordID(id int)
 }
 
-const stringConnection = "root:root@tcp(127.0.0.1:3306)/test"
+// Selecter - Interfaccia per permettere di generalizzare una select di un model
+type Selecter interface {
+	GetSelectQuery(s int) (string, []interface{})
+}
+
+const stringConnection = "root:Suite&Table@2017@tcp(10.10.10.9:3306)/test"
 
 var db *sql.DB
 
@@ -65,5 +70,35 @@ func Save(s Salvable, params []interface{}) error {
 	if lastID > 0 {
 		s.SetRecordID(int(lastID))
 	}
+	return nil
+}
+
+// Select - Metodo che si occupa di eseguire una select sul database
+func Select(s Selecter, query int, params []interface{}) error {
+
+	db := GetConnection()
+
+	querySQL, scanFields := s.GetSelectQuery(query)
+
+	stmt, err := db.Prepare(querySQL)
+	if err != nil {
+		return err
+	}
+	defer stmt.Close()
+
+	rows, err := stmt.Query(params...)
+	if err != nil {
+		return err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+
+		err := rows.Scan(scanFields...)
+		if err != nil {
+			return err
+		}
+	}
+
 	return nil
 }

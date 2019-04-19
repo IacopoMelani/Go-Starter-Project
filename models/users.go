@@ -34,6 +34,23 @@ func (u *User) GetSaveQuery() string {
 	return "UPDATE " + TableUser + " SET " + ColUserName + " = ?, " + ColUserLastname + "=?, " + ColUserGender + "=? WHERE " + ColUserRecordID + " = ?"
 }
 
+// GetSelectQuery Ritorna una possibile query tra quelle specificate
+func (u *User) GetSelectQuery(query int) (string, []interface{}) {
+
+	var querySQL string
+
+	switch query {
+	case 0:
+		querySQL = "SELECT * FROM " + TableUser
+		break
+	case 1:
+		querySQL = "SELECT * FROM " + TableUser + " WHERE " + ColUserRecordID + " = ?"
+	}
+
+	return querySQL, []interface{}{&u.RecordID, &u.Name, &u.Lastname, &u.Gender}
+
+}
+
 // SetRecordID - Imposta il valore della chiave primaria
 func (u *User) SetRecordID(id int) {
 	u.RecordID = id
