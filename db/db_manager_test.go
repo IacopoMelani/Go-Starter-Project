@@ -49,3 +49,15 @@ func TestSave(t *testing.T) {
 		t.Error("Index errato, è minore di 0 oppure non corrisponde con il precedente")
 	}
 }
+
+func TestSelect(t *testing.T) {
+
+	TestSave(t)
+
+	u := models.User{}
+
+	err := Select(&u, 1, []interface{}{7})
+	if err != nil {
+		t.Error("Errore nella Select, errore restituito:", err.Error())
+	}
+}
