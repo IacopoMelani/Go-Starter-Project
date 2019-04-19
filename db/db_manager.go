@@ -20,7 +20,7 @@ type Selecter interface {
 	GetSelectQuery(s int) (string, []interface{})
 }
 
-const stringConnection = "root:Suite&Table@2017@tcp(10.10.10.9:3306)/test"
+const stringConnection = "root:root@tcp(127.0.0.1:3306)/test"
 
 var db *sql.DB
 
