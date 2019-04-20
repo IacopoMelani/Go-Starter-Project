@@ -1,8 +1,6 @@
 package models
 
-import (
-	"Go-Starter-Project/db"
-)
+import "Go-Starter-Project/db"
 
 // ColUserRecordID - definisce il nome del campo RecordID
 const ColUserRecordID = "record_id"

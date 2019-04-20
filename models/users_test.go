@@ -3,6 +3,8 @@ package models
 import (
 	"strings"
 	"testing"
+
+	"github.com/subosito/gotenv"
 )
 
 func TestGetSaveQueryAndSetRecordID(t *testing.T) {
@@ -35,7 +37,22 @@ func TestGetSaveQueryAndSetRecordID(t *testing.T) {
 
 }
 
+func TestGetSelectQuery(t *testing.T) {
+
+	u := User{}
+
+	querySQL, _ := u.GetSelectQuery()
+
+	queryArray := strings.Split(querySQL, " ")
+	if queryArray[0] != "SELECT" {
+		t.Error("Query errata, dovrebbe iniziare con 'SELECT'")
+	}
+
+}
+
 func TestLoadAllUser(t *testing.T) {
+
+	gotenv.Load("../.env")
 
 	usersList, err := LoadAllUser()
 	if err != nil {
