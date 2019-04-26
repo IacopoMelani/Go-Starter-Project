@@ -19,10 +19,10 @@ const TableUser = "users"
 
 // User - Struct che definisce la tabella "users"
 type User struct {
-	RecordID int
-	Name     string
-	Lastname string
-	Gender   string
+	RecordID int    `json:"id"`
+	Name     string `json:"name"`
+	Lastname string `json:"lastname"`
+	Gender   string `json:"gender"`
 }
 
 // UsersList - Tipo che definisce una lista di struct di User
