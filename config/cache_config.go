@@ -11,10 +11,12 @@ import (
 // CacheConfig - struttura dove immagazzinare le configurazioni
 type CacheConfig struct {
 	StringConnection string
+	AppPort          string
 }
 
 var arrayEnvMapper = map[string]string{
 	"STRING_CONNECTION": "StringConnection",
+	"APP_PORT":          "AppPort",
 }
 
 var cacheConfig *CacheConfig
