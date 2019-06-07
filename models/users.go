@@ -1,80 +1,87 @@
 package models
 
-import "Go-Starter-Project/db"
-
-// ColUserRecordID - definisce il nome del campo RecordID
-const ColUserRecordID = "record_id"
-
-// ColUserName - definisce il nome del campo name
-const ColUserName = "name"
-
-// ColUserLastname - definisce il nome del campo lastname
-const ColUserLastname = "lastname"
-
-// ColUserGender - definisce il nome del campo gender
-const ColUserGender = "gender"
-
-// TableUser - Definisce il nome della tabella "users"
-const TableUser = "users"
+import (
+	"Go-Starter-Project/db"
+	record "Go-Starter-Project/models/table_record"
+)
 
 // User - Struct che definisce la tabella "users"
+// implementa TableRecordInterface
 type User struct {
-	RecordID int    `json:"id"`
+	tr       *record.TableRecord
 	Name     string `json:"name"`
 	Lastname string `json:"lastname"`
 	Gender   string `json:"gender"`
 }
 
-// UsersList - Tipo che definisce una lista di struct di User
-type UsersList []User
+// LoadAllUsers - Si occupa di restituire tutti gli utenti presenti nel database
+func LoadAllUsers() ([]*User, error) {
 
-// LoadAllUser - Restituisce la lista di tutti gli utenti
-func LoadAllUser() (UsersList, error) {
+	u := User{}
 
 	db := db.GetConnection()
 
-	querySQL := "SELECT * FROM " + TableUser
-	rows, err := db.Query(querySQL)
+	query := "SELECT * FROM " + u.GetTableName()
+
+	rows, err := db.Query(query)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
 
-	var usersList UsersList
+	var result []*User
 
 	for rows.Next() {
 
-		u := User{}
+		u := NewUser()
 
-		err := rows.Scan(&u.RecordID, &u.Name, &u.Lastname, &u.Gender)
+		_, vField := u.GetFieldMapper()
+
+		dest := append([]interface{}{&u.tr.RecordID}, vField...)
+
+		err := rows.Scan(dest...)
 		if err != nil {
 			return nil, err
 		}
 
-		usersList = append(usersList, u)
+		result = append(result, u)
 	}
 
-	return usersList, nil
+	return result, nil
 }
 
-// GetSaveQuery - Restituisce una query di inserimento nel caso in cui il record sia nuovo, altrimenti di modifica
-func (u *User) GetSaveQuery() string {
-	if u.RecordID == 0 {
-		return "INSERT INTO " + TableUser + " (" + ColUserName + "," + ColUserLastname + ", " + ColUserGender + ") VALUES (?, ?, ?)"
-	}
-	return "UPDATE " + TableUser + " SET " + ColUserName + " = ?, " + ColUserLastname + "=?, " + ColUserGender + "=? WHERE " + ColUserRecordID + " = ?"
+// NewUser - Si occupa di istanziare un nuovo oggetto User istanziando il relativo TableRecord e impostandolo come "nuovo"
+// È consigliato utilizzare sempre questo metodo per creare una nuova istanza di User
+func NewUser() *User {
+
+	u := new(User)
+	u.tr = new(record.TableRecord)
+	u.tr.SetIsNew(true)
+
+	return u
 }
 
-// GetSelectQuery Ritorna una possibile query tra quelle specificate
-func (u *User) GetSelectQuery() (string, []interface{}) {
-
-	querySQL := "SELECT * FROM " + TableUser + " WHERE " + ColUserRecordID + " = ?"
-
-	return querySQL, []interface{}{&u.RecordID, &u.Name, &u.Lastname, &u.Gender}
-
+// GetTableRecord - Restituisce l'istanza di TableRecord
+func (u User) GetTableRecord() *record.TableRecord {
+	return u.tr
 }
 
-// SetRecordID - Imposta il valore della chiave primaria
-func (u *User) SetRecordID(id int) {
-	u.RecordID = id
+// GetPrimaryKeyName - Restituisce il nome della chiave primaria
+func (u User) GetPrimaryKeyName() string {
+	return "record_id"
+}
+
+// GetTableName - Restituisce il nome della tabella
+func (u User) GetTableName() string {
+	return "users"
+}
+
+// GetFieldMapper - Restituisce i campi di mappatura e di destinazione/prelievo dei dati
+func (u *User) GetFieldMapper() ([]string, []interface{}) {
+
+	fName := []string{"name", "lastname", "gender"}
+
+	fvalue := []interface{}{&u.Name, &u.Lastname, &u.Gender}
+
+	return fName, fvalue
 }

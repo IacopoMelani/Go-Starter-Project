@@ -1,69 +1,69 @@
 package models
 
 import (
-	"strings"
+	record "Go-Starter-Project/models/table_record"
+	"fmt"
 	"testing"
 
 	"github.com/subosito/gotenv"
 )
 
-func TestGetSaveQueryAndSetRecordID(t *testing.T) {
+func TestTableMirror(t *testing.T) {
 
-	u := new(User)
+	gotenv.Load("./../.env")
 
-	u.Name = "Paolo"
+	u := NewUser()
+
+	u.Name = "Mario"
 	u.Lastname = "Rossi"
 	u.Gender = "M"
 
-	queryString := strings.Split(u.GetSaveQuery(), " ")
-
-	if queryString[0] != "INSERT" {
-		t.Error("Errore: la prima parola dovrebbe essere INSERT")
-	}
-
-	u.RecordID = 1
-
-	u.SetRecordID(2)
-
-	if u.RecordID != 2 {
-		t.Error("Errore: il record dovrebbe essere 2")
-	}
-
-	queryString = strings.Split(u.GetSaveQuery(), " ")
-
-	if queryString[0] != "UPDATE" {
-		t.Error("Errore: la prima parola dovrebbe essere UPDATE")
-	}
-
-}
-
-func TestGetSelectQuery(t *testing.T) {
-
-	u := User{}
-
-	querySQL, _ := u.GetSelectQuery()
-
-	queryArray := strings.Split(querySQL, " ")
-	if queryArray[0] != "SELECT" {
-		t.Error("Query errata, dovrebbe iniziare con 'SELECT'")
-	}
-
-}
-
-func TestLoadAllUser(t *testing.T) {
-
-	gotenv.Load("../.env")
-
-	usersList, err := LoadAllUser()
+	err := record.Save(u)
 	if err != nil {
-		t.Error(err.Error())
+		panic(err.Error())
+	}
+	fmt.Println(u)
+
+	if u.tr.RecordID == 0 {
+		t.Error("Chiave non salvata")
 	}
 
-	if len(usersList) <= 0 {
-		t.Error("Errore nessun risultato prelevato")
+	tempName := u.Name
+	tempID := u.tr.RecordID
+
+	err = record.LoadByID(u, u.GetTableRecord().RecordID)
+	if err != nil {
+		panic(err.Error())
 	}
 
-	if usersList[0].RecordID == usersList[1].RecordID {
-		t.Error("Errore record duplicati")
+	if tempName != u.Name {
+		t.Error("Campi non uguali")
 	}
+
+	u.Name = "Marco"
+
+	err = record.Save(u)
+	if err != nil {
+		panic(err.Error())
+	}
+
+	if tempID != u.tr.RecordID {
+		t.Error("Chiave primaria è cambiata durante l'update")
+	}
+
+	fmt.Println(u)
+
+	usersList, err := LoadAllUsers()
+	if err != nil {
+		panic(err.Error())
+	}
+
+	if len(usersList) == 0 {
+		t.Error("Lunghezza inferiore al minimo nel contesto del test")
+	}
+
+	for _, user := range usersList {
+		fmt.Println(user)
+	}
+
 }

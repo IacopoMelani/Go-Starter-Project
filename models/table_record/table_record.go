@@ -5,25 +5,26 @@ import (
 	"strings"
 )
 
-// TableRecordInterface -
+// TableRecordInterface - interfaccia che definisce una generica struct che permette l'interazione con TableRecord
 type TableRecordInterface interface {
-	getTableRecord() *TableRecord
+	GetTableRecord() *TableRecord
 	GetPrimaryKeyName() string
-	GetPrimaryKeyValue() int64
 	GetTableName() string
-	GetFieldMapper() ([]string, []*interface{})
+	GetFieldMapper() ([]string, []interface{})
 }
 
-// TableRecord -
+// TableRecord - Struct per l'implementazione di TableRecordInterface
 type TableRecord struct {
-	isNew bool
+	RecordID int64
+	isNew    bool
 }
 
-func executeSaveUpdateQuery(query string, params []*interface{}) (int64, error) {
+// executeSaveUpdateQuery - Si occupa di eseguire fisicamente la query, in caso di successo restituisce l'Id appena inserito
+func executeSaveUpdateQuery(query string, params []interface{}) (int64, error) {
 
 	db := db.GetConnection()
 
-	res, err := db.Exec(query, getParamsFromSlicePointer(params)...)
+	res, err := db.Exec(query, params...)
 	if err != nil {
 		return 0, err
 	}
@@ -36,17 +37,7 @@ func executeSaveUpdateQuery(query string, params []*interface{}) (int64, error) 
 	return lastID, nil
 }
 
-func getParamsFromSlicePointer(params []*interface{}) []interface{} {
-
-	s := make([]interface{}, len(params))
-
-	for _, v := range params {
-		s = append(s, *v)
-	}
-
-	return s
-}
-
+// getSaveFieldParams -  Si occupa di generare uno slice di "?" tanti quanti sono i parametri della query di inserimento
 func getSaveFieldParams(ti TableRecordInterface) []string {
 
 	fName, _ := ti.GetFieldMapper()
@@ -63,11 +54,22 @@ func getSaveFieldParams(ti TableRecordInterface) []string {
 	return s
 }
 
-func getUpdateFiledParams(ti TableRecordInterface) []string {
-
-	var updateStmt []string
+// genSaveQuery - Si occupa di generare la query di salvataggio
+func genSaveQuery(ti TableRecordInterface) string {
 
 	fName, _ := ti.GetFieldMapper()
+
+	query := "INSERT INTO " + ti.GetTableName() + " (" + strings.Join(fName, ", ") + ") VALUES ( " + strings.Join(getSaveFieldParams(ti), ", ") + " )"
+
+	return query
+}
+
+// getUpdateFiledParams - Si occupa di generare uno slice di "?" tanti quanti sono i parametri della query di aggiornamento
+func getUpdateFieldParams(ti TableRecordInterface) []string {
+
+	fName, _ := ti.GetFieldMapper()
+
+	updateStmt := make([]string, len(fName))
 
 	for i := 0; i < len(fName); i++ {
 		if fName[i] == ti.GetPrimaryKeyName() {
@@ -79,45 +81,78 @@ func getUpdateFiledParams(ti TableRecordInterface) []string {
 	return updateStmt
 }
 
-func genSaveQuery(ti TableRecordInterface) string {
-
-	fName, _ := ti.GetFieldMapper()
-
-	query := "INSERT INTO " + ti.GetTableName() + " (" + strings.Join(fName, ", ") + ") VALUES ( " + strings.Join(getSaveFieldParams(ti), ", ") + " )"
-
-	return query
-}
-
+// genUpdateQuery - Si occupa di generare la query di aggiornamento
 func genUpdateQuery(ti TableRecordInterface) string {
 
-	query := "UPDATE  " + ti.GetTableName() + " SET " + strings.Join(getUpdateFiledParams(ti), ", ") + ") WHERE " + ti.GetPrimaryKeyName() + " = ?"
+	query := "UPDATE  " + ti.GetTableName() + " SET " + strings.Join(getUpdateFieldParams(ti), ", ") + " WHERE " + ti.GetPrimaryKeyName() + " = ?"
 	return query
 }
 
-// Save -
-func Save(ti TableRecordInterface) (TableRecordInterface, error) {
-
-	t := ti.getTableRecord()
+// LoadByID - Carica l'istanza passata con i valori della sua tabella ricercando per chiave primaria
+func LoadByID(ti TableRecordInterface, id int64) error {
 
 	db := db.GetConnection()
 
+	query := "SELECT * FROM " + ti.GetTableName() + " WHERE " + ti.GetPrimaryKeyName() + " = ?"
+
+	params := []interface{}{interface{}(id)}
+
+	stmt, err := db.Prepare(query)
+	if err != nil {
+		return err
+	}
+	defer stmt.Close()
+
+	rows, err := stmt.Query(params...)
+	if err != nil {
+		return err
+	}
+	defer rows.Close()
+
+	if rows.Next() {
+
+		_, vField := ti.GetFieldMapper()
+
+		params := append([]interface{}{&ti.GetTableRecord().RecordID}, vField...)
+
+		err := rows.Scan(params...)
+		if err != nil {
+			return err
+		}
+
+		ti.GetTableRecord().SetIsNew(false)
+	}
+
+	return nil
+}
+
+// Save - Si occupa di eseguire il salvataggio della TableRecord eseguendo un inserimento se TableRecord::isNew risulta false, altrimenti ne aggiorna il valore
+func Save(ti TableRecordInterface) error {
+
+	t := ti.GetTableRecord()
+
 	if t.isNew {
 
-		/* 		query := genSaveQuery(ti)
-		   		_, fValue := ti.GetFieldMapper()
-		   		executeQuery(query, fValue)
-		*/
+		query := genSaveQuery(ti)
+		_, fValue := ti.GetFieldMapper()
+		id, err := executeSaveUpdateQuery(query, fValue)
+		if err != nil {
+			return err
+		}
+
+		t.RecordID = id
+		t.SetIsNew(false)
 	} else {
 
 		query := genUpdateQuery(ti)
-		_, err := db.Prepare(query)
+		_, fValue := ti.GetFieldMapper()
+		_, err := executeSaveUpdateQuery(query, append(fValue, ti.GetTableRecord().RecordID))
 		if err != nil {
-			return nil, err
+			return err
 		}
-
 	}
 
-	return ti, nil
+	return nil
 }
 
 // SetIsNew - Si occupa di impostare il valore del campo TableRecord::isNews
