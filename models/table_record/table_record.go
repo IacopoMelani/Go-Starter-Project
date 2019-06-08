@@ -11,6 +11,7 @@ type TableRecordInterface interface {
 	GetPrimaryKeyName() string
 	GetTableName() string
 	GetFieldMapper() ([]string, []interface{})
+	New()
 }
 
 // TableRecord - Struct per l'implementazione di TableRecordInterface
