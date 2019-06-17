@@ -1,4 +1,4 @@
-package models
+package table
 
 import (
 	record "Go-Starter-Project/models/table_record"
@@ -9,7 +9,7 @@ import (
 
 func TestTableMirror(t *testing.T) {
 
-	gotenv.Load("./../.env")
+	gotenv.Load("./../../../.env")
 
 	u := &User{}
 	u.New()

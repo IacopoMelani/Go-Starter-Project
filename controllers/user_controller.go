@@ -1,7 +1,7 @@
 package controllers
 
 import (
-	"Go-Starter-Project/models"
+	"Go-Starter-Project/models/table_record/table"
 
 	"github.com/labstack/echo"
 )
@@ -9,7 +9,7 @@ import (
 // GetAllUser - Restituisce tutti gli utenti
 func GetAllUser(c echo.Context) error {
 
-	userList, err := models.LoadAllUser()
+	userList, err := table.LoadAllUsers()
 	if err != nil {
 		return c.JSON(500, Response{
 			Status:  1,
