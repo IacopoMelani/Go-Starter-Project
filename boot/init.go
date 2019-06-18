@@ -2,6 +2,7 @@ package boot
 
 import (
 	"Go-Starter-Project/config"
+	durationdata "Go-Starter-Project/models/duration_data"
 	"Go-Starter-Project/routes"
 	"sync"
 
@@ -23,11 +24,16 @@ func InitServer() {
 
 	var wg sync.WaitGroup
 
-	wg.Add(2)
+	wg.Add(3)
 
 	go func() {
 		defer wg.Done()
 		config.GetInstance()
+	}()
+
+	go func() {
+		defer wg.Done()
+		durationdata.InitDurationData()
 	}()
 
 	go func() {
