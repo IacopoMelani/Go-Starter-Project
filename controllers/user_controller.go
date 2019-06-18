@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	durationdata "Go-Starter-Project/models/duration_data"
 	"Go-Starter-Project/models/table_record/table"
 
 	"github.com/labstack/echo"
@@ -23,5 +24,18 @@ func GetAllUser(c echo.Context) error {
 		Success: true,
 		Message: "ok!",
 		Content: userList,
+	})
+}
+
+// GetDurataionUsers - Restituisce gli utenti recuperati con DurationData
+func GetDurataionUsers(c echo.Context) error {
+
+	data := durationdata.GetUsersData()
+
+	return c.JSON(200, Response{
+		Status:  0,
+		Success: true,
+		Message: "ok!",
+		Content: data.Content,
 	})
 }
