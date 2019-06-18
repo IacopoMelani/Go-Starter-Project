@@ -6,25 +6,25 @@ import (
 	"time"
 )
 
-// DDInterface -
+// DDInterface - Interfaccia per obbligare a implementare il metedo handler dei dati
 type DDInterface interface {
 	HandlerData() (interface{}, error)
 }
 
 // DurationData - Struct per immagazzinare i dati raccolti con il suo relativo tempo di scadenza dopo il quale è obbligato a ricevere nuovi dati
-//in alternativa è possibile definere una fuzione handler da assegnare all'istanza di DurationData, un intervallo di tempo in minuti nel quale l'handler viene richiamato per poi avviare il demone relativo alla stessa istanza
+//in alternativa è possibile definere una fuzione handler da assegnare all'istanza di DurationData, un intervallo di tempo in secondi nel quale l'handler viene richiamato per poi avviare il demone relativo alla stessa istanza
 type DurationData struct {
 	mu          sync.Mutex
 	ddi         DDInterface
 	stopSignal  chan bool
-	sleepMinute int
+	sleepSecond int
 	Content     interface{}
 	ExpiredAt   time.Time
 }
 
 // InitDurationData - Si occupa di avviare tutte le istanze di DurationData
 func InitDurationData() {
-	GetUsersData(60)
+	GetUsersData()
 }
 
 // getDaemonData - Si occupa di prevelare i dati dall'handler e se non ci sono stati errori lo sostituisce con quello nuovo
@@ -43,7 +43,7 @@ func (d *DurationData) Daemon() {
 	d.stopSignal = make(chan bool)
 
 	go func() {
-		ticker := time.NewTicker(time.Second * time.Duration(d.sleepMinute))
+		ticker := time.NewTicker(time.Second * time.Duration(d.sleepSecond))
 
 		d.getDaemonData()
 

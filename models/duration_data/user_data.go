@@ -1,6 +1,7 @@
 package durationdata
 
 import (
+	"Go-Starter-Project/config"
 	"Go-Starter-Project/helpers/request"
 	"io"
 	"net/http"
@@ -14,11 +15,11 @@ var userData *DurationData
 var onceUser sync.Once
 
 // GetUsersData - Restituisce l'istanza di DurantionData relativo agli utenti
-func GetUsersData(timeSleep int) *DurationData {
+func GetUsersData() *DurationData {
 	onceUser.Do(func() {
 		userData = new(DurationData)
 		userData.ddi = UserRemoteData{}
-		userData.sleepMinute = timeSleep
+		userData.sleepSecond = config.GetInstance().UserTimeToRefresh
 		userData.Daemon()
 	})
 	return userData
