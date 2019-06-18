@@ -3,11 +3,15 @@ package durationdata
 import (
 	"testing"
 	"time"
+
+	"github.com/subosito/gotenv"
 )
 
 func TestGetUserData(t *testing.T) {
 
-	d := GetUsersData(1)
+	gotenv.Load("./../../.env.test")
+
+	d := GetUsersData()
 
 	time.Sleep(2 * time.Second)
 

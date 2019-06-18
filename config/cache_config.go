@@ -5,18 +5,21 @@ import (
 	"fmt"
 	"os"
 	"reflect"
+	"strconv"
 	"sync"
 )
 
 // CacheConfig - struttura dove immagazzinare le configurazioni
 type CacheConfig struct {
-	StringConnection string
-	AppPort          string
+	StringConnection  string
+	AppPort           string
+	UserTimeToRefresh int
 }
 
 var arrayEnvMapper = map[string]string{
-	"STRING_CONNECTION": "StringConnection",
-	"APP_PORT":          "AppPort",
+	"STRING_CONNECTION":    "StringConnection",
+	"APP_PORT":             "AppPort",
+	"USER_TIME_TO_REFRESH": "UserTimeToRefresh",
 }
 
 var cacheConfig *CacheConfig
@@ -63,12 +66,18 @@ func (c *CacheConfig) setField(name string, value string) error {
 	}
 
 	// Controllo tipo stringa
-	if fv.Kind() != reflect.String {
-		return fmt.Errorf("%s is not a string field", name)
+	if fv.Kind() == reflect.String {
+		fv.SetString(value)
+		return nil
+	}
+	if fv.Kind() == reflect.Int {
+		content, err := strconv.ParseInt(value, 10, 64)
+		if err != nil {
+			return errors.New("Invalid value for int")
+		}
+		fv.SetInt(content)
+		return nil
 	}
 
-	// assegno valore al campo
-	fv.SetString(value)
-
-	return nil
+	return errors.New("Invalid type for " + name)
 }
