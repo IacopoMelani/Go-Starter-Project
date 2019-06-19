@@ -75,7 +75,7 @@ func (d *DurationData) GetContent() (interface{}, error) {
 }
 
 // SetContent - Imposta dei nuovi dati e aggiorando il tempo di scadenza solo se i precedenti non sono più validi, altrimenti non fa niente
-func (d *DurationData) SetContent(content interface{}, minutsInterval int) {
+func (d *DurationData) SetContent(content interface{}, secondsInterval int) {
 
 	if diff := d.ExpiredAt.Sub(time.Now()); diff.Seconds() > 0 {
 		return
@@ -83,7 +83,7 @@ func (d *DurationData) SetContent(content interface{}, minutsInterval int) {
 
 	d.mu.Lock()
 	d.Content = content
-	d.ExpiredAt = time.Now().Add(time.Minute * time.Duration(minutsInterval))
+	d.ExpiredAt = time.Now().Add(time.Second * time.Duration(secondsInterval))
 	d.mu.Unlock()
 }
 
