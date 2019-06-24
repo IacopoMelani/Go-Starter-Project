@@ -1,7 +1,8 @@
-package manager
+package rmanager
 
 import (
 	"Go-Starter-Project/helpers/request"
+	"errors"
 	"sync"
 )
 
@@ -59,6 +60,15 @@ func GetRequestManager() *RequestManager {
 	return requestManager
 }
 
+// adviseStopService - Si occupa di avvisare tutte richieste in coda che il servizio si è fermato
+func (rm *RequestManager) adviseStopService() {
+
+	for _, rc := range rm.requestQueue {
+		rc.err <- errors.New("Queue service stop")
+	}
+
+}
+
 // popFromQueue - Si occupa di rimuovere il primo elemento dalla coda
 func (rm *RequestManager) popFromQueue() {
 
@@ -74,14 +84,14 @@ func (rm *RequestManager) popFromQueue() {
 func (rm *RequestManager) work() {
 
 	rm.next = make(chan bool, 1)
-	rm.stopSignal = make(chan bool)
+	rm.stopSignal = make(chan bool, 1)
 
 	go func() {
 
 		for {
 			select {
 			case <-rm.next:
-				request.GetRemoteData(rm.requestQueue[0].rd)
+				rm.requestQueue[0].getData()
 				rm.popFromQueue()
 			case t := <-rm.stopSignal:
 				close(rm.next)
@@ -96,7 +106,7 @@ func (rm *RequestManager) work() {
 }
 
 // AddRequest - Si occupa di aggiungere una richiesta alla coda
-func (rm *RequestManager) AddRequest(r request.RemoteData) <-chan interface{} {
+func (rm *RequestManager) AddRequest(r request.RemoteData) (<-chan interface{}, <-chan error) {
 
 	rc := newrequestContainer(r)
 
@@ -110,7 +120,7 @@ func (rm *RequestManager) AddRequest(r request.RemoteData) <-chan interface{} {
 
 	}()
 
-	return rc.result
+	return rc.result, rc.err
 }
 
 // StartService - Si occupa di avviare il servizio di code
@@ -119,8 +129,8 @@ func (rm *RequestManager) StartService() {
 	rm.mu.Lock()
 	if !rm.running {
 		rm.running = true
-		rm.next <- true
 		rm.work()
+		rm.next <- true
 	}
 	rm.mu.Unlock()
 }
@@ -131,6 +141,7 @@ func (rm *RequestManager) StopService(t bool) {
 	rm.mu.Lock()
 	if rm.running {
 		rm.running = false
+		rm.adviseStopService()
 		rm.stopSignal <- t
 	}
 	rm.mu.Unlock()
