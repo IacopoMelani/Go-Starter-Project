@@ -2,7 +2,6 @@ package rmanager
 
 import (
 	"Go-Starter-Project/helpers/request"
-	"errors"
 	"sync"
 )
 
@@ -13,7 +12,7 @@ type requestContainer struct {
 	err    chan error
 }
 
-// getData -Si occupa di contattare la risorsa remota tramite RemoteData e in caso di successo, scrivere il risultato
+// getData - Si occupa di contattare la risorsa remota tramite RemoteData e in caso di successo, scrivere il risultato
 func (r requestContainer) getData() {
 
 	content, err := request.GetRemoteData(r.rd)
@@ -33,7 +32,6 @@ type RequestManager struct {
 	requestQueue []requestContainer
 	running      bool
 	next         chan bool
-	stopSignal   chan bool
 	mu           sync.Mutex
 }
 
@@ -60,23 +58,12 @@ func GetRequestManager() *RequestManager {
 	return requestManager
 }
 
-// adviseStopService - Si occupa di avvisare tutte richieste in coda che il servizio si è fermato
-func (rm *RequestManager) adviseStopService() {
-
-	for _, rc := range rm.requestQueue {
-		rc.err <- errors.New("Queue service stop")
-	}
-
-}
-
 // popFromQueue - Si occupa di rimuovere il primo elemento dalla coda
 func (rm *RequestManager) popFromQueue() {
 
 	rm.requestQueue = rm.requestQueue[1:]
 	if len(rm.requestQueue) > 0 {
 		rm.next <- true
-	} else {
-		rm.stopSignal <- true
 	}
 }
 
@@ -84,7 +71,6 @@ func (rm *RequestManager) popFromQueue() {
 func (rm *RequestManager) work() {
 
 	rm.next = make(chan bool, 1)
-	rm.stopSignal = make(chan bool, 1)
 
 	go func() {
 
@@ -93,13 +79,6 @@ func (rm *RequestManager) work() {
 			case <-rm.next:
 				rm.requestQueue[0].getData()
 				rm.popFromQueue()
-			case t := <-rm.stopSignal:
-				close(rm.next)
-				close(rm.stopSignal)
-				if t {
-					rm.requestQueue = []requestContainer{}
-				}
-				return
 			}
 		}
 	}()
@@ -117,7 +96,6 @@ func (rm *RequestManager) AddRequest(r request.RemoteData) (<-chan interface{}, 
 		if !rm.running {
 			rm.StartService()
 		}
-
 	}()
 
 	return rc.result, rc.err
@@ -131,18 +109,6 @@ func (rm *RequestManager) StartService() {
 		rm.running = true
 		rm.work()
 		rm.next <- true
-	}
-	rm.mu.Unlock()
-}
-
-// StopService - Si occupa di stoppare il servio di code, se t è true viene anche svuotata tutta la coda di richieste
-func (rm *RequestManager) StopService(t bool) {
-
-	rm.mu.Lock()
-	if rm.running {
-		rm.running = false
-		rm.adviseStopService()
-		rm.stopSignal <- t
 	}
 	rm.mu.Unlock()
 }

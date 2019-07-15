@@ -12,24 +12,21 @@ func TestRequestManager(t *testing.T) {
 
 	u := durationdata.UserRemoteData{}
 
-	go func() {
+	for i := 0; i < 10; i++ {
 
-		time.Sleep(600 * time.Millisecond)
+		go func() {
 
-		res, err := rm.AddRequest(u)
+			res, err := rm.AddRequest(u)
 
-		select {
-		case <-res:
-			t.Log("response")
-		case err := <-err:
-			t.Log(err.Error())
-		}
+			select {
+			case <-res:
+				t.Log("response")
+			case err := <-err:
+				t.Log(err.Error())
+			}
 
-	}()
-
-	go func() {
-		rm.StopService(true)
-	}()
+		}()
+	}
 
 	time.Sleep(5 * time.Second)
 }
