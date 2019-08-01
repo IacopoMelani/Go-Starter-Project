@@ -17,11 +17,11 @@ type User struct {
 // LoadAllUsers - Si occupa di restituire tutti gli utenti presenti nel database
 func LoadAllUsers() ([]*User, error) {
 
-	u := User{}
+	u := &User{}
 
 	db := db.GetConnection()
 
-	query := "SELECT * FROM " + u.GetTableName()
+	query := "SELECT " + record.AllField(u) + " FROM " + u.GetTableName()
 
 	rows, err := db.Query(query)
 	if err != nil {

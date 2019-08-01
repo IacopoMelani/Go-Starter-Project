@@ -38,30 +38,6 @@ func executeSaveUpdateQuery(query string, params []interface{}) (int64, error) {
 	return lastID, nil
 }
 
-// GetFieldMapper - Si occupa di recuperare in reflection i nomi dei tag "db" e l'indirizzo del valore del campo
-func GetFieldMapper(ti TableRecordInterface) ([]string, []interface{}) {
-
-	vPtr := reflect.ValueOf(ti)
-
-	t := reflect.TypeOf(ti)
-	v := reflect.Indirect(vPtr)
-
-	var fieldName []string
-	var fieldValue []interface{}
-
-	for i := 0; i < v.NumField(); i++ {
-
-		if !v.Field(i).CanSet() {
-			continue
-		}
-
-		fieldValue = append(fieldValue, v.Field(i).Addr().Interface())
-		fieldName = append(fieldName, t.Elem().Field(i).Tag.Get("db"))
-	}
-
-	return fieldName, fieldValue
-}
-
 // getSaveFieldParams -  Si occupa di generare uno slice di "?" tanti quanti sono i parametri della query di inserimento
 func getSaveFieldParams(ti TableRecordInterface) []string {
 
@@ -113,12 +89,46 @@ func genUpdateQuery(ti TableRecordInterface) string {
 	return query
 }
 
+// AllField - Restitusice tutti i campi per la select *
+func AllField(ti TableRecordInterface) string {
+
+	fieldName, _ := GetFieldMapper(ti)
+
+	fieldName = append([]string{ti.GetPrimaryKeyName()}, fieldName...)
+
+	return strings.Join(fieldName, ",")
+}
+
+// GetFieldMapper - Si occupa di recuperare in reflection i nomi dei tag "db" e l'indirizzo del valore del campo
+func GetFieldMapper(ti TableRecordInterface) ([]string, []interface{}) {
+
+	vPtr := reflect.ValueOf(ti)
+
+	t := reflect.TypeOf(ti)
+	v := reflect.Indirect(vPtr)
+
+	var fieldName []string
+	var fieldValue []interface{}
+
+	for i := 0; i < v.NumField(); i++ {
+
+		if !v.Field(i).CanSet() {
+			continue
+		}
+
+		fieldValue = append(fieldValue, v.Field(i).Addr().Interface())
+		fieldName = append(fieldName, t.Elem().Field(i).Tag.Get("db"))
+	}
+
+	return fieldName, fieldValue
+}
+
 // LoadByID - Carica l'istanza passata con i valori della sua tabella ricercando per chiave primaria
 func LoadByID(ti TableRecordInterface, id int64) error {
 
 	db := db.GetConnection()
 
-	query := "SELECT * FROM " + ti.GetTableName() + " WHERE " + ti.GetPrimaryKeyName() + " = ?"
+	query := "SELECT "+ AllField(ti) +" FROM " + ti.GetTableName() + " WHERE " + ti.GetPrimaryKeyName() + " = ?"
 
 	params := []interface{}{interface{}(id)}
 
