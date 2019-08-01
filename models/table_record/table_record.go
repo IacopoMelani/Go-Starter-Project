@@ -2,6 +2,7 @@ package record
 
 import (
 	"Go-Starter-Project/db"
+	"reflect"
 	"strings"
 )
 
@@ -10,7 +11,6 @@ type TableRecordInterface interface {
 	GetTableRecord() *TableRecord
 	GetPrimaryKeyName() string
 	GetTableName() string
-	GetFieldMapper() ([]string, []interface{})
 	New()
 }
 
@@ -38,10 +38,34 @@ func executeSaveUpdateQuery(query string, params []interface{}) (int64, error) {
 	return lastID, nil
 }
 
+// GetFieldMapper - Si occupa di recuperare in reflection i nomi dei tag "db" e l'indirizzo del valore del campo
+func GetFieldMapper(ti TableRecordInterface) ([]string, []interface{}) {
+
+	vPtr := reflect.ValueOf(ti)
+
+	t := reflect.TypeOf(ti)
+	v := reflect.Indirect(vPtr)
+
+	var fieldName []string
+	var fieldValue []interface{}
+
+	for i := 0; i < v.NumField(); i++ {
+
+		if !v.Field(i).CanSet() {
+			continue
+		}
+
+		fieldValue = append(fieldValue, v.Field(i).Addr().Interface())
+		fieldName = append(fieldName, t.Elem().Field(i).Tag.Get("db"))
+	}
+
+	return fieldName, fieldValue
+}
+
 // getSaveFieldParams -  Si occupa di generare uno slice di "?" tanti quanti sono i parametri della query di inserimento
 func getSaveFieldParams(ti TableRecordInterface) []string {
 
-	fName, _ := ti.GetFieldMapper()
+	fName, _ := GetFieldMapper(ti)
 
 	s := make([]string, len(fName))
 
@@ -58,7 +82,7 @@ func getSaveFieldParams(ti TableRecordInterface) []string {
 // genSaveQuery - Si occupa di generare la query di salvataggio
 func genSaveQuery(ti TableRecordInterface) string {
 
-	fName, _ := ti.GetFieldMapper()
+	fName, _ := GetFieldMapper(ti)
 
 	query := "INSERT INTO " + ti.GetTableName() + " (" + strings.Join(fName, ", ") + ") VALUES ( " + strings.Join(getSaveFieldParams(ti), ", ") + " )"
 
@@ -68,7 +92,7 @@ func genSaveQuery(ti TableRecordInterface) string {
 // getUpdateFiledParams - Si occupa di generare uno slice di "?" tanti quanti sono i parametri della query di aggiornamento
 func getUpdateFieldParams(ti TableRecordInterface) []string {
 
-	fName, _ := ti.GetFieldMapper()
+	fName, _ := GetFieldMapper(ti)
 
 	updateStmt := make([]string, len(fName))
 
@@ -112,7 +136,7 @@ func LoadByID(ti TableRecordInterface, id int64) error {
 
 	if rows.Next() {
 
-		_, vField := ti.GetFieldMapper()
+		_, vField := GetFieldMapper(ti)
 
 		params := append([]interface{}{&ti.GetTableRecord().RecordID}, vField...)
 
@@ -135,7 +159,7 @@ func Save(ti TableRecordInterface) error {
 	if t.isNew {
 
 		query := genSaveQuery(ti)
-		_, fValue := ti.GetFieldMapper()
+		_, fValue := GetFieldMapper(ti)
 		id, err := executeSaveUpdateQuery(query, fValue)
 		if err != nil {
 			return err
@@ -146,7 +170,7 @@ func Save(ti TableRecordInterface) error {
 	} else {
 
 		query := genUpdateQuery(ti)
-		_, fValue := ti.GetFieldMapper()
+		_, fValue := GetFieldMapper(ti)
 		_, err := executeSaveUpdateQuery(query, append(fValue, ti.GetTableRecord().RecordID))
 		if err != nil {
 			return err

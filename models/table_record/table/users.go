@@ -9,9 +9,9 @@ import (
 // implementa TableRecordInterface
 type User struct {
 	tr       *record.TableRecord
-	Name     string `json:"name"`
-	Lastname string `json:"lastname"`
-	Gender   string `json:"gender"`
+	Name     string `json:"name" db:"name"`
+	Lastname string `json:"lastname" db:"lastname"`
+	Gender   string `json:"gender" db:"gender"`
 }
 
 // LoadAllUsers - Si occupa di restituire tutti gli utenti presenti nel database
@@ -35,7 +35,7 @@ func LoadAllUsers() ([]*User, error) {
 
 		u := NewUser()
 
-		_, vField := u.GetFieldMapper()
+		_, vField := record.GetFieldMapper(u)
 
 		dest := append([]interface{}{&u.tr.RecordID}, vField...)
 
@@ -74,16 +74,6 @@ func (u User) GetPrimaryKeyName() string {
 // GetTableName - Restituisce il nome della tabella
 func (u User) GetTableName() string {
 	return "users"
-}
-
-// GetFieldMapper - Restituisce i campi di mappatura e di destinazione/prelievo dei dati
-func (u *User) GetFieldMapper() ([]string, []interface{}) {
-
-	fName := []string{"name", "lastname", "gender"}
-
-	fvalue := []interface{}{&u.Name, &u.Lastname, &u.Gender}
-
-	return fName, fvalue
 }
 
 // New - Si occupa di istanziare una nuova struct andando ad istaziare table record e settanto il campo isNew a true
