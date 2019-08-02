@@ -112,7 +112,7 @@ func GetFieldMapper(ti TableRecordInterface) ([]string, []interface{}) {
 
 	for i := 0; i < v.NumField(); i++ {
 
-		if !v.Field(i).CanSet() {
+		if !v.Field(i).CanInterface() || !v.Field(i).CanSet() {
 			continue
 		}
 
@@ -128,7 +128,7 @@ func LoadByID(ti TableRecordInterface, id int64) error {
 
 	db := db.GetConnection()
 
-	query := "SELECT "+ AllField(ti) +" FROM " + ti.GetTableName() + " WHERE " + ti.GetPrimaryKeyName() + " = ?"
+	query := "SELECT " + AllField(ti) + " FROM " + ti.GetTableName() + " WHERE " + ti.GetPrimaryKeyName() + " = ?"
 
 	params := []interface{}{interface{}(id)}
 
