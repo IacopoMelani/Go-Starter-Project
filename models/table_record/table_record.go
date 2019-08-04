@@ -2,6 +2,8 @@ package record
 
 import (
 	"Go-Starter-Project/db"
+	builder "Go-Starter-Project/db/query_builder"
+	"database/sql"
 	"reflect"
 	"strings"
 )
@@ -11,13 +13,14 @@ type TableRecordInterface interface {
 	GetTableRecord() *TableRecord
 	GetPrimaryKeyName() string
 	GetTableName() string
-	New()
+	New() TableRecordInterface
 }
 
 // TableRecord - Struct per l'implementazione di TableRecordInterface
 type TableRecord struct {
 	RecordID int64
 	isNew    bool
+	builder.Builder
 }
 
 // executeSaveUpdateQuery - Si occupa di eseguire fisicamente la query, in caso di successo restituisce l'Id appena inserito
@@ -190,8 +193,41 @@ func Save(ti TableRecordInterface) error {
 	return nil
 }
 
+// ExecQuery -
+func (t *TableRecord) ExecQuery(ti TableRecordInterface) ([]TableRecordInterface, error) {
+
+	stmt, err := t.Query(ti.GetTableName())
+	if err != nil {
+		return nil, err
+	}
+	defer stmt.Close()
+
+	rows, err := stmt.Query(t.Params...)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	return nil, nil
+}
+
 // SetIsNew - Si occupa di impostare il valore del campo TableRecord::isNews
 func (t *TableRecord) SetIsNew(new bool) *TableRecord {
 	t.isNew = new
 	return t
+}
+
+// Query -
+func (t *TableRecord) Query(tableName string) (*sql.Stmt, error) {
+
+	db := db.GetConnection()
+
+	query := t.BuildQuery(tableName)
+
+	stmt, err := db.Prepare(query)
+	if err != nil {
+		return nil, err
+	}
+
+	return stmt, nil
 }
