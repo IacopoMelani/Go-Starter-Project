@@ -45,6 +45,7 @@ func (t TestStruct) New() TableRecordInterface {
 }
 
 func TestTableRecord(t *testing.T) {
+
 	gotenv.Load("./../../.env")
 
 	ts := NewTestStruct()
@@ -87,7 +88,7 @@ func TestTableRecord(t *testing.T) {
 
 	ts = NewTestStruct()
 
-	ts.tr.WhereEqual("name", "Marco").OrderByDesc("record_id")
+	ts.tr.WhereEqual("name", "Marco").OrderByDesc("record_id").WhereOperator("record_id", "<", 23)
 
 	tsList, err := ExecQuery(ts)
 	if err != nil {
