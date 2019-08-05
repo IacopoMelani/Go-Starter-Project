@@ -14,6 +14,16 @@ type TestStruct struct {
 	Gender   string `json:"gender" db:"gender"`
 }
 
+// NewTestStruct - Restitusice una nuova istaza di TestStruct
+func NewTestStruct() *TestStruct {
+
+	ts := new(TestStruct)
+	ts.tr = new(TableRecord)
+	ts.tr.SetIsNew(true)
+
+	return ts
+}
+
 // GetTableRecord - Restituisce l'istanza di TableRecord
 func (t TestStruct) GetTableRecord() *TableRecord {
 	return t.tr
@@ -30,17 +40,14 @@ func (t TestStruct) GetTableName() string {
 }
 
 // New - Si occupa di istanziare una nuova struct andando ad istaziare table record e settanto il campo isNew a true
-func (t *TestStruct) New() {
-
-	t.tr = new(TableRecord)
-	t.tr.SetIsNew(true)
+func (t TestStruct) New() TableRecordInterface {
+	return NewTestStruct()
 }
 
 func TestTableRecord(t *testing.T) {
 	gotenv.Load("./../../.env")
 
-	ts := &TestStruct{}
-	ts.New()
+	ts := NewTestStruct()
 
 	ts.Name = "Mario"
 	ts.Lastname = "Rossi"
@@ -48,11 +55,11 @@ func TestTableRecord(t *testing.T) {
 
 	err := Save(ts)
 	if err != nil {
-		t.Error(err.Error())
+		t.Fatal(err.Error())
 	}
 
 	if ts.tr.RecordID == 0 {
-		t.Error("Chiave non salvata")
+		t.Fatal("Chiave non salvata")
 	}
 
 	tempName := ts.Name
@@ -60,21 +67,35 @@ func TestTableRecord(t *testing.T) {
 
 	err = LoadByID(ts, ts.GetTableRecord().RecordID)
 	if err != nil {
-		t.Error(err.Error())
+		t.Fatal(err.Error())
 	}
 
 	if tempName != ts.Name {
-		t.Error("Campi non uguali")
+		t.Fatal("Campi non uguali")
 	}
 
 	ts.Name = "Marco"
 
 	err = Save(ts)
 	if err != nil {
-		t.Error(err.Error())
+		t.Fatal(err.Error())
 	}
 
 	if tempID != ts.tr.RecordID {
-		t.Error("Chiave primaria è cambiata durante l'update")
+		t.Fatal("Chiave primaria è cambiata durante l'update")
 	}
+
+	ts = NewTestStruct()
+
+	ts.tr.WhereEqual("name", "Marco").OrderByDesc("record_id")
+
+	tsList, err := ExecQuery(ts)
+	if err != nil {
+		t.Fatal(err.Error())
+	}
+
+	if len(tsList) == 0 {
+		t.Error("La query sembra non aver restituito zero valori")
+	}
+
 }

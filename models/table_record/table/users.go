@@ -77,8 +77,6 @@ func (u User) GetTableName() string {
 }
 
 // New - Si occupa di istanziare una nuova struct andando ad istaziare table record e settanto il campo isNew a true
-func (u *User) New() {
-
-	u.tr = new(record.TableRecord)
-	u.tr.SetIsNew(true)
+func (u User) New() record.TableRecordInterface {
+	return NewUser()
 }
