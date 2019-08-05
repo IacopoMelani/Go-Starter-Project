@@ -17,6 +17,7 @@ type TableRecordInterface interface {
 }
 
 // TableRecord - Struct per l'implementazione di TableRecordInterface
+// implementa QueryBuilderInterface
 type TableRecord struct {
 	RecordID int64
 	isNew    bool
@@ -100,6 +101,48 @@ func AllField(ti TableRecordInterface) string {
 	fieldName = append([]string{ti.GetPrimaryKeyName()}, fieldName...)
 
 	return strings.Join(fieldName, ",")
+}
+
+// ExecQuery - Esegue la query costruita con QueryBuilder
+func ExecQuery(ti TableRecordInterface) ([]TableRecordInterface, error) {
+
+	t := ti.GetTableRecord()
+
+	stmt, err := t.Query(ti.GetTableName())
+	if err != nil {
+		return nil, err
+	}
+	defer stmt.Close()
+
+	rows, err := stmt.Query(t.Params...)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var tiList []TableRecordInterface
+
+	for rows.Next() {
+
+		nti := ti.New()
+
+		_, vField := GetFieldMapper(nti)
+
+		params := append([]interface{}{&nti.GetTableRecord().RecordID}, vField...)
+
+		err := rows.Scan(params...)
+		if err != nil {
+			return nil, err
+		}
+
+		nti.GetTableRecord().SetIsNew(false)
+
+		tiList = append(tiList, nti)
+	}
+
+	ti.GetTableRecord().ResetStmt()
+
+	return tiList, nil
 }
 
 // GetFieldMapper - Si occupa di recuperare in reflection i nomi dei tag "db" e l'indirizzo del valore del campo
@@ -193,31 +236,13 @@ func Save(ti TableRecordInterface) error {
 	return nil
 }
 
-// ExecQuery -
-func (t *TableRecord) ExecQuery(ti TableRecordInterface) ([]TableRecordInterface, error) {
-
-	stmt, err := t.Query(ti.GetTableName())
-	if err != nil {
-		return nil, err
-	}
-	defer stmt.Close()
-
-	rows, err := stmt.Query(t.Params...)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-
-	return nil, nil
-}
-
 // SetIsNew - Si occupa di impostare il valore del campo TableRecord::isNews
 func (t *TableRecord) SetIsNew(new bool) *TableRecord {
 	t.isNew = new
 	return t
 }
 
-// Query -
+// Query - Restituisce lo stmt della query pronta da essere eseguita
 func (t *TableRecord) Query(tableName string) (*sql.Stmt, error) {
 
 	db := db.GetConnection()

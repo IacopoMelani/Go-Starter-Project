@@ -11,8 +11,7 @@ func TestTableMirror(t *testing.T) {
 
 	gotenv.Load("./../../../.env")
 
-	u := &User{}
-	u.New()
+	u := NewUser()
 
 	u.Name = "Mario"
 	u.Lastname = "Rossi"
