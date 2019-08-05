@@ -7,7 +7,7 @@ import (
 
 // QueryBuilderInterface -
 type QueryBuilderInterface interface {
-	Query(tableName string) (*sql.Stmt, error)
+	PrepareStmt(tableName string) (*sql.Stmt, error)
 }
 
 // Builder -
@@ -21,6 +21,22 @@ type Builder struct {
 	Params       []interface{}
 	Select       string
 	Where        string
+}
+
+// GroupByField - Costruisce una condizione di group by
+func (b *Builder) GroupByField(fields ...string) *Builder {
+
+	if !b.isGroupBySet {
+
+		b.GroupBy = " GROUP BY " + strings.Join(fields, ", ")
+		b.isGroupBySet = true
+
+	} else {
+
+		b.GroupBy = b.GroupBy + ", " + strings.Join(fields, ", ")
+	}
+
+	return b
 }
 
 // orderBy - Costruisce un espressione di order by specificando oltre al nome del campo anche la direzione

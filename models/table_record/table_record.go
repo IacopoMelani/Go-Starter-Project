@@ -108,7 +108,7 @@ func ExecQuery(ti TableRecordInterface) ([]TableRecordInterface, error) {
 
 	t := ti.GetTableRecord()
 
-	stmt, err := t.Query(ti.GetTableName())
+	stmt, err := t.PrepareStmt(ti.GetTableName())
 	if err != nil {
 		return nil, err
 	}
@@ -242,8 +242,8 @@ func (t *TableRecord) SetIsNew(new bool) *TableRecord {
 	return t
 }
 
-// Query - Restituisce lo stmt della query pronta da essere eseguita
-func (t *TableRecord) Query(tableName string) (*sql.Stmt, error) {
+// PrepareStmt - Restituisce lo stmt della query pronta da essere eseguita
+func (t *TableRecord) PrepareStmt(tableName string) (*sql.Stmt, error) {
 
 	db := db.GetConnection()
 
