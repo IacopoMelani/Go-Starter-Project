@@ -23,22 +23,6 @@ type Builder struct {
 	Where        string
 }
 
-// GroupByField - Costruisce una condizione di group by
-func (b *Builder) GroupByField(fields ...string) *Builder {
-
-	if !b.isGroupBySet {
-
-		b.GroupBy = " GROUP BY " + strings.Join(fields, ", ")
-		b.isGroupBySet = true
-
-	} else {
-
-		b.GroupBy = b.GroupBy + ", " + strings.Join(fields, ", ")
-	}
-
-	return b
-}
-
 // orderBy - Costruisce un espressione di order by specificando oltre al nome del campo anche la direzione
 func (b *Builder) orderBy(direction string, fields ...string) *Builder {
 
@@ -80,6 +64,22 @@ func (b *Builder) BuildQuery(tableName string) string {
 	}
 
 	return querySQL
+}
+
+// GroupByField - Costruisce una condizione di group by
+func (b *Builder) GroupByField(fields ...string) *Builder {
+
+	if !b.isGroupBySet {
+
+		b.GroupBy = " GROUP BY " + strings.Join(fields, ", ")
+		b.isGroupBySet = true
+
+	} else {
+
+		b.GroupBy = b.GroupBy + ", " + strings.Join(fields, ", ")
+	}
+
+	return b
 }
 
 // OrderByAsc - Si occupa di impostare un'espressione di order by Asc
