@@ -140,10 +140,21 @@ func (b *Builder) WhereEqual(field string, value interface{}) *Builder {
 	return b
 }
 
-// WhereNull - Construisce una condizione di where sulla presenza del valore
+// WhereNull - Construisce una condizione di where sulla presenza del valore, se isNull è TRUE effettua il controllo "IS NULL" altrimenti "IS NOT NULL"
 func (b *Builder) WhereNull(field string, isNull bool) *Builder {
 
 	if b.isWhereSet {
+
+		if isNull {
+
+			b.Where = b.Where + " AND " + field + " IS NULL "
+
+		} else {
+
+			b.Where = b.Where + " AND " + field + " IS NOT NULL "
+		}
+
+	} else {
 
 		if isNull {
 
@@ -152,17 +163,6 @@ func (b *Builder) WhereNull(field string, isNull bool) *Builder {
 		} else {
 
 			b.Where = " WHERE " + field + " IS NOT NULL "
-		}
-
-	} else {
-
-		if isNull {
-
-			b.Where = " AND " + field + " IS NULL "
-
-		} else {
-
-			b.Where = " AND " + field + " IS NOT NULL "
 		}
 
 		b.isWhereSet = true
@@ -176,11 +176,11 @@ func (b *Builder) WhereOperator(field string, operator string, value interface{}
 
 	if b.isWhereSet {
 
-		b.Where = b.Where + " AND " + field + operator + " ? "
+		b.Where = b.Where + " AND " + field + " " + operator + " " + " ? "
 
 	} else {
 
-		b.Where = " WHERE " + field + operator + " ? "
+		b.Where = " WHERE " + field + " " + operator + " " + " ? "
 		b.isWhereSet = true
 	}
 
