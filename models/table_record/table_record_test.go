@@ -9,9 +9,9 @@ import (
 // TestStruct - struct di test che implementa TableRecordInterface
 type TestStruct struct {
 	tr       *TableRecord
-	Name     string `json:"name" db:"name"`
-	Lastname string `json:"lastname" db:"lastname"`
-	Gender   string `json:"gender" db:"gender"`
+	Name     *string `json:"name" db:"name"`
+	Lastname *string `json:"lastname" db:"lastname"`
+	Gender   *string `json:"gender" db:"gender"`
 }
 
 // NewTestStruct - Restitusice una nuova istaza di TestStruct
@@ -44,15 +44,28 @@ func (t TestStruct) New() TableRecordInterface {
 	return NewTestStruct()
 }
 
+func (t *TestStruct) setGender(value string) *TestStruct {
+	t.Gender = &value
+	return t
+}
+func (t *TestStruct) setLastname(value string) *TestStruct {
+	t.Lastname = &value
+	return t
+}
+func (t *TestStruct) setName(value string) *TestStruct {
+	t.Name = &value
+	return t
+}
+
 func TestTableRecord(t *testing.T) {
 
 	gotenv.Load("./../../.env")
 
 	ts := NewTestStruct()
 
-	ts.Name = "Mario"
-	ts.Lastname = "Rossi"
-	ts.Gender = "M"
+	ts.setName("Mario")
+	ts.setLastname("Rossi")
+	ts.setGender("M")
 
 	err := Save(ts)
 	if err != nil {
@@ -63,7 +76,7 @@ func TestTableRecord(t *testing.T) {
 		t.Fatal("Chiave non salvata")
 	}
 
-	tempName := ts.Name
+	tempName := *ts.Name
 	tempID := ts.tr.RecordID
 
 	err = LoadByID(ts, ts.GetTableRecord().RecordID)
@@ -71,11 +84,11 @@ func TestTableRecord(t *testing.T) {
 		t.Fatal(err.Error())
 	}
 
-	if tempName != ts.Name {
+	if tempName != *ts.Name {
 		t.Fatal("Campi non uguali")
 	}
 
-	ts.Name = "Marco"
+	ts.setName("Marco")
 
 	err = Save(ts)
 	if err != nil {

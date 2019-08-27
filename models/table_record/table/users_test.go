@@ -13,9 +13,7 @@ func TestTableMirror(t *testing.T) {
 
 	u := NewUser()
 
-	u.Name = "Mario"
-	u.Lastname = "Rossi"
-	u.Gender = "M"
+	u.SetName("Mario").SetLastname("Rossi").SetGender("M")
 
 	err := record.Save(u)
 	if err != nil {
@@ -26,7 +24,7 @@ func TestTableMirror(t *testing.T) {
 		t.Error("Chiave non salvata")
 	}
 
-	tempName := u.Name
+	tempName := *u.Name
 	tempID := u.tr.RecordID
 
 	err = record.LoadByID(u, u.GetTableRecord().RecordID)
@@ -34,11 +32,11 @@ func TestTableMirror(t *testing.T) {
 		t.Error(err.Error())
 	}
 
-	if tempName != u.Name {
+	if tempName != *u.Name {
 		t.Error("Campi non uguali")
 	}
 
-	u.Name = "Marco"
+	u.SetName("Marco")
 
 	err = record.Save(u)
 	if err != nil {
