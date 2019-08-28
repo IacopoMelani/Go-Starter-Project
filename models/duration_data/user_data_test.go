@@ -9,7 +9,7 @@ import (
 
 func TestGetUserData(t *testing.T) {
 
-	gotenv.Load("./../../.env.test")
+	gotenv.Load("./../../.env")
 
 	d := GetUsersData()
 
