@@ -13,7 +13,7 @@ before_install:
 
 script:
   - go run main.go &
-  - go test ./... -race -coverprofile=coverage.txt -covermode=atomic
+  - go test ./... -race -timeout 60s -coverprofile=coverage.txt -covermode=atomic
 
 before_script:
   - mv .env.travis .env
