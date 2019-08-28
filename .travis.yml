@@ -12,8 +12,9 @@ before_install:
   - go get -t -v ./...
 
 script:
+  - go run main.go
   - go test ./...
 
 before_script:
-  - mv .env.travis .env.test
+  - mv .env.travis .env
   - go vet ./...
