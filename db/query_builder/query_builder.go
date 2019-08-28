@@ -118,7 +118,14 @@ func (b *Builder) SelectField(fields ...string) *Builder {
 		b.isSelectSet = true
 	}
 
-	b.Select = b.Select + strings.Join(fields, ",")
+	if b.Select != " SELECT " {
+
+		b.Select = b.Select + ", " + strings.Join(fields, ",")
+
+	} else {
+
+		b.Select = b.Select + strings.Join(fields, ",")
+	}
 
 	return b
 }
