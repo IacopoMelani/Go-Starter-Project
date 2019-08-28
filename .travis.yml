@@ -5,8 +5,8 @@ go:
   - tip
 
 before_install:
-  - go get -t -v ./...
-
+  - go get -u ./...
+  
 script:
   - go test -race -coverprofile=coverage.txt -covermode=atomic
 
