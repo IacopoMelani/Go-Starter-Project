@@ -1,7 +1,7 @@
 package db
 
 import (
-	"Go-Starter-Project/config"
+	"github.com/IacopoMelani/Go-Starter-Project/config"
 	"database/sql"
 
 	// Carica il driver mysql per la connessione al db

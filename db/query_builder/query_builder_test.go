@@ -1,7 +1,7 @@
 package builder
 
 import (
-	"Go-Starter-Project/db"
+	"github.com/IacopoMelani/Go-Starter-Project/db"
 	"database/sql"
 	"testing"
 

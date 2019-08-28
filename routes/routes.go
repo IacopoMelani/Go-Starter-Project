@@ -1,7 +1,7 @@
 package routes
 
 import (
-	"Go-Starter-Project/controllers"
+	"github.com/IacopoMelani/Go-Starter-Project/controllers"
 
 	"github.com/labstack/echo"
 	"github.com/labstack/echo/middleware"

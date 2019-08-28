@@ -1,9 +1,9 @@
 package boot
 
 import (
-	"Go-Starter-Project/config"
-	durationdata "Go-Starter-Project/models/duration_data"
-	"Go-Starter-Project/routes"
+	"github.com/IacopoMelani/Go-Starter-Project/config"
+	durationdata "github.com/IacopoMelani/Go-Starter-Project/models/duration_data"
+	"github.com/IacopoMelani/Go-Starter-Project/routes"
 	"sync"
 
 	"github.com/labstack/echo/middleware"
