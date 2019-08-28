@@ -4,11 +4,16 @@ go:
   - 1.12.x
   - tip
 
-before_install:
-  - go get -u ./...
-  
-script:
-  - go test -race -coverprofile=coverage.txt -covermode=atomic
+services:
+  - mysql
 
-after_success:
-  - bash <(curl -s https://codecov.io/bash)
+before_install:
+  - mysql -u root --password="" < travis.sql
+  - go get -t -v ./...
+
+script:
+  - go go test ./...
+
+before_script:
+  - mv .env.travis .env.test
+  - go vet ./...
