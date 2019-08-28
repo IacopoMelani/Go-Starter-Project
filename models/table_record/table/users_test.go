@@ -1,7 +1,7 @@
 package table
 
 import (
-	record "github.com/Go-Starter-Project/models/table_record"
+	record "github.com/IacopoMelani/Go-Starter-Project/models/table_record"
 	"testing"
 
 	"github.com/subosito/gotenv"

@@ -1,7 +1,7 @@
 package rmanager
 
 import (
-	"github.com/Go-Starter-Project/helpers/request"
+	"github.com/IacopoMelani/Go-Starter-Project/helpers/request"
 	"sync"
 )
 

@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/Go-Starter-Project/boot"
+	"github.com/IacopoMelani/Go-Starter-Project/boot"
 
 	"github.com/subosito/gotenv"
 )

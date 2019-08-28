@@ -1,8 +1,8 @@
 package table
 
 import (
-	"github.com/Go-Starter-Project/db"
-	record "github.com/Go-Starter-Project/models/table_record"
+	"github.com/IacopoMelani/Go-Starter-Project/db"
+	record "github.com/IacopoMelani/Go-Starter-Project/models/table_record"
 )
 
 // User - Struct che definisce la tabella "users"
