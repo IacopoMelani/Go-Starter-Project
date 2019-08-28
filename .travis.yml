@@ -12,7 +12,7 @@ before_install:
   - go get -t -v ./...
 
 script:
-  - go run main.go
+  - go run main.go &
   - go test ./...
 
 before_script:
