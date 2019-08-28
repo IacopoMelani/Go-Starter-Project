@@ -7,7 +7,7 @@ import (
 )
 
 func TestCacheConfigBoot(t *testing.T) {
-
+	
 	gotenv.Load("../.env")
 
 	config := GetInstance()
