@@ -1,8 +1,8 @@
 package durationdata
 
 import (
-	"github.com/Go-Starter-Project/config"
-	"github.com/Go-Starter-Project/helpers/request"
+	"github.com/IacopoMelani/Go-Starter-Project/config"
+	"github.com/IacopoMelani/Go-Starter-Project/helpers/request"
 	"io"
 	"net/http"
 	"sync"

@@ -1,7 +1,7 @@
 package controllers
 
 import (
-	"github.com/Go-Starter-Project/config"
+	"github.com/IacopoMelani/Go-Starter-Project/config"
 	"encoding/json"
 	"net/http"
 	"testing"

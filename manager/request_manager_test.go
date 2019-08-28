@@ -1,7 +1,7 @@
 package rmanager
 
 import (
-	durationdata "github.com/Go-Starter-Project/models/duration_data"
+	durationdata "github.com/IacopoMelani/Go-Starter-Project/models/duration_data"
 	"testing"
 	"time"
 )

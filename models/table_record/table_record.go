@@ -1,8 +1,8 @@
 package record
 
 import (
-	"github.com/Go-Starter-Project/db"
-	builder "github.com/Go-Starter-Project/db/query_builder"
+	"github.com/IacopoMelani/Go-Starter-Project/db"
+	builder "github.com/IacopoMelani/Go-Starter-Project/db/query_builder"
 	"database/sql"
 	"reflect"
 	"strings"
