@@ -1,8 +1,8 @@
 package controllers
 
 import (
-	durationdata "Go-Starter-Project/models/duration_data"
-	"Go-Starter-Project/models/table_record/table"
+	durationdata "github.com/Go-Starter-Project/models/duration_data"
+	"github.com/Go-Starter-Project/models/table_record/table"
 
 	"github.com/labstack/echo"
 )
