@@ -1,5 +1,10 @@
 language: go
 
+branches:
+  only:
+    - master
+    - develop
+
 go:
   - 1.12.x
   - tip
@@ -12,7 +17,6 @@ before_install:
   - go get -t -v ./...
 
 script:
-  - go run main.go &
   - go test ./... -timeout 60s -coverprofile=coverage.txt -covermode=atomic
 
 before_script:

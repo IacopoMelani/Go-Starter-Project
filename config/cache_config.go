@@ -1,8 +1,6 @@
 package config
 
 import (
-	"errors"
-	"fmt"
 	"os"
 	"reflect"
 	"strconv"
@@ -43,41 +41,31 @@ func (c *CacheConfig) loadEnvConfig() {
 }
 
 // setField - si occupa di impostare  attrun campo averso la reflection, c รจ necessario sia un puntatore a una struttura
-func (c *CacheConfig) setField(name string, value string) error {
+func (c *CacheConfig) setField(name string, value string) {
 
 	rv := reflect.ValueOf(c)
 
 	// Controllo se pointer a una struct
-	if rv.Kind() != reflect.Ptr || rv.Elem().Kind() != reflect.Struct {
-		return errors.New("c must be pointer to struct")
-	}
+	if rv.Kind() == reflect.Ptr && rv.Elem().Kind() == reflect.Struct {
 
-	// Prelevo i campi della struct
-	rv = rv.Elem()
+		// Prelevo i campi della struct
+		rv = rv.Elem()
 
-	// Controllo che il campo esista
-	fv := rv.FieldByName(name)
-	if !fv.IsValid() {
-		return fmt.Errorf("not a field name: %s", name)
-	}
+		// Controllo che il campo esista
+		fv := rv.FieldByName(name)
+		if fv.IsValid() && fv.CanSet() {
 
-	if !fv.CanSet() {
-		return fmt.Errorf("cannot set field %s", name)
-	}
+			// Controllo tipo stringa
+			if fv.Kind() == reflect.String {
+				fv.SetString(value)
+			}
 
-	// Controllo tipo stringa
-	if fv.Kind() == reflect.String {
-		fv.SetString(value)
-		return nil
-	}
-	if fv.Kind() == reflect.Int {
-		content, err := strconv.ParseInt(value, 10, 64)
-		if err != nil {
-			return errors.New("Invalid value for int")
+			if fv.Kind() == reflect.Int {
+				content, err := strconv.ParseInt(value, 10, 64)
+				if err == nil {
+					fv.SetInt(content)
+				}
+			}
 		}
-		fv.SetInt(content)
-		return nil
 	}
-
-	return errors.New("Invalid type for " + name)
 }

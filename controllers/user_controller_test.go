@@ -1,10 +1,13 @@
 package controllers
 
 import (
-	"github.com/IacopoMelani/Go-Starter-Project/config"
-	"encoding/json"
 	"net/http"
+	"net/http/httptest"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
+
+	"github.com/labstack/echo"
 
 	"github.com/subosito/gotenv"
 )
@@ -13,30 +16,30 @@ func TestGetAllUser(t *testing.T) {
 
 	gotenv.Load("../.env")
 
-	config := config.GetInstance()
+	e := echo.New()
 
-	client := http.Client{}
+	req := httptest.NewRequest(http.MethodGet, "/user/all", nil)
+	rec := httptest.NewRecorder()
 
-	port := config.AppPort
+	c := e.NewContext(req, rec)
 
-	req, err := http.NewRequest("GET", "http://localhost"+port+"/user/all", nil)
-	if err != nil {
-		t.Error("Errore: impossibile creare la richiesta")
+	if assert.NoError(t, GetAllUser(c)) {
+		assert.Equal(t, http.StatusOK, rec.Code)
 	}
+}
 
-	res, err := client.Do(req)
-	if err != nil {
-		t.Errorf("Errore: impossiblie eseguire la richiesta url: %s, potrebbe essere necessario avviare il server", "http://localhost:"+port+"/user/all")
-	}
-	defer res.Body.Close()
+func TestGetDurataionUsers(t *testing.T) {
 
-	var response Response
+	gotenv.Load("../.env")
 
-	if err = json.NewDecoder(res.Body).Decode(&response); err != nil {
-		t.Error("Errore: impossibile leggere dalla response")
-	}
+	e := echo.New()
 
-	if response.Status != 0 || response.Success != true {
-		t.Errorf("Errore: si è verificato un errore nella richiesta codice: %d  messaggio: %s", response.Status, response.Message)
+	req := httptest.NewRequest(http.MethodGet, "/user/duration", nil)
+	rec := httptest.NewRecorder()
+
+	c := e.NewContext(req, rec)
+
+	if assert.NoError(t, GetDurataionUsers(c)) {
+		assert.Equal(t, http.StatusOK, rec.Code)
 	}
 }
