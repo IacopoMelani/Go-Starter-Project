@@ -1,11 +1,12 @@
 package record
 
 import (
-	"github.com/IacopoMelani/Go-Starter-Project/db"
-	builder "github.com/IacopoMelani/Go-Starter-Project/db/query_builder"
 	"database/sql"
 	"reflect"
 	"strings"
+
+	"github.com/IacopoMelani/Go-Starter-Project/db"
+	builder "github.com/IacopoMelani/Go-Starter-Project/db/query_builder"
 )
 
 // TableRecordInterface - interfaccia che definisce una generica struct che permette l'interazione con TableRecord
@@ -50,9 +51,6 @@ func getSaveFieldParams(ti TableRecordInterface) []string {
 	s := make([]string, len(fName))
 
 	for i := 0; i < len(fName); i++ {
-		if fName[i] == ti.GetPrimaryKeyName() {
-			continue
-		}
 		s[i] = "?"
 	}
 
@@ -77,9 +75,6 @@ func getUpdateFieldParams(ti TableRecordInterface) []string {
 	updateStmt := make([]string, len(fName))
 
 	for i := 0; i < len(fName); i++ {
-		if fName[i] == ti.GetPrimaryKeyName() {
-			continue
-		}
 		updateStmt[i] = fName[i] + " = ?"
 	}
 

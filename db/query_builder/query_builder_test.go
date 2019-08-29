@@ -1,9 +1,10 @@
 package builder
 
 import (
-	"github.com/IacopoMelani/Go-Starter-Project/db"
 	"database/sql"
 	"testing"
+
+	"github.com/IacopoMelani/Go-Starter-Project/db"
 
 	"github.com/subosito/gotenv"
 )
@@ -28,7 +29,7 @@ func TestQueryBuilder(t *testing.T) {
 		t.Fatalf("Errore durante salvataggio record da ricercare, errore %s", err.Error())
 	}
 
-	ts.SelectField("*").WhereEqual("name", "Mario").WhereNull("gender", true).WhereOperator("record_id", ">=", 1).OrderByAsc("record_id").OrderByDesc("name")
+	ts.SelectField("*").WhereEqual("name", "Mario").WhereEqual("lastname", "Rossi").WhereNull("gender", true).WhereOperator("record_id", ">=", 1).WhereOperator("record_id", "<", "99999").OrderByAsc("record_id").OrderByDesc("name")
 
 	query := ts.BuildQuery("users")
 
@@ -57,4 +58,59 @@ func TestQueryBuilder(t *testing.T) {
 	}
 
 	ts.ResetStmt()
+
+	query = ts.BuildQuery("users")
+	stmt, err = db.Prepare(query)
+	if err != nil {
+		t.Fatalf("Errore durante la costruzione della query: %s", query)
+	}
+	defer stmt.Close()
+
+	ts.ResetStmt()
+
+	ts.SelectField("name").SelectField("lastname").GroupByField("name").GroupByField("lastname")
+
+	query = ts.BuildQuery("users")
+
+	stmt, err = db.Prepare(query)
+	if err != nil {
+		t.Fatalf("Errore durante la query %s parametri %v", query, ts.Params)
+	}
+	defer stmt.Close()
+
+	ts.ResetStmt()
+
+	ts.WhereOperator("name", "=", "Mario").WhereNull("gender", false)
+
+	query = ts.BuildQuery("users")
+
+	stmt, err = db.Prepare(query)
+	if err != nil {
+		t.Fatalf("Errore durante la query %s parametri %v", query, ts.Params)
+	}
+	defer stmt.Close()
+
+	ts.ResetStmt()
+
+	ts.WhereNull("gender", false)
+
+	query = ts.BuildQuery("users")
+
+	stmt, err = db.Prepare(query)
+	if err != nil {
+		t.Fatalf("Errore durante la query %s parametri %v", query, ts.Params)
+	}
+	defer stmt.Close()
+
+	ts.ResetStmt()
+
+	ts.WhereNull("gender", true)
+
+	query = ts.BuildQuery("users")
+
+	stmt, err = db.Prepare(query)
+	if err != nil {
+		t.Fatalf("Errore durante la query %s parametri %v", query, ts.Params)
+	}
+	defer stmt.Close()
 }
