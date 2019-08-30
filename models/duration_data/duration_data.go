@@ -74,6 +74,16 @@ func (d *DurationData) GetContent() (interface{}, error) {
 	return d.Content, nil
 }
 
+// GetSafeContent - Restituisce in modo esclusivo il contenuto di duration data
+func (d *DurationData) GetSafeContent() interface{} {
+
+	d.mu.Lock()
+	content := d.Content
+	d.mu.Unlock()
+
+	return content
+}
+
 // SetContent - Imposta dei nuovi dati e aggiorando il tempo di scadenza solo se i precedenti non sono più validi, altrimenti non fa niente
 func (d *DurationData) SetContent(content interface{}, secondsInterval int) {
 

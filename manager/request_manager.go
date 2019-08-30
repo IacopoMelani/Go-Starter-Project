@@ -1,8 +1,9 @@
 package rmanager
 
 import (
-	"github.com/IacopoMelani/Go-Starter-Project/helpers/request"
 	"sync"
+
+	"github.com/IacopoMelani/Go-Starter-Project/helpers/request"
 )
 
 // requestContainer - Struct che defisce una singola richiesta, definisce l'istanza di RemoteData da cui prelevare i dati e un channel su cui scrivere il risultato
@@ -77,8 +78,10 @@ func (rm *RequestManager) work() {
 		for {
 			select {
 			case <-rm.next:
+				rm.mu.Lock()
 				rm.requestQueue[0].getData()
 				rm.popFromQueue()
+				rm.mu.Unlock()
 			}
 		}
 	}()
@@ -89,13 +92,17 @@ func (rm *RequestManager) AddRequest(r request.RemoteData) (<-chan interface{}, 
 
 	rc := newrequestContainer(r)
 
+	rm.mu.Lock()
 	rm.requestQueue = append(rm.requestQueue, rc)
+	rm.mu.Unlock()
 
 	go func() {
 
+		rm.mu.Lock()
 		if !rm.running {
 			rm.StartService()
 		}
+		rm.mu.Unlock()
 	}()
 
 	return rc.result, rc.err
@@ -104,11 +111,9 @@ func (rm *RequestManager) AddRequest(r request.RemoteData) (<-chan interface{}, 
 // StartService - Si occupa di avviare il servizio di code
 func (rm *RequestManager) StartService() {
 
-	rm.mu.Lock()
 	if !rm.running {
 		rm.running = true
 		rm.work()
 		rm.next <- true
 	}
-	rm.mu.Unlock()
 }
