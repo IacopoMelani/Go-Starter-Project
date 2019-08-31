@@ -1,11 +1,22 @@
 package controllers
 
+import (
+	"github.com/labstack/echo/middleware"
+)
+
 // Response - struttura di una response standard
 type Response struct {
 	Status  int         `json:"status"`
 	Success bool        `json:"success"`
 	Message string      `json:"message"`
 	Content interface{} `json:"content"`
+}
+
+// InitCustomHandler - inizializza i codici di errore e messaggi per custom response
+func InitCustomHandler() {
+
+	middleware.ErrJWTMissing.Code = 401
+	middleware.ErrJWTMissing.Message = "token missing or expired"
 }
 
 // SetContent - Imposta content della risposta

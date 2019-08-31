@@ -1,10 +1,12 @@
 package boot
 
 import (
+	"github.com/IacopoMelani/Go-Starter-Project/controllers"
+	"sync"
+
 	"github.com/IacopoMelani/Go-Starter-Project/config"
 	durationdata "github.com/IacopoMelani/Go-Starter-Project/models/duration_data"
 	"github.com/IacopoMelani/Go-Starter-Project/routes"
-	"sync"
 
 	"github.com/labstack/echo/middleware"
 
@@ -24,7 +26,7 @@ func InitServer() {
 
 	var wg sync.WaitGroup
 
-	wg.Add(3)
+	wg.Add(4)
 
 	go func() {
 		defer wg.Done()
@@ -38,18 +40,22 @@ func InitServer() {
 
 	go func() {
 		defer wg.Done()
-
 		e = echo.New()
 		e.Use(middleware.Recover())
 		e.Use(middleware.Logger())
-
 		initEchoRoutes(e)
 
+	}()
+
+	go func() {
+		defer wg.Done()
+		controllers.InitCustomHandler()
 	}()
 
 	wg.Wait()
 
 	config := config.GetInstance()
+
 
 	e.Logger.Fatal(e.Start(config.AppPort))
 }

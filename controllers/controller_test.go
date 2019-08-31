@@ -16,4 +16,6 @@ func TestStandardResponse(t *testing.T) {
 	if response.Content != 1 || response.Message != "ok" || response.Status != 0 || response.Success != true {
 		t.Fatal("Errrore nella response standard")
 	}
+
+	InitCustomHandler()
 }
