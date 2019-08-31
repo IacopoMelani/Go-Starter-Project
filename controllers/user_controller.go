@@ -26,6 +26,7 @@ func GetAllUser(c echo.Context) error {
 			Success: false,
 			Message: err.Error(),
 		})
+		
 	}
 
 	return c.JSON(200, Response{
