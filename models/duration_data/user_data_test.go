@@ -11,6 +11,8 @@ func TestGetUserData(t *testing.T) {
 
 	gotenv.Load("./../../.env")
 
+	InitDurationData()
+
 	d := GetUsersData()
 
 	time.Sleep(2 * time.Second)
@@ -21,4 +23,5 @@ func TestGetUserData(t *testing.T) {
 
 	d.GetContent()
 
+	d.GetSafeContent()
 }

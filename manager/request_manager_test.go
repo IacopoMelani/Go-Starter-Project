@@ -1,20 +1,21 @@
 package rmanager
 
 import (
-	durationdata "github.com/IacopoMelani/Go-Starter-Project/models/duration_data"
 	"testing"
 	"time"
+
+	durationdata "github.com/IacopoMelani/Go-Starter-Project/models/duration_data"
 )
 
 func TestRequestManager(t *testing.T) {
 
 	rm := GetRequestManager()
 
-	u := durationdata.UserRemoteData{}
-
 	for i := 0; i < 10; i++ {
 
 		go func() {
+
+			u := durationdata.UserRemoteData{}
 
 			res, err := rm.AddRequest(u)
 
