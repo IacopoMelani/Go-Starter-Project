@@ -1,5 +1,5 @@
 # Go-Starter-Project
-Struttura di un generico progetto in **GO** [![Build Status](https://travis-ci.org/IacopoMelani/Go-Starter-Project.svg?branch=master)](https://travis-ci.org/IacopoMelani/Go-Starter-Project) [![codecov](https://codecov.io/gh/IacopoMelani/Go-Starter-Project/branch/master/graph/badge.svg)](https://codecov.io/gh/IacopoMelani/Go-Starter-Project) [![Go Report Card](https://goreportcard.com/badge/github.com/IacopoMelani/Go-Starter-Project)](https://goreportcard.com/report/github.com/IacopoMelani/Go-Starter-Project)
+Struttura di un generico progetto in **GO** [![Build Status](https://travis-ci.org/IacopoMelani/Go-Starter-Project.svg?branch=master)](https://travis-ci.org/IacopoMelani/Go-Starter-Project) [![codecov](https://codecov.io/gh/IacopoMelani/Go-Starter-Project/branch/master/graph/badge.svg)](https://codecov.io/gh/IacopoMelani/Go-Starter-Project) [![Go Report Card](https://goreportcard.com/badge/github.com/IacopoMelani/Go-Starter-Project)](https://goreportcard.com/report/github.com/IacopoMelani/Go-Starter-Project) [![Maintainability](https://api.codeclimate.com/v1/badges/31257bde8ba9f709dd65/maintainability)](https://codeclimate.com/github/IacopoMelani/Go-Starter-Project/maintainability)
 
 Il progetto fa uso del framework **Echo**
 - https://github.com/labstack/echo
