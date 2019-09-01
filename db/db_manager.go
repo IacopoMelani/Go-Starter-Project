@@ -12,9 +12,11 @@ import (
 	"sync"
 )
 
-var db *sql.DB
-
-var once sync.Once
+var (
+	db   *sql.DB
+	once sync.Once
+	
+)
 
 // GetConnection - restituisce un'istanza di connessione al database
 func GetConnection() *sql.DB {

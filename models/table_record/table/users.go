@@ -5,6 +5,16 @@ import (
 	record "github.com/IacopoMelani/Go-Starter-Project/models/table_record"
 )
 
+// Costanti relative alla tabella users
+const (
+	UsersColRecordID = "record_id"
+	UsersColName     = "name"
+	UsersColLastname = "lastname"
+	UsersColGender   = "gender"
+
+	UsersTableName = "users"
+)
+
 // User - Struct che definisce la tabella "users"
 // implementa TableRecordInterface
 type User struct {
@@ -68,12 +78,12 @@ func (u User) GetTableRecord() *record.TableRecord {
 
 // GetPrimaryKeyName - Restituisce il nome della chiave primaria
 func (u User) GetPrimaryKeyName() string {
-	return "record_id"
+	return UsersColRecordID
 }
 
 // GetTableName - Restituisce il nome della tabella
 func (u User) GetTableName() string {
-	return "users"
+	return UsersTableName
 }
 
 // New - Si occupa di istanziare una nuova struct andando ad istaziare table record e settanto il campo isNew a true
