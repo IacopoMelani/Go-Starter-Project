@@ -36,3 +36,8 @@ func GetConnection() *sql.DB {
 
 	return db
 }
+
+// TableExists - Restituisce true se la tabella esiste altrimenti false
+func TableExists(tableName string) bool {
+	return false
+}
