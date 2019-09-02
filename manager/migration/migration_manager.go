@@ -1,6 +1,7 @@
 package migration
 
 import (
+	"database/sql"
 	"sync"
 
 	record "github.com/IacopoMelani/Go-Starter-Project/models/table_record"
@@ -27,11 +28,27 @@ var (
 	onceMigrator sync.Once
 )
 
+// createMigrationsTable - Si occupa di creare la tabella delle migrazioni
+func createMigrationsTable(conn *sql.Tx) error {
+
+	query := `CREATE TABLE IF NOT EXISTS migrations (
+    record_id INT AUTO_INCREMENT,
+    created_at DATETIME NOT NULL,
+    name VARCHAR(255) NOT NULL,
+    status INT NOT NULL,
+	PRIMARY KEY (record_id)
+	)`
+
+	_, err := conn.Exec(query)
+
+	return err
+}
+
 // GetMigratorInstance - Restituisce l'unica istanza di migrator
 func GetMigratorInstance() *Migrator {
 
 	onceMigrator.Do(func() {
-
+		migrator = new(Migrator)
 		migrator.migrationsList = migrationsList
 	})
 
@@ -41,9 +58,20 @@ func GetMigratorInstance() *Migrator {
 // DoUpMigrations -
 func (m *Migrator) DoUpMigrations() error {
 
-	db, err := db.GetConnection().Begin()
+	conn, _ := db.GetConnection().Begin()
+
+	exist, err := db.TableExists(table.MigrationsTableName)
 	if err != nil {
+		conn.Rollback()
 		return err
+	}
+
+	if !exist {
+
+		if err = createMigrationsTable(conn); err != nil {
+			conn.Rollback()
+			return err
+		}
 	}
 
 	for _, mi := range m.migrationsList {
@@ -52,7 +80,7 @@ func (m *Migrator) DoUpMigrations() error {
 
 		err = table.LoadMigrationByName(mi.GetMigrationName(), migration)
 		if err != nil {
-			db.Rollback()
+			conn.Rollback()
 			return err
 		}
 
@@ -64,25 +92,25 @@ func (m *Migrator) DoUpMigrations() error {
 		migration.Status = 0
 		err = record.Save(migration)
 		if err != nil {
-			db.Rollback()
+			conn.Rollback()
 			return err
 		}
 
-		_, err = db.Exec(mi.Up())
+		_, err = conn.Exec(mi.Up())
 		if err != nil {
-			db.Rollback()
+			conn.Rollback()
 			return err
 		}
 
 		migration.Status = 1
 		err = record.Save(migration)
 		if err != nil {
-			db.Rollback()
+			conn.Rollback()
 			return nil
 		}
 	}
 
-	db.Commit()
+	conn.Commit()
 
 	return nil
 }

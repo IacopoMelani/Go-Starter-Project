@@ -15,7 +15,6 @@ import (
 var (
 	db   *sql.DB
 	once sync.Once
-	
 )
 
 // GetConnection - restituisce un'istanza di connessione al database
@@ -40,6 +39,28 @@ func GetConnection() *sql.DB {
 }
 
 // TableExists - Restituisce true se la tabella esiste altrimenti false
-func TableExists(tableName string) bool {
-	return false
+func TableExists(tableName string) (bool, error) {
+
+	query := "SELECT * FROM " + tableName + " LIMIT 1"
+
+	db := GetConnection()
+
+	stmt, err := db.Prepare(query)
+	if err != nil {
+		return false, nil
+	}
+
+	defer stmt.Close()
+
+	rows, err := stmt.Query()
+	if err != nil {
+		return false, nil
+	}
+	defer rows.Close()
+
+	if rows.Next() {
+
+		return true, nil
+	}
+	return false, nil
 }
