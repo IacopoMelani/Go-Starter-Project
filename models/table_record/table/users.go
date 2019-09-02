@@ -54,6 +54,7 @@ func LoadAllUsers() ([]*User, error) {
 			return nil, err
 		}
 
+		u.tr.SetIsNew(false)
 		result = append(result, u)
 	}
 
