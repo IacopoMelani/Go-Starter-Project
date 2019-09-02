@@ -6,5 +6,5 @@ import (
 
 // Definisce la lista in sequenza di tutte le migrazioni
 var migrationsList = []Migrable{
-	migrations.CreateUserTable{},
+	migrations.CreateTasksTable{},
 }
