@@ -35,25 +35,23 @@ type Migration struct {
 	Status    int       `db:"status"`
 }
 
-
 // InsertNewMigration - Si occupa di inserire un record nella tabella migrations
-func InsertNewMigration(name string, status int) error {
-	
+func InsertNewMigration(name string, status int) (*Migration, error) {
+
 	if name == "" {
-		return errors.New("Empty migration's name")
+		return nil, errors.New("Empty migration's name")
 	}
-	
+
 	m := NewMigration()
 	m.Name = name
 	m.Status = status
 	m.CreatedAt = time.Now().UTC()
-	
 	err := record.Save(m)
 	if err != nil {
-		return err
+		return nil, err
 	}
-	
-	return nil
+
+	return m, nil
 }
 
 // LoadMigrationByName - Si occupa di caricare l'istanza di un record della tabella migrations dato il nome

@@ -88,9 +88,7 @@ func (m *Migrator) DoUpMigrations() error {
 			continue
 		}
 
-		migration.Name = mi.GetMigrationName()
-		migration.Status = 0
-		err = record.Save(migration)
+		migration, err := table.InsertNewMigration(mi.GetMigrationName(), 0)
 		if err != nil {
 			conn.Rollback()
 			return err
