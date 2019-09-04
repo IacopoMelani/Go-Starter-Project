@@ -231,6 +231,11 @@ func Save(ti TableRecordInterface) error {
 	return nil
 }
 
+// IsNew - Restituisce se il record è nuovo
+func (t *TableRecord) IsNew() bool {
+	return t.isNew
+}
+
 // SetIsNew - Si occupa di impostare il valore del campo TableRecord::isNews
 func (t *TableRecord) SetIsNew(new bool) *TableRecord {
 	t.isNew = new

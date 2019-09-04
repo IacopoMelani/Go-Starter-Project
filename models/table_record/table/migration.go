@@ -50,6 +50,7 @@ func InsertNewMigration(name string, status int) (*Migration, error) {
 	if err != nil {
 		return nil, err
 	}
+	m.tr.SetIsNew(false)
 
 	return m, nil
 }
@@ -73,10 +74,11 @@ func LoadMigrationByName(name string, m *Migration) error {
 
 		dest := append([]interface{}{&m.tr.RecordID}, vField...)
 
-		err := rows.Scan(dest)
+		err := rows.Scan(dest...)
 		if err != nil {
 			return err
 		}
+		m.tr.SetIsNew(false)
 	}
 
 	return nil

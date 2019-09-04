@@ -64,6 +64,10 @@ func InitServer() {
 	if err != nil {
 		panic("Error during migrating, error: " + err.Error())
 	}
+	err = migrationManager.DoDownMigrations()
+	if err != nil {
+		panic("Error during rollback, error: " + err.Error())
+	}
 
 	e.Logger.Fatal(e.Start(config.AppPort))
 }

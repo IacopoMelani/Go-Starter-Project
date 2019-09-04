@@ -55,7 +55,54 @@ func GetMigratorInstance() *Migrator {
 	return migrator
 }
 
-// DoUpMigrations -
+// DoDownMigrations - Si occupa di fare il rollback delle tabelle definite in migrations_list
+func (m *Migrator) DoDownMigrations() error {
+
+	conn, _ := db.GetConnection().Begin()
+
+	exist, err := db.TableExists(table.MigrationsTableName)
+	if err != nil {
+		conn.Rollback()
+		return err
+	}
+
+	if !exist {
+		return nil
+	}
+
+	for i := len(m.migrationsList) - 1; i >= 0; i-- {
+
+		migration := table.NewMigration()
+
+		err = table.LoadMigrationByName(m.migrationsList[i].GetMigrationName(), migration)
+		if err != nil {
+			conn.Rollback()
+			return err
+		}
+
+		if migration.GetTableRecord().RecordID != 0 && migration.Status == 1 {
+
+			_, err = conn.Exec(m.migrationsList[i].Down())
+			if err != nil {
+				conn.Rollback()
+				return err
+			}
+
+			migration.Status = 0
+			err = record.Save(migration)
+			if err != nil {
+				conn.Rollback()
+				return err
+			}
+		}
+	}
+
+	conn.Commit()
+
+	return nil
+}
+
+// DoUpMigrations - Si occupa di migrare le tabelle definite in migrations_list
 func (m *Migrator) DoUpMigrations() error {
 
 	conn, _ := db.GetConnection().Begin()
@@ -88,10 +135,13 @@ func (m *Migrator) DoUpMigrations() error {
 			continue
 		}
 
-		migration, err := table.InsertNewMigration(mi.GetMigrationName(), 0)
-		if err != nil {
-			conn.Rollback()
-			return err
+		if migration.GetTableRecord().IsNew() {
+
+			migration, err = table.InsertNewMigration(mi.GetMigrationName(), 0)
+			if err != nil {
+				conn.Rollback()
+				return err
+			}
 		}
 
 		_, err = conn.Exec(mi.Up())
