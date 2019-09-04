@@ -76,6 +76,10 @@ func TestTableRecord(t *testing.T) {
 		t.Fatal("Chiave non salvata")
 	}
 
+	if ts.tr.IsNew() {
+		t.Fatal("Il record non dovrebbe essere isNew = true")
+	}
+
 	tempName := *ts.Name
 	tempID := ts.tr.RecordID
 

@@ -20,3 +20,17 @@ func TestGetConnection(t *testing.T) {
 	}
 
 }
+
+func TestTableExists(t *testing.T) {
+
+	gotenv.Load("../.env")
+
+	exists, err := TableExists("users")
+	if err != nil {
+		t.Fatal("Errore durante la ricerca della tabella")
+	}
+
+	if !exists {
+		t.Fatal("Attenzione tabella users non presente")
+	}
+}
