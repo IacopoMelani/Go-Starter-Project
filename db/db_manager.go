@@ -45,14 +45,7 @@ func TableExists(tableName string) (bool, error) {
 
 	db := GetConnection()
 
-	stmt, err := db.Prepare(query)
-	if err != nil {
-		return false, nil
-	}
-
-	defer stmt.Close()
-
-	rows, err := stmt.Query()
+	rows, err := db.Query(query)
 	if err != nil {
 		return false, nil
 	}
