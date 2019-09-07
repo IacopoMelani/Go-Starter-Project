@@ -43,6 +43,14 @@ func executeSaveUpdateQuery(query string, params []interface{}) (int64, error) {
 	return lastID, nil
 }
 
+// genDeleteQuery - Si occupa di generare la query per la cancellazione del record
+func genDeleteQuery(ti TableRecordInterface) string {
+
+	query := "DELETE FROM " + ti.GetTableName() + " WHERE " + ti.GetPrimaryKeyName() + " = ?"
+
+	return query
+}
+
 // getSaveFieldParams -  Si occupa di generare uno slice di "?" tanti quanti sono i parametri della query di inserimento
 func getSaveFieldParams(ti TableRecordInterface) []string {
 
@@ -96,6 +104,32 @@ func AllField(ti TableRecordInterface) string {
 	fieldName = append([]string{ti.GetPrimaryKeyName()}, fieldName...)
 
 	return strings.Join(fieldName, ",")
+}
+
+// Delete - Si occupa di cancellare un record sul database
+func Delete(ti TableRecordInterface) (int64, error) {
+
+	t := ti.GetTableRecord()
+
+	db := db.GetConnection()
+
+	stmt, err := db.Prepare(genDeleteQuery(ti))
+	if err != nil {
+		return 0, err
+	}
+	defer stmt.Close()
+
+	res, err := stmt.Exec(t.RecordID)
+	if err != nil {
+		return 0, err
+	}
+
+	rows, err := res.RowsAffected()
+	if err != nil {
+		return 0, nil
+	}
+
+	return rows, nil
 }
 
 // ExecQuery - Esegue la query costruita con QueryBuilder
