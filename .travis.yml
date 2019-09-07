@@ -1,10 +1,5 @@
 language: go
 
-branches:
-  only:
-    - master
-    - develop
-
 go:
   - 1.12.x
   - tip
