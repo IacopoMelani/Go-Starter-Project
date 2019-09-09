@@ -14,14 +14,18 @@ type CacheConfig struct {
 	UserTimeToRefresh int
 }
 
-var arrayEnvMapper = map[string]string{
-	"STRING_CONNECTION":    "StringConnection",
-	"APP_PORT":             "AppPort",
-	"USER_TIME_TO_REFRESH": "UserTimeToRefresh",
-}
+var (
+	arrayEnvMapper = map[string]string{
+		"STRING_CONNECTION":    "StringConnection",
+		"APP_PORT":             "AppPort",
+		"USER_TIME_TO_REFRESH": "UserTimeToRefresh",
+	}
+	cacheConfig *CacheConfig
+	once        sync.Once
 
-var cacheConfig *CacheConfig
-var once sync.Once
+	// Config - Stringa con tutte le configurazione caricate
+	Config string
+)
 
 // GetInstance - restituisce l'unica istanza della struttura contenente le configurazioni
 func GetInstance() *CacheConfig {
@@ -35,8 +39,10 @@ func GetInstance() *CacheConfig {
 
 // loadEnvConfig - si occupa di caricare tutte le configurazioni dell'env nella struttura di configurazione
 func (c *CacheConfig) loadEnvConfig() {
+	Config = "\n"
 	for envName, StructName := range arrayEnvMapper {
 		c.setField(StructName, os.Getenv(envName))
+		Config = Config + StructName + " -> " + os.Getenv(envName) + "\n"
 	}
 }
 
