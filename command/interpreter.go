@@ -4,6 +4,8 @@ import (
 	"flag"
 	"fmt"
 
+	"github.com/IacopoMelani/Go-Starter-Project/manager/migration"
+
 	"github.com/IacopoMelani/Go-Starter-Project/config"
 
 	"github.com/IacopoMelani/Go-Starter-Project/boot"
@@ -34,19 +36,41 @@ func InterpretingHumanWord() {
 
 	flag.Parse()
 
-	if *start == "" {
-		flag.PrintDefaults()
-	}
-
 	switch *start {
+
 	case startServer:
+
 		boot.InitServer()
 		break
+
 	case showConfig:
+
 		config.GetInstance()
 		fmt.Println(config.Config)
 		break
+
+	case migrate:
+
+		migrationManager := migration.GetMigratorInstance()
+		err := migrationManager.DoUpMigrations()
+		if err != nil {
+			panic("Error during migrating, error: " + err.Error())
+		}
+		fmt.Println("Gotcha!")
+		break
+
+	case rollback:
+
+		migrationManager := migration.GetMigratorInstance()
+		err := migrationManager.DoDownMigrations()
+		if err != nil {
+			panic("Error during rollback, error: " + err.Error())
+		}
+		fmt.Println("Bye")
+		break
+
 	default:
 		flag.PrintDefaults()
 	}
+
 }

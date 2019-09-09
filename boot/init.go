@@ -4,7 +4,6 @@ import (
 	"sync"
 
 	"github.com/IacopoMelani/Go-Starter-Project/controllers"
-	"github.com/IacopoMelani/Go-Starter-Project/manager/migration"
 
 	"github.com/IacopoMelani/Go-Starter-Project/config"
 	durationdata "github.com/IacopoMelani/Go-Starter-Project/models/duration_data"
@@ -57,17 +56,6 @@ func InitServer() {
 	wg.Wait()
 
 	config := config.GetInstance()
-
-	migrationManager := migration.GetMigratorInstance()
-
-	err := migrationManager.DoUpMigrations()
-	if err != nil {
-		panic("Error during migrating, error: " + err.Error())
-	}
-	err = migrationManager.DoDownMigrations()
-	if err != nil {
-		panic("Error during rollback, error: " + err.Error())
-	}
 
 	e.Logger.Fatal(e.Start(config.AppPort))
 }
