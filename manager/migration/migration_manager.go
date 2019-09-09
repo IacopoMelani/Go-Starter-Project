@@ -60,11 +60,7 @@ func (m *Migrator) DoDownMigrations() error {
 
 	conn, _ := db.GetConnection().Begin()
 
-	exist, err := db.TableExists(table.MigrationsTableName)
-	if err != nil {
-		conn.Rollback()
-		return err
-	}
+	exist, _ := db.TableExists(table.MigrationsTableName)
 
 	if !exist {
 		return nil
@@ -74,7 +70,7 @@ func (m *Migrator) DoDownMigrations() error {
 
 		migration := table.NewMigration()
 
-		err = table.LoadMigrationByName(m.migrationsList[i].GetMigrationName(), migration)
+		err := table.LoadMigrationByName(m.migrationsList[i].GetMigrationName(), migration)
 		if err != nil {
 			conn.Rollback()
 			return err
@@ -107,15 +103,11 @@ func (m *Migrator) DoUpMigrations() error {
 
 	conn, _ := db.GetConnection().Begin()
 
-	exist, err := db.TableExists(table.MigrationsTableName)
-	if err != nil {
-		conn.Rollback()
-		return err
-	}
+	exist, _ := db.TableExists(table.MigrationsTableName)
 
 	if !exist {
 
-		if err = createMigrationsTable(conn); err != nil {
+		if err := createMigrationsTable(conn); err != nil {
 			conn.Rollback()
 			return err
 		}
@@ -125,7 +117,7 @@ func (m *Migrator) DoUpMigrations() error {
 
 		migration := table.NewMigration()
 
-		err = table.LoadMigrationByName(mi.GetMigrationName(), migration)
+		err := table.LoadMigrationByName(mi.GetMigrationName(), migration)
 		if err != nil {
 			conn.Rollback()
 			return err
