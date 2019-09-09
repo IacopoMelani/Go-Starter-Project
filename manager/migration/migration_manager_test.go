@@ -3,6 +3,10 @@ package migration
 import (
 	"testing"
 
+	record "github.com/IacopoMelani/Go-Starter-Project/models/table_record"
+
+	"github.com/IacopoMelani/Go-Starter-Project/models/table_record/table"
+
 	"github.com/IacopoMelani/Go-Starter-Project/db"
 	"github.com/subosito/gotenv"
 )
@@ -60,7 +64,7 @@ func TestMigrationManager(t *testing.T) {
 		conn.Rollback()
 		t.Fatal(err.Error())
 	}
-	
+
 	err = migrator.DoUpMigrations()
 	if err != nil {
 		conn.Rollback()
@@ -73,5 +77,19 @@ func TestMigrationManager(t *testing.T) {
 		t.Fatal(err.Error())
 	}
 
-	conn.Rollback()
+	migration := table.NewMigration()
+
+	err = table.LoadMigrationByName("create_test_table", migration)
+	if err != nil {
+		conn.Rollback()
+		t.Fatal(err.Error())
+	}
+
+	_, err = record.Delete(migration)
+	if err != nil {
+		conn.Rollback()
+		t.Fatal(err.Error())
+	}
+
+	conn.Commit()
 }
