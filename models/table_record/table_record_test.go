@@ -116,4 +116,23 @@ func TestTableRecord(t *testing.T) {
 		t.Error("La query sembra non aver restituito zero valori")
 	}
 
+	ts = NewTestStruct()
+
+	ts.setName("Mario")
+	ts.setLastname("Rossi")
+	ts.setGender("M")
+
+	err = Save(ts)
+	if err != nil {
+		t.Fatal(err.Error())
+	}
+
+	rows, err := Delete(ts)
+	if err != nil {
+		t.Fatal(err.Error())
+	}
+
+	if rows <= 0 {
+		t.Fatal("Errore: nessuna cancellazione effettuata")
+	}
 }
