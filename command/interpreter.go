@@ -29,6 +29,24 @@ func getDefaultMessage() string {
 	`
 }
 
+func migrateCommand() {
+
+	err := migration.DoUpMigrations()
+	if err != nil {
+		panic("Error during migrating, error: " + err.Error())
+	}
+	fmt.Println("Gotcha!")
+}
+
+func rollbackCommand() {
+
+	err := migration.DoDownMigrations()
+	if err != nil {
+		panic("Error during rollback, error: " + err.Error())
+	}
+	fmt.Println("Bye")
+}
+
 // InterpretingHumanWord - Si occupa di interpretare i comandi
 func InterpretingHumanWord() {
 
@@ -51,22 +69,11 @@ func InterpretingHumanWord() {
 
 	case migrate:
 
-		migrationManager := migration.GetMigratorInstance()
-		err := migrationManager.DoUpMigrations()
-		if err != nil {
-			panic("Error during migrating, error: " + err.Error())
-		}
-		fmt.Println("Gotcha!")
+		migrateCommand()
 		break
 
 	case rollback:
 
-		migrationManager := migration.GetMigratorInstance()
-		err := migrationManager.DoDownMigrations()
-		if err != nil {
-			panic("Error during rollback, error: " + err.Error())
-		}
-		fmt.Println("Bye")
 		break
 
 	default:
