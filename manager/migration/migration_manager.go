@@ -44,6 +44,30 @@ func createMigrationsTable(conn *sql.Tx) error {
 	return err
 }
 
+// DoUpMigrations - Esegue la migrazione del DB
+func DoUpMigrations() error {
+
+	migrationManager := GetMigratorInstance()
+	err := migrationManager.DoUpMigrations()
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// DoDownMigrations - Esegue il rollbacl del DB
+func DoDownMigrations() error {
+
+	migrationManager := GetMigratorInstance()
+	err := migrationManager.DoDownMigrations()
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 // GetMigratorInstance - Restituisce l'unica istanza di migrator
 func GetMigratorInstance() *Migrator {
 
