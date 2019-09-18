@@ -55,6 +55,43 @@ func InsertNewMigration(name string, status int) (*Migration, error) {
 	return m, nil
 }
 
+// LoadAllMigrations - Carica tutte le istanze di Migration dal database
+func LoadAllMigrations() ([]*Migration, error) {
+
+	m := &Migration{}
+
+	db := db.GetConnection()
+
+	query := "SELECT " + record.AllField(m) + " FROM " + m.GetTableName()
+
+	rows, err := db.Query(query)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var result []*Migration
+
+	for rows.Next() {
+
+		m := NewMigration()
+
+		_, vField := record.GetFieldMapper(m)
+
+		dest := append([]interface{}{&m.tr.RecordID}, vField...)
+
+		err := rows.Scan(dest...)
+		if err != nil {
+			return nil, err
+		}
+
+		m.tr.SetIsNew(false)
+		result = append(result, m)
+	}
+
+	return result, nil
+}
+
 // LoadMigrationByName - Si occupa di caricare l'istanza di un record della tabella migrations dato il nome
 func LoadMigrationByName(name string, m *Migration) error {
 
