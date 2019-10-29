@@ -107,15 +107,9 @@ func LoadMigrationByName(name string, m *Migration) error {
 
 	if rows.Next() {
 
-		_, vField := record.GetFieldMapper(m)
-
-		dest := append([]interface{}{&m.tr.RecordID}, vField...)
-
-		err := rows.Scan(dest...)
-		if err != nil {
+		if err := record.LoadFromRow(rows, m); err != nil {
 			return err
 		}
-		m.tr.SetIsNew(false)
 	}
 
 	return nil

@@ -3,6 +3,8 @@ package record
 import (
 	"testing"
 
+	"github.com/IacopoMelani/Go-Starter-Project/db"
+
 	"github.com/subosito/gotenv"
 )
 
@@ -22,6 +24,36 @@ func NewTestStruct() *TestStruct {
 	ts.tr.SetIsNew(true)
 
 	return ts
+}
+
+// loadAllTestTableRecordStruct - carica tutte le istanze della classe
+func loadAllTestTableRecordStruct() ([]*TestStruct, error) {
+
+	db := db.GetConnection()
+
+	ts := NewTestStruct()
+
+	query := "SELECT " + AllField(ts) + " FROM " + ts.GetTableName()
+
+	rows, err := db.Query(query)
+	if err != nil {
+		return nil, err
+	}
+
+	var result []*TestStruct
+
+	for rows.Next() {
+
+		ts := NewTestStruct()
+
+		if err := LoadFromRow(rows, ts); err != nil {
+			return nil, err
+		}
+
+		result = append(result, ts)
+	}
+
+	return result, nil
 }
 
 // GetTableRecord - Restituisce l'istanza di TableRecord
@@ -134,5 +166,14 @@ func TestTableRecord(t *testing.T) {
 
 	if rows <= 0 {
 		t.Fatal("Errore: nessuna cancellazione effettuata")
+	}
+
+	allResult, err := loadAllTestTableRecordStruct()
+	if err != nil {
+		t.Fatal(err.Error())
+	}
+
+	if len(allResult) == 0 {
+		t.Error("La lista restituita sembra vuota")
 	}
 }
