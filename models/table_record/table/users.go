@@ -45,16 +45,10 @@ func LoadAllUsers() ([]*User, error) {
 
 		u := NewUser()
 
-		_, vField := record.GetFieldMapper(u)
-
-		dest := append([]interface{}{&u.tr.RecordID}, vField...)
-
-		err := rows.Scan(dest...)
-		if err != nil {
+		if err := record.LoadFromRow(rows, u); err != nil {
 			return nil, err
 		}
 
-		u.tr.SetIsNew(false)
 		result = append(result, u)
 	}
 

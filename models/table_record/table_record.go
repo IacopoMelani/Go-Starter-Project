@@ -236,6 +236,22 @@ func LoadByID(ti TableRecordInterface, id int64) error {
 	return nil
 }
 
+// LoadFromRow - Si occupa di caricare la struct dal result - row della query
+func LoadFromRow(r *sql.Rows, tri TableRecordInterface) error {
+
+	_, vField := GetFieldMapper(tri)
+
+	dest := append([]interface{}{&tri.GetTableRecord().RecordID}, vField...)
+
+	if err := r.Scan(dest...); err != nil {
+		return err
+	}
+
+	tri.GetTableRecord().SetIsNew(false)
+
+	return nil
+}
+
 // Save - Si occupa di eseguire il salvataggio della TableRecord eseguendo un inserimento se TableRecord::isNew risulta false, altrimenti ne aggiorna il valore
 func Save(ti TableRecordInterface) error {
 
