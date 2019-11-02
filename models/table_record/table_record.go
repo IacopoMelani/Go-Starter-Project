@@ -23,7 +23,7 @@ type TableRecordInterface interface {
 // TableRecord - Struct per l'implementazione di TableRecordInterface
 // implementa QueryBuilderInterface
 type TableRecord struct {
-	RecordID   int64
+	recordID   int64
 	isNew      bool
 	isReadOnly bool
 	builder.Builder
@@ -123,7 +123,7 @@ func Delete(ti TableRecordInterface) (int64, error) {
 	}
 	defer stmt.Close()
 
-	res, err := stmt.Exec(t.RecordID)
+	res, err := stmt.Exec(t.recordID)
 	if err != nil {
 		return 0, err
 	}
@@ -162,7 +162,7 @@ func ExecQuery(ti TableRecordInterface, ntm NewTableModel) ([]TableRecordInterfa
 		if err := LoadFromRow(rows, nti); err != nil {
 			return nil, err
 		}
-		
+
 		tiList = append(tiList, nti)
 	}
 
@@ -231,7 +231,7 @@ func LoadFromRow(r *sql.Rows, tri TableRecordInterface) error {
 
 	_, vField := GetFieldMapper(tri)
 
-	dest := append([]interface{}{&tri.GetTableRecord().RecordID}, vField...)
+	dest := append([]interface{}{&tri.GetTableRecord().recordID}, vField...)
 
 	if err := r.Scan(dest...); err != nil {
 		return err
@@ -270,13 +270,13 @@ func Save(ti TableRecordInterface) error {
 			return err
 		}
 
-		t.RecordID = id
+		t.recordID = id
 		t.SetIsNew(false)
 	} else {
 
 		query := genUpdateQuery(ti)
 		_, fValue := GetFieldMapper(ti)
-		_, err := executeSaveUpdateQuery(query, append(fValue, ti.GetTableRecord().RecordID))
+		_, err := executeSaveUpdateQuery(query, append(fValue, ti.GetTableRecord().recordID))
 		if err != nil {
 			return err
 		}
@@ -285,15 +285,14 @@ func Save(ti TableRecordInterface) error {
 	return nil
 }
 
+// GetID - Restituisce l'id del record
+func (t TableRecord) GetID() int64 {
+	return t.recordID
+}
+
 // IsNew - Restituisce se il record è nuovo
 func (t *TableRecord) IsNew() bool {
 	return t.isNew
-}
-
-// SetIsNew - Si occupa di impostare il valore del campo TableRecord::isNews
-func (t *TableRecord) SetIsNew(new bool) *TableRecord {
-	t.isNew = new
-	return t
 }
 
 // PrepareStmt - Restituisce lo stmt della query pronta da essere eseguita
@@ -309,4 +308,10 @@ func (t *TableRecord) PrepareStmt(tableName string) (*sql.Stmt, error) {
 	}
 
 	return stmt, nil
+}
+
+// SetIsNew - Si occupa di impostare il valore del campo TableRecord::isNews
+func (t *TableRecord) SetIsNew(new bool) *TableRecord {
+	t.isNew = new
+	return t
 }

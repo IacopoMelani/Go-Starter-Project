@@ -110,6 +110,7 @@ func (t TestStructReadOnly) GetPrimaryKeyName() string {
 }
 
 // GetTableName - Restituisce il nome della tabella
+
 func (t TestStructReadOnly) GetTableName() string {
 	return "users"
 }
@@ -147,7 +148,7 @@ func TestTableRecord(t *testing.T) {
 		t.Fatal(err.Error())
 	}
 
-	if ts.tr.RecordID == 0 {
+	if ts.tr.recordID == 0 {
 		t.Fatal("Chiave non salvata")
 	}
 
@@ -156,9 +157,9 @@ func TestTableRecord(t *testing.T) {
 	}
 
 	tempName := *ts.Name
-	tempID := ts.tr.RecordID
+	tempID := ts.tr.recordID
 
-	err = LoadByID(ts, ts.GetTableRecord().RecordID)
+	err = LoadByID(ts, ts.GetTableRecord().recordID)
 	if err != nil {
 		t.Fatal(err.Error())
 	}
@@ -174,7 +175,7 @@ func TestTableRecord(t *testing.T) {
 		t.Fatal(err.Error())
 	}
 
-	if tempID != ts.tr.RecordID {
+	if tempID != ts.tr.recordID {
 		t.Fatal("Chiave primaria è cambiata durante l'update")
 	}
 
@@ -236,5 +237,4 @@ func TestTableRecord(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	
 }
