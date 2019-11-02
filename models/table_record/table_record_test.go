@@ -20,9 +20,7 @@ type TestStruct struct {
 func NewTestStruct() *TestStruct {
 
 	ts := new(TestStruct)
-	ts.tr = new(TableRecord)
-	ts.tr.SetIsNew(true)
-
+	ts.tr = NewTableRecord(true, false)
 	return ts
 }
 
@@ -71,11 +69,6 @@ func (t TestStruct) GetTableName() string {
 	return "users"
 }
 
-// New - Si occupa di istanziare una nuova struct andando ad istaziare table record e settanto il campo isNew a true
-func (t TestStruct) New() TableRecordInterface {
-	return NewTestStruct()
-}
-
 func (t *TestStruct) setGender(value string) *TestStruct {
 	t.Gender = &value
 	return t
@@ -85,6 +78,56 @@ func (t *TestStruct) setLastname(value string) *TestStruct {
 	return t
 }
 func (t *TestStruct) setName(value string) *TestStruct {
+	t.Name = &value
+	return t
+}
+
+// TestStructReadOnly - Struct di test readonly che implementa TableRecordInterface
+type TestStructReadOnly struct {
+	tr       *TableRecord
+	Name     *string `json:"name" db:"name"`
+	Lastname *string `json:"lastname" db:"lastname"`
+	Gender   *string `json:"gender" db:"gender"`
+}
+
+// NewTestStructReadOnly - Restituisce una nuova istanza di TestStructReadOnly
+func NewTestStructReadOnly() *TestStructReadOnly {
+
+	tsro := new(TestStructReadOnly)
+	tsro.tr = NewTableRecord(true, true)
+
+	return tsro
+}
+
+// GeetTableRecord - Restituisce l'istanza di TableRecord
+func (t TestStructReadOnly) GeetTableRecord() *TableRecord {
+	return t.tr
+}
+
+// GetPrimaryKeyName - Restituisce il nome della chiave primaria
+func (t TestStructReadOnly) GetPrimaryKeyName() string {
+	return "record_id"
+}
+
+// GetTableName - Restituisce il nome della tabella
+func (t TestStructReadOnly) GetTableName() string {
+	return "users"
+}
+
+// GetTableRecord - Restituisce l'istanza di TableRecord
+func (t TestStructReadOnly) GetTableRecord() *TableRecord {
+	return t.tr
+}
+
+func (t *TestStructReadOnly) setGender(value string) *TestStructReadOnly {
+	t.Gender = &value
+	return t
+}
+func (t *TestStructReadOnly) setLastname(value string) *TestStructReadOnly {
+	t.Lastname = &value
+	return t
+}
+func (t *TestStructReadOnly) setName(value string) *TestStructReadOnly {
 	t.Name = &value
 	return t
 }
@@ -139,7 +182,9 @@ func TestTableRecord(t *testing.T) {
 
 	ts.tr.WhereEqual("name", "Marco").OrderByDesc("record_id").WhereOperator("record_id", "<", 23)
 
-	tsList, err := ExecQuery(ts)
+	tsList, err := ExecQuery(ts, func() TableRecordInterface {
+		return NewTestStruct()
+	})
 	if err != nil {
 		t.Fatal(err.Error())
 	}
@@ -176,4 +221,20 @@ func TestTableRecord(t *testing.T) {
 	if len(allResult) == 0 {
 		t.Error("La lista restituita sembra vuota")
 	}
+
+	tsr := NewTestStructReadOnly()
+
+	tsr.setName("foffo").setLastname("bomba").setGender("M")
+
+	err = Save(tsr)
+	if err == nil {
+		t.Fatal("Errore: il model dovrebbe essere read-only")
+	}
+
+	err = LoadByID(tsr, 23)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	
 }

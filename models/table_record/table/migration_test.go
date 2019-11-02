@@ -28,7 +28,6 @@ func TestMigration(t *testing.T) {
 	}
 
 	m := NewMigration()
-	m.New()
 
 	err = LoadMigrationByName(mName, m)
 	if err != nil {

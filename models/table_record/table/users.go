@@ -60,8 +60,7 @@ func LoadAllUsers() ([]*User, error) {
 func NewUser() *User {
 
 	u := new(User)
-	u.tr = new(record.TableRecord)
-	u.tr.SetIsNew(true)
+	u.tr = record.NewTableRecord(true, false)
 
 	return u
 }
@@ -79,11 +78,6 @@ func (u User) GetPrimaryKeyName() string {
 // GetTableName - Restituisce il nome della tabella
 func (u User) GetTableName() string {
 	return UsersTableName
-}
-
-// New - Si occupa di istanziare una nuova struct andando ad istaziare table record e settanto il campo isNew a true
-func (u User) New() record.TableRecordInterface {
-	return NewUser()
 }
 
 // SetGender - Si occupa di settare il sesso dell'utente
