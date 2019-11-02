@@ -172,15 +172,12 @@ func ExecQuery(ti TableRecordInterface, ntm NewTableModel) ([]TableRecordInterfa
 }
 
 // GetFieldMapper - Si occupa di recuperare in reflection i nomi dei tag "db" e l'indirizzo del valore del campo
-func GetFieldMapper(ti TableRecordInterface) ([]string, []interface{}) {
+func GetFieldMapper(ti TableRecordInterface) (fieldsName []string, fieldsValue []interface{}) {
 
 	vPtr := reflect.ValueOf(ti)
 
 	t := reflect.TypeOf(ti)
 	v := reflect.Indirect(vPtr)
-
-	var fieldName []string
-	var fieldValue []interface{}
 
 	for i := 0; i < v.NumField(); i++ {
 
@@ -188,11 +185,11 @@ func GetFieldMapper(ti TableRecordInterface) ([]string, []interface{}) {
 			continue
 		}
 
-		fieldValue = append(fieldValue, v.Field(i).Addr().Interface())
-		fieldName = append(fieldName, t.Elem().Field(i).Tag.Get("db"))
+		fieldsValue = append(fieldsValue, v.Field(i).Addr().Interface())
+		fieldsName = append(fieldsName, t.Elem().Field(i).Tag.Get("db"))
 	}
 
-	return fieldName, fieldValue
+	return
 }
 
 // LoadByID - Carica l'istanza passata con i valori della sua tabella ricercando per chiave primaria
@@ -272,6 +269,7 @@ func Save(ti TableRecordInterface) error {
 
 		t.recordID = id
 		t.SetIsNew(false)
+
 	} else {
 
 		query := genUpdateQuery(ti)
