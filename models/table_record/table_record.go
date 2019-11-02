@@ -55,6 +55,23 @@ func genDeleteQuery(ti TableRecordInterface) string {
 	return query
 }
 
+// genSaveQuery - Si occupa di generare la query di salvataggio
+func genSaveQuery(ti TableRecordInterface) string {
+
+	fName, _ := GetFieldMapper(ti)
+
+	query := "INSERT INTO " + ti.GetTableName() + " (" + strings.Join(fName, ", ") + ") VALUES ( " + strings.Join(getSaveFieldParams(ti), ", ") + " )"
+
+	return query
+}
+
+// genUpdateQuery - Si occupa di generare la query di aggiornamento
+func genUpdateQuery(ti TableRecordInterface) string {
+
+	query := "UPDATE  " + ti.GetTableName() + " SET " + strings.Join(getUpdateFieldParams(ti), ", ") + " WHERE " + ti.GetPrimaryKeyName() + " = ?"
+	return query
+}
+
 // getSaveFieldParams -  Si occupa di generare uno slice di "?" tanti quanti sono i parametri della query di inserimento
 func getSaveFieldParams(ti TableRecordInterface) []string {
 
@@ -69,16 +86,6 @@ func getSaveFieldParams(ti TableRecordInterface) []string {
 	return s
 }
 
-// genSaveQuery - Si occupa di generare la query di salvataggio
-func genSaveQuery(ti TableRecordInterface) string {
-
-	fName, _ := GetFieldMapper(ti)
-
-	query := "INSERT INTO " + ti.GetTableName() + " (" + strings.Join(fName, ", ") + ") VALUES ( " + strings.Join(getSaveFieldParams(ti), ", ") + " )"
-
-	return query
-}
-
 // getUpdateFiledParams - Si occupa di generare uno slice di "?" tanti quanti sono i parametri della query di aggiornamento
 func getUpdateFieldParams(ti TableRecordInterface) []string {
 
@@ -91,13 +98,6 @@ func getUpdateFieldParams(ti TableRecordInterface) []string {
 	}
 
 	return updateStmt
-}
-
-// genUpdateQuery - Si occupa di generare la query di aggiornamento
-func genUpdateQuery(ti TableRecordInterface) string {
-
-	query := "UPDATE  " + ti.GetTableName() + " SET " + strings.Join(getUpdateFieldParams(ti), ", ") + " WHERE " + ti.GetPrimaryKeyName() + " = ?"
-	return query
 }
 
 // AllField - Restitusice tutti i campi per la select *
