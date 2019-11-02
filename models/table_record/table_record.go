@@ -2,6 +2,7 @@ package record
 
 import (
 	"database/sql"
+	"errors"
 	"reflect"
 	"strings"
 
@@ -9,19 +10,22 @@ import (
 	builder "github.com/IacopoMelani/Go-Starter-Project/db/query_builder"
 )
 
+// NewTableModel - Tipo per definire una funzione che restituisce una TableRecordInterface
+type NewTableModel func() TableRecordInterface
+
 // TableRecordInterface - interfaccia che definisce una generica struct che permette l'interazione con TableRecord
 type TableRecordInterface interface {
 	GetTableRecord() *TableRecord
 	GetPrimaryKeyName() string
 	GetTableName() string
-	New() TableRecordInterface
 }
 
 // TableRecord - Struct per l'implementazione di TableRecordInterface
 // implementa QueryBuilderInterface
 type TableRecord struct {
-	RecordID int64
-	isNew    bool
+	RecordID   int64
+	isNew      bool
+	isReadOnly bool
 	builder.Builder
 }
 
@@ -133,7 +137,7 @@ func Delete(ti TableRecordInterface) (int64, error) {
 }
 
 // ExecQuery - Esegue la query costruita con QueryBuilder
-func ExecQuery(ti TableRecordInterface) ([]TableRecordInterface, error) {
+func ExecQuery(ti TableRecordInterface, ntm NewTableModel) ([]TableRecordInterface, error) {
 
 	t := ti.GetTableRecord()
 
@@ -153,19 +157,12 @@ func ExecQuery(ti TableRecordInterface) ([]TableRecordInterface, error) {
 
 	for rows.Next() {
 
-		nti := ti.New()
+		nti := ntm()
 
-		_, vField := GetFieldMapper(nti)
-
-		params := append([]interface{}{&nti.GetTableRecord().RecordID}, vField...)
-
-		err := rows.Scan(params...)
-		if err != nil {
+		if err := LoadFromRow(rows, nti); err != nil {
 			return nil, err
 		}
-
-		nti.GetTableRecord().SetIsNew(false)
-
+		
 		tiList = append(tiList, nti)
 	}
 
@@ -221,16 +218,9 @@ func LoadByID(ti TableRecordInterface, id int64) error {
 
 	if rows.Next() {
 
-		_, vField := GetFieldMapper(ti)
-
-		params := append([]interface{}{&ti.GetTableRecord().RecordID}, vField...)
-
-		err := rows.Scan(params...)
-		if err != nil {
+		if err := LoadFromRow(rows, ti); err != nil {
 			return err
 		}
-
-		ti.GetTableRecord().SetIsNew(false)
 	}
 
 	return nil
@@ -252,10 +242,24 @@ func LoadFromRow(r *sql.Rows, tri TableRecordInterface) error {
 	return nil
 }
 
+// NewTableRecord - Restituisce una nuova istanza di TableRecord
+func NewTableRecord(isNew bool, isReadOnly bool) *TableRecord {
+
+	tr := new(TableRecord)
+	tr.isNew = isNew
+	tr.isReadOnly = isReadOnly
+
+	return tr
+}
+
 // Save - Si occupa di eseguire il salvataggio della TableRecord eseguendo un inserimento se TableRecord::isNew risulta false, altrimenti ne aggiorna il valore
 func Save(ti TableRecordInterface) error {
 
 	t := ti.GetTableRecord()
+
+	if t.isReadOnly {
+		return errors.New("Read-only model")
+	}
 
 	if t.isNew {
 

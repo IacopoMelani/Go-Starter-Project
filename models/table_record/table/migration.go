@@ -76,16 +76,10 @@ func LoadAllMigrations() ([]*Migration, error) {
 
 		m := NewMigration()
 
-		_, vField := record.GetFieldMapper(m)
-
-		dest := append([]interface{}{&m.tr.RecordID}, vField...)
-
-		err := rows.Scan(dest...)
-		if err != nil {
+		if err := record.LoadFromRow(rows, m); err != nil {
 			return nil, err
 		}
 
-		m.tr.SetIsNew(false)
 		result = append(result, m)
 	}
 
@@ -120,8 +114,7 @@ func LoadMigrationByName(name string, m *Migration) error {
 func NewMigration() *Migration {
 
 	m := new(Migration)
-	m.tr = new(record.TableRecord)
-	m.tr.SetIsNew(true)
+	m.tr = record.NewTableRecord(true, false)
 
 	return m
 }
@@ -139,9 +132,4 @@ func (m Migration) GetPrimaryKeyName() string {
 // GetTableName - Restituisce il nome della tabella
 func (m Migration) GetTableName() string {
 	return MigrationsTableName
-}
-
-// New - Si occupa di istanziare una nuova struct andando ad istaziare table record e settanto il campo isNew a true
-func (m Migration) New() record.TableRecordInterface {
-	return NewMigration()
 }
