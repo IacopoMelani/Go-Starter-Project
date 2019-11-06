@@ -223,6 +223,17 @@ func TestTableRecord(t *testing.T) {
 		t.Error("La lista restituita sembra vuota")
 	}
 
+	testAll, err := All(func() TableRecordInterface {
+		return NewTestStruct()
+	})
+	if err != nil {
+		t.Fatal(err.Error())
+	}
+
+	if len(testAll) == 0 {
+		t.Error("La lista restituita sembra vuota")
+	}
+
 	tsr := NewTestStructReadOnly()
 
 	tsr.setName("foffo").setLastname("bomba").setGender("M")

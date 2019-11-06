@@ -110,6 +110,38 @@ func AllField(ti TableRecordInterface) string {
 	return strings.Join(fieldName, ",")
 }
 
+// All - Restituisce tutti i risultati per il costruttore del table record passato
+func All(ntm NewTableModel) ([]TableRecordInterface, error) {
+
+	var result []TableRecordInterface
+
+	db := db.GetConnection()
+
+	pivot := ntm()
+
+	query := "SELECT " + AllField(pivot) + " FROM " + pivot.GetTableName()
+
+	rows, err := db.Query(query)
+	if err != nil {
+		return nil, err
+	}
+
+	for rows.Next() {
+
+		ti := ntm()
+
+		err = LoadFromRow(rows, ti)
+		if err != nil {
+			return nil, err
+		}
+
+		result = append(result, ti)
+
+	}
+
+	return result, nil
+}
+
 // Delete - Si occupa di cancellare un record sul database
 func Delete(ti TableRecordInterface) (int64, error) {
 
