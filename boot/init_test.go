@@ -1,9 +1,7 @@
 package boot
 
 import (
-	"github.com/IacopoMelani/Go-Starter-Project/models/duration_data"
 	"testing"
-	"time"
 
 	"github.com/subosito/gotenv"
 
@@ -18,9 +16,7 @@ func TestInitServer(t *testing.T) {
 
 	config := config.GetInstance()
 
-	time.Sleep(1000 * time.Millisecond)
-
-	if config.StringConnection == "" || durationdata.GetUsersData().GetSafeContent() == nil {
+	if config.StringConnection == "" {
 		t.Fatal("Errore durante l'avvio del server")
 	}
 
