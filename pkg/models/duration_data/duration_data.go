@@ -32,8 +32,10 @@ func InitDurationData() {
 }
 
 // RegisterInitDurationData - Registra le funzioni che avviano i propri duration data
-func RegisterInitDurationData(f func() *DurationData) {
-	registeredInitDurationData = append(registeredInitDurationData, f)
+func RegisterInitDurationData(f ...func() *DurationData) {
+	for _, fn := range f {
+		registeredInitDurationData = append(registeredInitDurationData, fn)
+	}
 }
 
 // getDaemonData - Si occupa di prevelare i dati dall'handler e se non ci sono stati errori lo sostituisce con quello nuovo

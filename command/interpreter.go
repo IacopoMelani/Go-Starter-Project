@@ -6,6 +6,8 @@ import (
 	"os"
 	"strconv"
 
+	cacheconf "github.com/IacopoMelani/Go-Starter-Project/pkg/cache_config"
+
 	"github.com/IacopoMelani/Go-Starter-Project/db"
 
 	"github.com/IacopoMelani/Go-Starter-Project/pkg/manager/migration"
@@ -72,7 +74,7 @@ func migrateStatusCommand() {
 func rollbackCommand() {
 
 	db.InitMigrationsList()
-	
+
 	err := migration.DoDownMigrations()
 	if err != nil {
 		panic("Error during rollback, error: " + err.Error())
@@ -97,7 +99,7 @@ func InterpretingHumanWord() {
 	case showConfig:
 
 		config.GetInstance()
-		fmt.Println(config.Config)
+		fmt.Println(cacheconf.GetCurrentConfig())
 		break
 
 	case migrate:
