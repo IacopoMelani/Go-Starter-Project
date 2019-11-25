@@ -3,14 +3,13 @@ package table
 import (
 	"testing"
 
-	record "github.com/IacopoMelani/Go-Starter-Project/models/table_record"
-
+	record "github.com/IacopoMelani/Go-Starter-Project/pkg/models/table_record"
 	"github.com/subosito/gotenv"
 )
 
 func TestTableMirror(t *testing.T) {
 
-	gotenv.Load("./../../../.env")
+	gotenv.Load("./../../.env")
 
 	u := NewUser()
 

@@ -3,14 +3,13 @@ package table
 import (
 	"testing"
 
-	"github.com/IacopoMelani/Go-Starter-Project/db"
-
+	"github.com/IacopoMelani/Go-Starter-Project/pkg/db"
 	"github.com/subosito/gotenv"
 )
 
 func TestMigration(t *testing.T) {
 
-	gotenv.Load("./../../../.env")
+	gotenv.Load("./../../../../.env")
 
 	db := db.GetConnection()
 	conn, err := db.Begin()
@@ -38,5 +37,14 @@ func TestMigration(t *testing.T) {
 	if m.Name != migration.Name || m.Status != migration.Status {
 		conn.Rollback()
 		t.Fatal("Operazione di migrazione errata")
+	}
+
+	allMigrations, err := LoadAllMigrations()
+	if err != nil {
+		t.Fatal(err.Error())
+	}
+
+	if len(allMigrations) == 0 {
+		t.Fatal("Migrazioni non caricate correttamente")
 	}
 }

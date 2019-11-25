@@ -6,8 +6,10 @@ import (
 	"os"
 	"strconv"
 
-	"github.com/IacopoMelani/Go-Starter-Project/manager/migration"
-	"github.com/IacopoMelani/Go-Starter-Project/models/table_record/table"
+	"github.com/IacopoMelani/Go-Starter-Project/db"
+
+	"github.com/IacopoMelani/Go-Starter-Project/pkg/manager/migration"
+	"github.com/IacopoMelani/Go-Starter-Project/pkg/models/table_record/table"
 	"github.com/olekukonko/tablewriter"
 
 	"github.com/IacopoMelani/Go-Starter-Project/config"
@@ -36,6 +38,8 @@ func getDefaultMessage() string {
 }
 
 func migrateCommand() {
+
+	db.InitMigrationsList()
 
 	err := migration.DoUpMigrations()
 	if err != nil {
@@ -67,6 +71,8 @@ func migrateStatusCommand() {
 
 func rollbackCommand() {
 
+	db.InitMigrationsList()
+	
 	err := migration.DoDownMigrations()
 	if err != nil {
 		panic("Error during rollback, error: " + err.Error())

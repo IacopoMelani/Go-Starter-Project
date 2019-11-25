@@ -1,25 +1,28 @@
-package durationdata
+package durationmodel
 
 import (
-	"github.com/IacopoMelani/Go-Starter-Project/config"
-	"github.com/IacopoMelani/Go-Starter-Project/helpers/request"
 	"io"
 	"net/http"
 	"sync"
+
+	"github.com/IacopoMelani/Go-Starter-Project/pkg/helpers/request"
+	durationdata "github.com/IacopoMelani/Go-Starter-Project/pkg/models/duration_data"
+
+	"github.com/IacopoMelani/Go-Starter-Project/config"
 )
 
 // UserRemoteData - Definisce una struct che implementa RemoteData
 type UserRemoteData struct{}
 
-var userData *DurationData
+var userData *durationdata.DurationData
 var onceUser sync.Once
 
 // GetUsersData - Restituisce l'istanza di DurantionData relativo agli utenti
-func GetUsersData() *DurationData {
+func GetUsersData() *durationdata.DurationData {
 	onceUser.Do(func() {
-		userData = new(DurationData)
-		userData.ddi = UserRemoteData{}
-		userData.sleepSecond = config.GetInstance().UserTimeToRefresh
+		userData = new(durationdata.DurationData)
+		userData.SetDurationDataInterface(UserRemoteData{})
+		userData.SetTimeToRefresh(config.GetInstance().UserTimeToRefresh)
 		userData.Daemon()
 	})
 	return userData

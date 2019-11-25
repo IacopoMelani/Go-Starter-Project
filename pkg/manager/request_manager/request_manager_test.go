@@ -4,7 +4,7 @@ import (
 	"testing"
 	"time"
 
-	durationdata "github.com/IacopoMelani/Go-Starter-Project/models/duration_data"
+	durationmodel "github.com/IacopoMelani/Go-Starter-Project/models/duration_data"
 )
 
 func TestRequestManager(t *testing.T) {
@@ -15,7 +15,7 @@ func TestRequestManager(t *testing.T) {
 
 		go func() {
 
-			u := durationdata.UserRemoteData{}
+			u := durationmodel.UserRemoteData{}
 
 			res, err := rm.AddRequest(u)
 

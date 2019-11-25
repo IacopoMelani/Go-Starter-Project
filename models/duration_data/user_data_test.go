@@ -1,8 +1,10 @@
-package durationdata
+package durationmodel
 
 import (
 	"testing"
 	"time"
+
+	durationdata "github.com/IacopoMelani/Go-Starter-Project/pkg/models/duration_data"
 
 	"github.com/subosito/gotenv"
 )
@@ -11,9 +13,9 @@ func TestGetUserData(t *testing.T) {
 
 	gotenv.Load("./../../.env")
 
-	RegisterInitDurationData(GetUsersData)
+	durationdata.RegisterInitDurationData(GetUsersData)
 
-	InitDurationData()
+	durationdata.InitDurationData()
 	time.Sleep(2 * time.Second)
 
 	d := GetUsersData()

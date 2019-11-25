@@ -3,11 +3,11 @@ package migration
 import (
 	"testing"
 
-	record "github.com/IacopoMelani/Go-Starter-Project/models/table_record"
+	"github.com/IacopoMelani/Go-Starter-Project/pkg/db"
+	"github.com/IacopoMelani/Go-Starter-Project/pkg/models/table_record/table"
 
-	"github.com/IacopoMelani/Go-Starter-Project/models/table_record/table"
+	record "github.com/IacopoMelani/Go-Starter-Project/pkg/models/table_record"
 
-	"github.com/IacopoMelani/Go-Starter-Project/db"
 	"github.com/subosito/gotenv"
 )
 
@@ -32,7 +32,7 @@ func (t TestTable) Up() string {
 
 func TestMigrationManager(t *testing.T) {
 
-	gotenv.Load("./../../.env")
+	gotenv.Load("./../../../.env")
 
 	db := db.GetConnection()
 
@@ -59,19 +59,19 @@ func TestMigrationManager(t *testing.T) {
 		t.Fatal(err.Error())
 	}
 
-	err = migrator.DoUpMigrations()
+	err = DoUpMigrations()
 	if err != nil {
 		conn.Rollback()
 		t.Fatal(err.Error())
 	}
 
-	err = migrator.DoUpMigrations()
+	err = DoUpMigrations()
 	if err != nil {
 		conn.Rollback()
 		t.Fatal(err.Error())
 	}
 
-	err = migrator.DoDownMigrations()
+	err = DoDownMigrations()
 	if err != nil {
 		conn.Rollback()
 		t.Fatal(err.Error())

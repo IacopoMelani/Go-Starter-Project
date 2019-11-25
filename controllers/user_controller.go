@@ -4,7 +4,8 @@ import (
 	"time"
 
 	durationdata "github.com/IacopoMelani/Go-Starter-Project/models/duration_data"
-	"github.com/IacopoMelani/Go-Starter-Project/models/table_record/table"
+	"github.com/IacopoMelani/Go-Starter-Project/models/table"
+
 	"github.com/dgrijalva/jwt-go"
 
 	"github.com/labstack/echo"
@@ -26,7 +27,7 @@ func GetAllUser(c echo.Context) error {
 			Success: false,
 			Message: err.Error(),
 		})
-		
+
 	}
 
 	return c.JSON(200, Response{

@@ -4,7 +4,7 @@ import (
 	"database/sql"
 	"testing"
 
-	"github.com/IacopoMelani/Go-Starter-Project/db"
+	"github.com/IacopoMelani/Go-Starter-Project/pkg/db"
 
 	"github.com/subosito/gotenv"
 )
@@ -19,7 +19,7 @@ type testStruct struct {
 
 func TestQueryBuilder(t *testing.T) {
 
-	gotenv.Load("./../../.env")
+	gotenv.Load("./../../../.env")
 	db := db.GetConnection()
 
 	ts := new(testStruct)
