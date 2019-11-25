@@ -3,8 +3,7 @@ package record
 import (
 	"testing"
 
-	"github.com/IacopoMelani/Go-Starter-Project/db"
-
+	"github.com/IacopoMelani/Go-Starter-Project/pkg/db"
 	"github.com/subosito/gotenv"
 )
 
@@ -135,7 +134,7 @@ func (t *TestStructReadOnly) setName(value string) *TestStructReadOnly {
 
 func TestTableRecord(t *testing.T) {
 
-	gotenv.Load("./../../.env")
+	gotenv.Load("./../../../.env")
 
 	ts := NewTestStruct()
 

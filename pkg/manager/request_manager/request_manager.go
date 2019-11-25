@@ -3,7 +3,7 @@ package rmanager
 import (
 	"sync"
 
-	"github.com/IacopoMelani/Go-Starter-Project/helpers/request"
+	"github.com/IacopoMelani/Go-Starter-Project/pkg/helpers/request"
 )
 
 // requestContainer - Struct che defisce una singola richiesta, definisce l'istanza di RemoteData da cui prelevare i dati e un channel su cui scrivere il risultato

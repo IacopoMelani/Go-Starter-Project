@@ -4,11 +4,10 @@ import (
 	"database/sql"
 	"sync"
 
-	record "github.com/IacopoMelani/Go-Starter-Project/models/table_record"
+	"github.com/IacopoMelani/Go-Starter-Project/pkg/db"
+	"github.com/IacopoMelani/Go-Starter-Project/pkg/models/table_record/table"
 
-	"github.com/IacopoMelani/Go-Starter-Project/models/table_record/table"
-
-	"github.com/IacopoMelani/Go-Starter-Project/db"
+	record "github.com/IacopoMelani/Go-Starter-Project/pkg/models/table_record"
 )
 
 // Migrable - Definisce l'interfaccia per poter avviare una migrazione sul database
@@ -24,8 +23,10 @@ type Migrator struct {
 }
 
 var (
-	migrator     *Migrator
-	onceMigrator sync.Once
+	migrator           *Migrator
+	onceMigrator       sync.Once
+	migrationsList     []Migrable
+	onceMigrationsList sync.Once
 )
 
 // createMigrationsTable - Si occupa di creare la tabella delle migrazioni
@@ -77,6 +78,13 @@ func GetMigratorInstance() *Migrator {
 	})
 
 	return migrator
+}
+
+// InitMigrationsList - Imposta la lista delle migrazioni
+func InitMigrationsList(ml []Migrable) {
+	onceMigrationsList.Do(func() {
+		migrationsList = ml
+	})
 }
 
 // DoDownMigrations - Si occupa di fare il rollback delle tabelle definite in migrations_list

@@ -6,8 +6,8 @@ import (
 	"reflect"
 	"strings"
 
-	"github.com/IacopoMelani/Go-Starter-Project/db"
-	builder "github.com/IacopoMelani/Go-Starter-Project/db/query_builder"
+	"github.com/IacopoMelani/Go-Starter-Project/pkg/db"
+	builder "github.com/IacopoMelani/Go-Starter-Project/pkg/db/query_builder"
 )
 
 // NewTableModel - Tipo per definire una funzione che restituisce una TableRecordInterface

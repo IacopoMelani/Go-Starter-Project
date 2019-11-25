@@ -106,6 +106,16 @@ func (d *DurationData) SetContent(content interface{}, secondsInterval int) {
 	d.mu.Unlock()
 }
 
+// SetDurationDataInterface - Imposta la struct che implementa DDInterface
+func (d *DurationData) SetDurationDataInterface(ddi DDInterface) {
+	d.ddi = ddi
+}
+
+// SetTimeToRefresh - Imposta il valore del tempo di refresh dei dati remoti
+func (d *DurationData) SetTimeToRefresh(t int) {
+	d.sleepSecond = t
+}
+
 // StopDaemon - Si occupa di avvertire il demone di fermarsi
 func (d *DurationData) StopDaemon() {
 	d.stopSignal <- true

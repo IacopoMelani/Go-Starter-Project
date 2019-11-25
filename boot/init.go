@@ -3,10 +3,13 @@ package boot
 import (
 	"sync"
 
+	durationmodel "github.com/IacopoMelani/Go-Starter-Project/models/duration_data"
+
+	durationdata "github.com/IacopoMelani/Go-Starter-Project/pkg/models/duration_data"
+
 	"github.com/IacopoMelani/Go-Starter-Project/controllers"
 
 	"github.com/IacopoMelani/Go-Starter-Project/config"
-	durationdata "github.com/IacopoMelani/Go-Starter-Project/models/duration_data"
 	"github.com/IacopoMelani/Go-Starter-Project/routes"
 
 	"github.com/labstack/echo/middleware"
@@ -36,7 +39,7 @@ func InitServer() {
 
 	go func() {
 		defer wg.Done()
-		durationdata.RegisterInitDurationData(durationdata.GetUsersData)
+		durationdata.RegisterInitDurationData(durationmodel.GetUsersData)
 		durationdata.InitDurationData()
 	}()
 

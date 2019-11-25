@@ -4,9 +4,8 @@ import (
 	"errors"
 	"time"
 
-	"github.com/IacopoMelani/Go-Starter-Project/db"
-
-	record "github.com/IacopoMelani/Go-Starter-Project/models/table_record"
+	"github.com/IacopoMelani/Go-Starter-Project/pkg/db"
+	record "github.com/IacopoMelani/Go-Starter-Project/pkg/models/table_record"
 )
 
 // Costanti relative alla tabella migrations
