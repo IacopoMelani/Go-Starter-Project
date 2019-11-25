@@ -36,6 +36,7 @@ func InitServer() {
 
 	go func() {
 		defer wg.Done()
+		durationdata.RegisterInitDurationData(durationdata.GetUsersData)
 		durationdata.InitDurationData()
 	}()
 

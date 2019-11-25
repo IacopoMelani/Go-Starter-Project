@@ -11,11 +11,12 @@ func TestGetUserData(t *testing.T) {
 
 	gotenv.Load("./../../.env")
 
+	RegisterInitDurationData(GetUsersData)
+
 	InitDurationData()
+	time.Sleep(2 * time.Second)
 
 	d := GetUsersData()
-
-	time.Sleep(2 * time.Second)
 
 	d.StopDaemon()
 
