@@ -49,7 +49,7 @@ func GetCurrentConfig() string {
 	return config
 }
 
-// loadEnvConfig - si occupa di caricare tutte le configurazioni dell'env nella struttura di configurazione
+// LoadEnvConfig - si occupa di caricare tutte le configurazioni dell'env nella struttura di configurazione
 func LoadEnvConfig(c CacheConfigInterface) {
 	config = "\n"
 	for envName, StructName := range c.GetFieldMapper() {
