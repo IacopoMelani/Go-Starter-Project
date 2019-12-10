@@ -28,6 +28,7 @@ const (
 	showConfig    = "go-config"
 )
 
+// getDefaultMessage - Restituisce il messaggio default
 func getDefaultMessage() string {
 	return `
 		commands:
@@ -39,6 +40,7 @@ func getDefaultMessage() string {
 	`
 }
 
+// migrateCommand - Si occupa di eseguire la migrazione del database
 func migrateCommand() {
 
 	db.InitMigrationsList()
@@ -50,6 +52,7 @@ func migrateCommand() {
 	fmt.Println("Gotcha!")
 }
 
+// migrateStatusCommand - Si occupa di recuperare lo stato delle migrazioni
 func migrateStatusCommand() {
 
 	migrations, err := table.LoadAllMigrations()
@@ -71,6 +74,7 @@ func migrateStatusCommand() {
 	table.Render()
 }
 
+// rollbackCommand - Si occupa di richiamare il rollback del database
 func rollbackCommand() {
 
 	db.InitMigrationsList()
