@@ -36,6 +36,12 @@ func TestMigrationManager(t *testing.T) {
 
 	db := db.GetConnection()
 
+	var migrationsList = []Migrable{
+		TestTable{},
+	}
+
+	InitMigrationsList(migrationsList)
+
 	conn, err := db.Begin()
 	if err != nil {
 		t.Fatal(err.Error())
