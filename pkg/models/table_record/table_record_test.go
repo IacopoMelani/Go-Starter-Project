@@ -247,4 +247,8 @@ func TestTableRecord(t *testing.T) {
 		t.Fatal(err)
 	}
 
+	if tsr.tr.GetID() < 0 {
+		t.Fatal("Errore: record id non valido")
+	}
+
 }

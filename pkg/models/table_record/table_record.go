@@ -176,6 +176,7 @@ func ExecQuery(ti TableRecordInterface, ntm NewTableModel) ([]TableRecordInterfa
 	stmt, err := t.PrepareStmt(ti.GetTableName())
 	if err != nil {
 		return nil, err
+		
 	}
 	defer stmt.Close()
 
@@ -213,7 +214,7 @@ func GetFieldMapper(ti TableRecordInterface) (fieldsName []string, fieldsValue [
 
 	for i := 0; i < v.NumField(); i++ {
 
-		if !v.Field(i).CanInterface() || !v.Field(i).CanSet() {
+		if !v.Field(i).CanInterface() || !v.Field(i).CanSet() || t.Elem().Field(i).Tag.Get("db") == "" {
 			continue
 		}
 
