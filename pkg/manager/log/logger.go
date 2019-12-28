@@ -15,10 +15,8 @@ var (
 
 var backendList []logging.Backend
 
-// NewLogBackend - Richiama init per un nuovo backend di logging
-func NewLogBackend(out io.Writer, prefix string, flag int, level logging.Level, format logging.Formatter) {
-
-	backend := logging.NewLogBackend(out, prefix, flag)
+// setBackendFormat - Imposta il formato dell'output di logging
+func setBackendFormat(backend *logging.LogBackend, format logging.Formatter) logging.Backend {
 
 	var b logging.Backend
 
@@ -27,6 +25,21 @@ func NewLogBackend(out io.Writer, prefix string, flag int, level logging.Level, 
 	} else {
 		b = logging.NewBackendFormatter(backend, DefaultLogFormatter)
 	}
+
+	return b
+}
+
+// Init - Si occupa di inizializzare il logging
+func Init() {
+	logging.SetBackend(backendList...)
+}
+
+// NewLogBackend - Richiama init per un nuovo backend di logging
+func NewLogBackend(out io.Writer, prefix string, flag int, level logging.Level, format logging.Formatter) {
+
+	backend := logging.NewLogBackend(out, prefix, flag)
+
+	b := setBackendFormat(backend, format)
 
 	backendLevel := logging.AddModuleLevel(b)
 	backendLevel.SetLevel(level, "")
