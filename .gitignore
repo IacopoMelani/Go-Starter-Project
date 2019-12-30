@@ -2,4 +2,6 @@
 .env.test
 .vscode/
 *.exe
+*.log
 coverage.txt
+/log/
