@@ -18,7 +18,7 @@ type DurationData struct {
 	ddi         DDInterface
 	stopSignal  chan bool
 	sleepSecond int
-	Content     interface{}
+	content     interface{}
 	ExpiredAt   time.Time
 }
 
@@ -43,7 +43,7 @@ func (d *DurationData) getDaemonData() {
 	content, err := d.ddi.HandlerData()
 	if err == nil {
 		d.mu.Lock()
-		d.Content = content
+		d.content = content
 		d.mu.Unlock()
 	}
 }
@@ -74,7 +74,7 @@ func (d *DurationData) Daemon() {
 // GetContent - Restituisce i dati recuperati nel caso siano presenti e non siano scaduti altrimenti errore
 func (d *DurationData) GetContent() (interface{}, error) {
 
-	if d.ExpiredAt.IsZero() || d.Content == nil {
+	if d.ExpiredAt.IsZero() || d.content == nil {
 		return nil, errors.New("Dati mancanti")
 	}
 
@@ -82,14 +82,14 @@ func (d *DurationData) GetContent() (interface{}, error) {
 	if diff.Seconds() <= 0 {
 		return nil, errors.New("Data scaduta")
 	}
-	return d.Content, nil
+	return d.content, nil
 }
 
 // GetSafeContent - Restituisce in modo esclusivo il contenuto di duration data
 func (d *DurationData) GetSafeContent() interface{} {
 
 	d.mu.Lock()
-	content := d.Content
+	content := d.content
 	d.mu.Unlock()
 
 	return content
@@ -103,7 +103,7 @@ func (d *DurationData) SetContent(content interface{}, secondsInterval int) {
 	}
 
 	d.mu.Lock()
-	d.Content = content
+	d.content = content
 	d.ExpiredAt = time.Now().Add(time.Second * time.Duration(secondsInterval))
 	d.mu.Unlock()
 }

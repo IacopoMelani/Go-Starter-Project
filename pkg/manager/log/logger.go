@@ -15,6 +15,8 @@ var (
 
 var backendList []logging.Backend
 
+var logger = logging.MustGetLogger("app")
+
 // setBackendFormat - Imposta il formato dell'output di logging
 func setBackendFormat(backend *logging.LogBackend, format logging.Formatter) logging.Backend {
 
@@ -27,6 +29,11 @@ func setBackendFormat(backend *logging.LogBackend, format logging.Formatter) log
 	}
 
 	return b
+}
+
+// GetLogger - Restituisce il logger
+func GetLogger() *logging.Logger {
+	return logger
 }
 
 // Init - Si occupa di inizializzare il logging
