@@ -79,21 +79,3 @@ func (u User) GetPrimaryKeyName() string {
 func (u User) GetTableName() string {
 	return UsersTableName
 }
-
-// SetGender - Si occupa di settare il sesso dell'utente
-func (u *User) SetGender(value string) *User {
-	u.Gender = &value
-	return u
-}
-
-// SetLastname - Si occupa di settare il cognome dell'utente
-func (u *User) SetLastname(value string) *User {
-	u.Lastname = &value
-	return u
-}
-
-// SetName - Si occupa di settare il sesso della personas
-func (u *User) SetName(value string) *User {
-	u.Name = &value
-	return u
-}

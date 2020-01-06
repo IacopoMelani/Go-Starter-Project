@@ -1,7 +1,11 @@
 package boot
 
 import (
+	"os"
 	"sync"
+
+	"github.com/IacopoMelani/Go-Starter-Project/pkg/manager/log"
+	"github.com/op/go-logging"
 
 	durationmodel "github.com/IacopoMelani/Go-Starter-Project/models/duration_data"
 
@@ -30,7 +34,7 @@ func InitServer() {
 
 	var wg sync.WaitGroup
 
-	wg.Add(4)
+	wg.Add(5)
 
 	go func() {
 		defer wg.Done()
@@ -52,6 +56,22 @@ func InitServer() {
 
 	}()
 
+	var file *os.File
+	defer file.Close()
+	go func(file *os.File) {
+		defer wg.Done()
+		if _, err := os.Stat("./log"); os.IsNotExist(err) {
+			os.Mkdir("./log", os.ModePerm)
+		}
+		file, err := os.OpenFile("./log/info.log", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+		if err != nil {
+			panic(err)
+		}
+		log.NewLogBackend(os.Stdout, "", 0, logging.DEBUG, log.DefaultLogFormatter)
+		log.NewLogBackend(file, "", 0, logging.WARNING, log.VerboseLogFilePathFormatter)
+		log.Init()
+	}(file)
+
 	go func() {
 		defer wg.Done()
 		controllers.InitCustomHandler()
@@ -60,6 +80,9 @@ func InitServer() {
 	wg.Wait()
 
 	config := config.GetInstance()
+
+	logger := log.GetLogger()
+	logger.Info("Applicazione avviata!")
 
 	e.Logger.Fatal(e.Start(config.AppPort))
 }

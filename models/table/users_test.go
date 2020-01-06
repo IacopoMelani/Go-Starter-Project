@@ -3,6 +3,8 @@ package table
 import (
 	"testing"
 
+	"github.com/IacopoMelani/Go-Starter-Project/pkg/helpers/copy"
+
 	record "github.com/IacopoMelani/Go-Starter-Project/pkg/models/table_record"
 	"github.com/subosito/gotenv"
 )
@@ -13,7 +15,9 @@ func TestTableMirror(t *testing.T) {
 
 	u := NewUser()
 
-	u.SetName("Mario").SetLastname("Rossi").SetGender("M")
+	u.Name = copy.String("Mario")
+	u.Lastname = copy.String("Rossi")
+	u.Gender = copy.String("M")
 
 	err := record.Save(u)
 	if err != nil {
@@ -36,7 +40,7 @@ func TestTableMirror(t *testing.T) {
 		t.Error("Campi non uguali")
 	}
 
-	u.SetName("Marco")
+	u.Name = copy.String("Marco")
 
 	err = record.Save(u)
 	if err != nil {
