@@ -47,7 +47,7 @@ func GetDurataionUsers(c echo.Context) error {
 		Status:  0,
 		Success: true,
 		Message: "ok!",
-		Content: data.Content,
+		Content: data.GetSafeContent(),
 	})
 }
 

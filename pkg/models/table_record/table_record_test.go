@@ -3,6 +3,8 @@ package record
 import (
 	"testing"
 
+	"github.com/IacopoMelani/Go-Starter-Project/pkg/helpers/copy"
+
 	"github.com/IacopoMelani/Go-Starter-Project/pkg/db"
 	"github.com/subosito/gotenv"
 )
@@ -68,19 +70,6 @@ func (t TestStruct) GetTableName() string {
 	return "users"
 }
 
-func (t *TestStruct) setGender(value string) *TestStruct {
-	t.Gender = &value
-	return t
-}
-func (t *TestStruct) setLastname(value string) *TestStruct {
-	t.Lastname = &value
-	return t
-}
-func (t *TestStruct) setName(value string) *TestStruct {
-	t.Name = &value
-	return t
-}
-
 // TestStructReadOnly - Struct di test readonly che implementa TableRecordInterface
 type TestStructReadOnly struct {
 	tr       *TableRecord
@@ -119,28 +108,15 @@ func (t TestStructReadOnly) GetTableRecord() *TableRecord {
 	return t.tr
 }
 
-func (t *TestStructReadOnly) setGender(value string) *TestStructReadOnly {
-	t.Gender = &value
-	return t
-}
-func (t *TestStructReadOnly) setLastname(value string) *TestStructReadOnly {
-	t.Lastname = &value
-	return t
-}
-func (t *TestStructReadOnly) setName(value string) *TestStructReadOnly {
-	t.Name = &value
-	return t
-}
-
 func TestTableRecord(t *testing.T) {
 
 	gotenv.Load("./../../../.env")
 
 	ts := NewTestStruct()
 
-	ts.setName("Mario")
-	ts.setLastname("Rossi")
-	ts.setGender("M")
+	ts.Name = copy.String("Mario")
+	ts.Lastname = copy.String("Rossi")
+	ts.Gender = copy.String("M")
 
 	err := Save(ts)
 	if err != nil {
@@ -167,7 +143,7 @@ func TestTableRecord(t *testing.T) {
 		t.Fatal("Campi non uguali")
 	}
 
-	ts.setName("Marco")
+	ts.Name = copy.String("Marco")
 
 	err = Save(ts)
 	if err != nil {
@@ -195,9 +171,9 @@ func TestTableRecord(t *testing.T) {
 
 	ts = NewTestStruct()
 
-	ts.setName("Mario")
-	ts.setLastname("Rossi")
-	ts.setGender("M")
+	ts.Name = copy.String("Mario")
+	ts.Lastname = copy.String("Rossi")
+	ts.Gender = copy.String("G")
 
 	err = Save(ts)
 	if err != nil {
@@ -235,7 +211,9 @@ func TestTableRecord(t *testing.T) {
 
 	tsr := NewTestStructReadOnly()
 
-	tsr.setName("foffo").setLastname("bomba").setGender("M")
+	tsr.Name = copy.String("foffo")
+	tsr.Lastname = copy.String("bomba")
+	tsr.Gender = copy.String("M")
 
 	err = Save(tsr)
 	if err == nil {
