@@ -8,9 +8,9 @@ import (
 
 // Variabili relative ai formati default di log
 var (
-	DefaultLogFormatter         = logging.MustStringFormatter("%{color}%{time:2006-05-04 15:04:05} %{shortfunc} ▶ %{level:.4s} %{id:03x}%{color:reset} %{message}")
-	LowVerboseLogFormatter      = logging.MustStringFormatter("%{time:2006-05-04 15:04:05} ▶ %{level:.4s} %{message}")
-	VerboseLogFilePathFormatter = logging.MustStringFormatter("%{color}%{time:2006-05-04 15:04:05} %{shortfunc} ▶ %{level:.4s} %{id:03x}%{color:reset} %{longfile} %{message}")
+	DefaultLogFormatter         = logging.MustStringFormatter("%{color}%{time:2006-01-02 15:04} %{shortfunc} ▶ %{level:.4s} %{id:03x}%{color:reset} %{message}")
+	LowVerboseLogFormatter      = logging.MustStringFormatter("%{time:2006-01-02 15:04} ▶ %{level:.4s} %{message}")
+	VerboseLogFilePathFormatter = logging.MustStringFormatter("%{color}%{time:2006-01-02 15:04} %{longpkg} %{longfunc} ▶ %{level:.4s} %{id:03x}%{color:reset} %{longfile} %{message}")
 )
 
 var backendList []logging.Backend

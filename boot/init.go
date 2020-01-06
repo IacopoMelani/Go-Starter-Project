@@ -56,7 +56,9 @@ func InitServer() {
 
 	}()
 
-	go func() {
+	var file *os.File
+	defer file.Close()
+	go func(file *os.File) {
 		defer wg.Done()
 		if _, err := os.Stat("./log"); os.IsNotExist(err) {
 			os.Mkdir("./log", os.ModePerm)
@@ -65,11 +67,10 @@ func InitServer() {
 		if err != nil {
 			panic(err)
 		}
-		defer file.Close()
-		log.NewLogBackend(os.Stderr, "", 0, logging.DEBUG, log.DefaultLogFormatter)
+		log.NewLogBackend(os.Stdout, "", 0, logging.DEBUG, log.DefaultLogFormatter)
 		log.NewLogBackend(file, "", 0, logging.WARNING, log.VerboseLogFilePathFormatter)
 		log.Init()
-	}()
+	}(file)
 
 	go func() {
 		defer wg.Done()
@@ -80,10 +81,8 @@ func InitServer() {
 
 	config := config.GetInstance()
 
-	go func() {
-		logger := log.GetLogger()
-		logger.Info("Applicazione avviata!")
-	}()
+	logger := log.GetLogger()
+	logger.Info("Applicazione avviata!")
 
 	e.Logger.Fatal(e.Start(config.AppPort))
 }
