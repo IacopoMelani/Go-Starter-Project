@@ -50,6 +50,7 @@ func migrateCommand() {
 		panic("Error during migrating, error: " + err.Error())
 	}
 	fmt.Println("Gotcha!")
+	migrateStatusCommand()
 }
 
 // migrateStatusCommand - Si occupa di recuperare lo stato delle migrazioni
@@ -84,6 +85,7 @@ func rollbackCommand() {
 		panic("Error during rollback, error: " + err.Error())
 	}
 	fmt.Println("Bye")
+	migrateStatusCommand()
 }
 
 // InterpretingHumanWord - Si occupa di interpretare i comandi
@@ -98,28 +100,23 @@ func InterpretingHumanWord() {
 	case startServer:
 
 		boot.InitServer()
-		break
 
 	case showConfig:
 
 		config.GetInstance()
 		fmt.Println(cacheconf.GetCurrentConfig())
-		break
 
 	case migrate:
 
 		migrateCommand()
-		break
 
 	case rollback:
 
 		rollbackCommand()
-		break
 
 	case migrateStatus:
 
 		migrateStatusCommand()
-		break
 
 	default:
 		flag.PrintDefaults()
