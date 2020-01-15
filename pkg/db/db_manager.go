@@ -38,7 +38,31 @@ func GetConnection() *sql.DB {
 	return db
 }
 
+// Query - Esegue fisicamente la query e restituisce l'istanza di *Rows
+func Query(query string, args ...interface{}) (*sql.Rows, error) {
+
+	db := GetConnection()
+	rows, err := db.Query(query, args...)
+	if err != nil {
+		return nil, err
+	}
+
+	return rows, nil
+}
+
+// QueryOrPanic - Esegue fisicamente la query e restituisce l'istanza di *Rows, panic in caso di errore
+func QueryOrPanic(query string, args ...interface{}) *sql.Rows {
+
+	rows, err := Query(query, args...)
+	if err != nil {
+		panic(err)
+	}
+
+	return rows
+}
+
 // TableExists - Restituisce true se la tabella esiste altrimenti false
+//TODO: Non serve ritornare error
 func TableExists(tableName string) (bool, error) {
 
 	query := "SELECT * FROM " + tableName + " LIMIT 1"
@@ -51,9 +75,5 @@ func TableExists(tableName string) (bool, error) {
 	}
 	defer rows.Close()
 
-	if rows.Next() {
-
-		return true, nil
-	}
-	return false, nil
+	return true, nil
 }
