@@ -24,19 +24,14 @@ type User struct {
 	Gender   *string `json:"gender" db:"gender"`
 }
 
+var du = &User{}
+
 // LoadAllUsers - Si occupa di restituire tutti gli utenti presenti nel database
 func LoadAllUsers() ([]*User, error) {
 
-	u := &User{}
+	query := "SELECT " + record.AllField(du) + " FROM " + du.GetTableName()
 
-	db := db.GetConnection()
-
-	query := "SELECT " + record.AllField(u) + " FROM " + u.GetTableName()
-
-	rows, err := db.Query(query)
-	if err != nil {
-		return nil, err
-	}
+	rows := db.QueryOrPanic(query)
 	defer rows.Close()
 
 	var result []*User

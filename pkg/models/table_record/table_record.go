@@ -176,7 +176,6 @@ func ExecQuery(ti TableRecordInterface, ntm NewTableModel) ([]TableRecordInterfa
 	stmt, err := t.PrepareStmt(ti.GetTableName())
 	if err != nil {
 		return nil, err
-		
 	}
 	defer stmt.Close()
 
