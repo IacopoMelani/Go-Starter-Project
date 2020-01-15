@@ -34,6 +34,8 @@ type Migration struct {
 	Status    int       `db:"status"`
 }
 
+var dm = &Migration{}
+
 // InsertNewMigration - Si occupa di inserire un record nella tabella migrations
 func InsertNewMigration(name string, status int) (*Migration, error) {
 
@@ -45,8 +47,7 @@ func InsertNewMigration(name string, status int) (*Migration, error) {
 	m.Name = name
 	m.Status = status
 	m.CreatedAt = time.Now().UTC()
-	err := record.Save(m)
-	if err != nil {
+	if err := record.Save(m); err != nil {
 		return nil, err
 	}
 	m.tr.SetIsNew(false)
@@ -57,16 +58,9 @@ func InsertNewMigration(name string, status int) (*Migration, error) {
 // LoadAllMigrations - Carica tutte le istanze di Migration dal database
 func LoadAllMigrations() ([]*Migration, error) {
 
-	m := &Migration{}
+	query := "SELECT " + record.AllField(dm) + " FROM " + dm.GetTableName()
 
-	db := db.GetConnection()
-
-	query := "SELECT " + record.AllField(m) + " FROM " + m.GetTableName()
-
-	rows, err := db.Query(query)
-	if err != nil {
-		return nil, err
-	}
+	rows := db.QueryOrPanic(query)
 	defer rows.Close()
 
 	var result []*Migration
@@ -88,14 +82,9 @@ func LoadAllMigrations() ([]*Migration, error) {
 // LoadMigrationByName - Si occupa di caricare l'istanza di un record della tabella migrations dato il nome
 func LoadMigrationByName(name string, m *Migration) error {
 
-	db := db.GetConnection()
-
 	query := "SELECT " + record.AllField(m) + " FROM " + m.GetTableName() + " WHERE " + MigrationsColName + " = ?"
 
-	rows, err := db.Query(query, name)
-	if err != nil {
-		return err
-	}
+	rows := db.QueryOrPanic(query, name)
 	defer rows.Close()
 
 	if rows.Next() {
