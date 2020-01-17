@@ -62,8 +62,7 @@ func QueryOrPanic(query string, args ...interface{}) *sql.Rows {
 }
 
 // TableExists - Restituisce true se la tabella esiste altrimenti false
-//TODO: Non serve ritornare error
-func TableExists(tableName string) (bool, error) {
+func TableExists(tableName string) bool {
 
 	query := "SELECT * FROM " + tableName + " LIMIT 1"
 
@@ -71,9 +70,9 @@ func TableExists(tableName string) (bool, error) {
 
 	rows, err := db.Query(query)
 	if err != nil {
-		return false, nil
+		return false
 	}
 	defer rows.Close()
 
-	return true, nil
+	return true
 }
