@@ -68,20 +68,12 @@ func TestTableExists(t *testing.T) {
 
 	loadEnv()
 
-	exists, err := TableExists("users")
-	if err != nil {
-		t.Fatal("Errore durante la ricerca della tabella")
-	}
-
+	exists := TableExists("migrations")
 	if !exists {
-		t.Fatal("Attenzione tabella users non presente")
+		t.Fatal("Attenzione tabella migrations non presente")
 	}
 
-	exists, err = TableExists("userss")
-	if err != nil {
-		t.Fatal("Errore durante la ricerca della tabella")
-	}
-
+	exists = TableExists("migrationss")
 	if exists {
 		t.Fatal("Errore, la tabella non dovrebbe esistere")
 	}
