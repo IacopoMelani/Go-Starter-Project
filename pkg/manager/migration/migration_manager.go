@@ -92,7 +92,7 @@ func (m *Migrator) DoDownMigrations() error {
 
 	conn, _ := db.GetConnection().Begin()
 
-	exist, _ := db.TableExists(table.MigrationsTableName)
+	exist := db.TableExists(table.MigrationsTableName)
 
 	if !exist {
 		return nil
@@ -135,7 +135,7 @@ func (m *Migrator) DoUpMigrations() error {
 
 	conn, _ := db.GetConnection().Begin()
 
-	exist, _ := db.TableExists(table.MigrationsTableName)
+	exist := db.TableExists(table.MigrationsTableName)
 
 	if !exist {
 
