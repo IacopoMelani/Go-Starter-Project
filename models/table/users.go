@@ -19,6 +19,7 @@ const (
 // implementa TableRecordInterface
 type User struct {
 	tr       *record.TableRecord
+	RecordID int64   `json:"id" db:"record_id"`
 	Name     *string `json:"name" db:"name"`
 	Lastname *string `json:"lastname" db:"lastname"`
 	Gender   *string `json:"gender" db:"gender"`
@@ -68,6 +69,11 @@ func (u User) GetTableRecord() *record.TableRecord {
 // GetPrimaryKeyName - Restituisce il nome della chiave primaria
 func (u User) GetPrimaryKeyName() string {
 	return UsersColRecordID
+}
+
+// GetPrimaryKeyValue - Restituisce l'indirizzo di memoria del valore della chiave primaria
+func (u User) GetPrimaryKeyValue() int64 {
+	return u.RecordID
 }
 
 // GetTableName - Restituisce il nome della tabella
