@@ -6,6 +6,33 @@ import (
 	"github.com/subosito/gotenv"
 )
 
+// createTableTest - Si occupa di create la tabella di test
+func createTableTest() error {
+
+	conn := GetConnection()
+
+	query := `CREATE TABLE IF NOT EXISTS testTable (
+		record_id INT AUTO_INCREMENT,
+		PRIMARY KEY (record_id)
+		)`
+
+	_, err := conn.Exec(query)
+
+	return err
+}
+
+// dropTableTest - Si occupa di distruggere la tabella di test
+func dropTableTest() error {
+
+	conn := GetConnection()
+
+	query := "DROP TABLE IF EXISTS testTable"
+
+	_, err := conn.Exec(query)
+
+	return err
+}
+
 // TestGetConnection - Esegue il test della funziona GeTConnection()
 func TestGetConnection(t *testing.T) {
 
@@ -68,12 +95,20 @@ func TestTableExists(t *testing.T) {
 
 	loadEnv()
 
-	exists := TableExists("migrations")
-	if !exists {
-		t.Fatal("Attenzione tabella migrations non presente")
+	if err := createTableTest(); err != nil {
+		t.Fatal("Attenzione, impossibile creare la tabella di test")
 	}
 
-	exists = TableExists("migrationss")
+	exists := TableExists("testTable")
+	if !exists {
+		t.Fatal("Attenzione tabella di test non presente")
+	}
+
+	if err := dropTableTest(); err != nil {
+		t.Fatal("Attenzione, impossibile cancellare la tabella di test")
+	}
+
+	exists = TableExists("testTable")
 	if exists {
 		t.Fatal("Errore, la tabella non dovrebbe esistere")
 	}
