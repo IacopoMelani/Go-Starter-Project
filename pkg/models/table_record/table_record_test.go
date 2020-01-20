@@ -12,6 +12,7 @@ import (
 // TestStruct - struct di test che implementa TableRecordInterface
 type TestStruct struct {
 	tr       *TableRecord
+	RecordID int64   `json:"id" db:"record_id"`
 	Name     *string `json:"name" db:"name"`
 	Lastname *string `json:"lastname" db:"lastname"`
 	Gender   *string `json:"gender" db:"gender"`
@@ -34,7 +35,7 @@ func loadAllTestTableRecordStruct() ([]*TestStruct, error) {
 
 	query := "SELECT " + AllField(ts) + " FROM " + ts.GetTableName()
 
-	rows, err := db.Query(query)
+	rows, err := db.Queryx(query)
 	if err != nil {
 		return nil, err
 	}
@@ -65,6 +66,11 @@ func (t TestStruct) GetPrimaryKeyName() string {
 	return "record_id"
 }
 
+// GetPrimaryKeyValue - Restituisce l'indirizzo di memoria del valore della chiave primaria
+func (t TestStruct) GetPrimaryKeyValue() int64 {
+	return t.RecordID
+}
+
 // GetTableName - Restituisce il nome della tabella
 func (t TestStruct) GetTableName() string {
 	return "users"
@@ -73,6 +79,7 @@ func (t TestStruct) GetTableName() string {
 // TestStructReadOnly - Struct di test readonly che implementa TableRecordInterface
 type TestStructReadOnly struct {
 	tr       *TableRecord
+	RecordID int64   `json:"id" db:"record_id"`
 	Name     *string `json:"name" db:"name"`
 	Lastname *string `json:"lastname" db:"lastname"`
 	Gender   *string `json:"gender" db:"gender"`
@@ -95,6 +102,11 @@ func (t TestStructReadOnly) GeetTableRecord() *TableRecord {
 // GetPrimaryKeyName - Restituisce il nome della chiave primaria
 func (t TestStructReadOnly) GetPrimaryKeyName() string {
 	return "record_id"
+}
+
+// GetPrimaryKeyValue - Restitusice l'indirizzo di memoria del valore della chiave primaria
+func (t TestStructReadOnly) GetPrimaryKeyValue() int64 {
+	return t.RecordID
 }
 
 // GetTableName - Restituisce il nome della tabella
@@ -123,7 +135,7 @@ func TestTableRecord(t *testing.T) {
 		t.Fatal(err.Error())
 	}
 
-	if ts.tr.recordID == 0 {
+	if ts.RecordID == 0 {
 		t.Fatal("Chiave non salvata")
 	}
 
@@ -132,9 +144,9 @@ func TestTableRecord(t *testing.T) {
 	}
 
 	tempName := *ts.Name
-	tempID := ts.tr.recordID
+	tempID := ts.RecordID
 
-	err = LoadByID(ts, ts.GetTableRecord().recordID)
+	err = LoadByID(ts, ts.RecordID)
 	if err != nil {
 		t.Fatal(err.Error())
 	}
@@ -150,7 +162,7 @@ func TestTableRecord(t *testing.T) {
 		t.Fatal(err.Error())
 	}
 
-	if tempID != ts.tr.recordID {
+	if tempID != ts.RecordID {
 		t.Fatal("Chiave primaria è cambiata durante l'update")
 	}
 
@@ -225,7 +237,7 @@ func TestTableRecord(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	if tsr.tr.GetID() < 0 {
+	if tsr.RecordID < 0 {
 		t.Fatal("Errore: record id non valido")
 	}
 
