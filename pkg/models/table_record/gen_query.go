@@ -2,8 +2,6 @@ package record
 
 import (
 	"strings"
-
-	"github.com/IacopoMelani/Go-Starter-Project/pkg/helpers/slice"
 )
 
 // genDeleteQuery - Si occupa di generare la query per la cancellazione del record
@@ -17,7 +15,7 @@ func genDeleteQuery(ti TableRecordInterface) string {
 // genSaveQuery - Si occupa di generare la query di salvataggio
 func genSaveQuery(ti TableRecordInterface) string {
 
-	fName, _ := GetFieldMapper(ti)
+	fName := getFieldsNameNoPrimary(ti)
 
 	query := "INSERT INTO " + ti.GetTableName() + " (" + strings.Join(fName, ", ") + ") VALUES ( " + strings.Join(getSaveFieldParams(ti), ", ") + " )"
 
@@ -34,7 +32,7 @@ func genUpdateQuery(ti TableRecordInterface) string {
 // getSaveFieldParams -  Si occupa di generare uno slice di "?" tanti quanti sono i parametri della query di inserimento
 func getSaveFieldParams(ti TableRecordInterface) []string {
 
-	fName, _ := GetFieldMapper(ti)
+	fName := getFieldsNameNoPrimary(ti)
 
 	s := make([]string, len(fName))
 
@@ -48,19 +46,7 @@ func getSaveFieldParams(ti TableRecordInterface) []string {
 // getUpdateFiledParams - Si occupa di generare uno slice di "?" tanti quanti sono i parametri della query di aggiornamento
 func getUpdateFieldParams(ti TableRecordInterface) []string {
 
-	fName, _ := GetFieldMapper(ti)
-
-	tempFName := fName
-
-	for i, name := range fName {
-		if name == ti.GetPrimaryKeyName() {
-			tempFName = slice.RemoveString(fName, i)
-			break
-		}
-	}
-
-	fName = tempFName
-
+	fName := getFieldsNameNoPrimary(ti)
 	updateStmt := make([]string, len(fName))
 
 	for i := 0; i < len(fName); i++ {

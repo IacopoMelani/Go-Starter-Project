@@ -210,7 +210,7 @@ func Save(ti TableRecordInterface) error {
 	if t.isNew {
 
 		query := genSaveQuery(ti)
-		_, fValue := GetFieldMapper(ti)
+		fValue := getFieldsValueNoPrimary(ti)
 		id, err := executeSaveUpdateQuery(query, fValue)
 		if err != nil {
 			return err
@@ -225,8 +225,8 @@ func Save(ti TableRecordInterface) error {
 	} else {
 
 		query := genUpdateQuery(ti)
-		_, fValue := GetFieldMapper(ti)
-		_, err := executeSaveUpdateQuery(query, fValue)
+		fValue := getFieldsValueNoPrimary(ti)
+		_, err := executeSaveUpdateQuery(query, append(fValue, ti.GetPrimaryKeyValue()))
 		if err != nil {
 			return err
 		}
