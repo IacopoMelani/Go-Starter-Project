@@ -1,8 +1,9 @@
 package migration
 
 import (
-	"database/sql"
 	"sync"
+
+	"github.com/IacopoMelani/Go-Starter-Project/pkg/manager/transactions"
 
 	"github.com/IacopoMelani/Go-Starter-Project/pkg/db"
 	"github.com/IacopoMelani/Go-Starter-Project/pkg/models/table_record/table"
@@ -30,7 +31,7 @@ var (
 )
 
 // createMigrationsTable - Si occupa di creare la tabella delle migrazioni
-func createMigrationsTable(conn *sql.Tx) error {
+func createMigrationsTable(conn transactions.Transaction) error {
 
 	query := `CREATE TABLE IF NOT EXISTS migrations (
     record_id INT AUTO_INCREMENT,
@@ -90,99 +91,89 @@ func InitMigrationsList(ml []Migrable) {
 // DoDownMigrations - Si occupa di fare il rollback delle tabelle definite in migrations_list
 func (m *Migrator) DoDownMigrations() error {
 
-	conn, _ := db.GetConnection().Begin()
+	return transactions.WithTransactionx(db.GetConnection(), func(tx transactions.Transaction) error {
 
-	exist := db.TableExists(table.MigrationsTableName)
+		exist := db.TableExists(table.MigrationsTableName)
 
-	if !exist {
+		if !exist {
+			return nil
+		}
+
+		for i := len(m.migrationsList) - 1; i >= 0; i-- {
+
+			migration := table.NewMigration()
+
+			err := table.LoadMigrationByName(m.migrationsList[i].GetMigrationName(), migration)
+			if err != nil {
+				return err
+			}
+
+			if migration.RecordID != 0 && migration.Status == 1 {
+
+				_, err = tx.Exec(m.migrationsList[i].Down())
+				if err != nil {
+					return err
+				}
+
+				migration.Status = 0
+				err = record.Save(migration)
+				if err != nil {
+					return err
+				}
+			}
+		}
+
 		return nil
-	}
-
-	for i := len(m.migrationsList) - 1; i >= 0; i-- {
-
-		migration := table.NewMigration()
-
-		err := table.LoadMigrationByName(m.migrationsList[i].GetMigrationName(), migration)
-		if err != nil {
-			conn.Rollback()
-			return err
-		}
-
-		if migration.RecordID != 0 && migration.Status == 1 {
-
-			_, err = conn.Exec(m.migrationsList[i].Down())
-			if err != nil {
-				conn.Rollback()
-				return err
-			}
-
-			migration.Status = 0
-			err = record.Save(migration)
-			if err != nil {
-				conn.Rollback()
-				return err
-			}
-		}
-	}
-
-	conn.Commit()
-
-	return nil
+	})
 }
 
 // DoUpMigrations - Si occupa di migrare le tabelle definite in migrations_list
 func (m *Migrator) DoUpMigrations() error {
 
-	conn, _ := db.GetConnection().Begin()
+	return transactions.WithTransactionx(db.GetConnection(), func(tx transactions.Transaction) error {
 
-	exist := db.TableExists(table.MigrationsTableName)
+		exist := db.TableExists(table.MigrationsTableName)
 
-	if !exist {
+		if !exist {
 
-		if err := createMigrationsTable(conn); err != nil {
-			conn.Rollback()
-			return err
-		}
-	}
-
-	for _, mi := range m.migrationsList {
-
-		migration := table.NewMigration()
-
-		err := table.LoadMigrationByName(mi.GetMigrationName(), migration)
-		if err != nil {
-			conn.Rollback()
-			return err
-		}
-
-		if migration.RecordID != 0 && migration.Status == 1 {
-			continue
-		}
-
-		if migration.GetTableRecord().IsNew() {
-
-			migration, err = table.InsertNewMigration(mi.GetMigrationName(), 0)
-			if err != nil {
-				conn.Rollback()
+			if err := createMigrationsTable(tx); err != nil {
 				return err
 			}
 		}
 
-		_, err = conn.Exec(mi.Up())
-		if err != nil {
-			conn.Rollback()
-			return err
+		for _, mi := range m.migrationsList {
+
+			migration := table.NewMigration()
+
+			err := table.LoadMigrationByName(mi.GetMigrationName(), migration)
+			if err != nil {
+				return err
+			}
+
+			if migration.RecordID != 0 && migration.Status == 1 {
+				continue
+			}
+
+			if migration.GetTableRecord().IsNew() {
+
+				migration, err = table.InsertNewMigration(mi.GetMigrationName(), 0)
+				if err != nil {
+					return err
+				}
+			}
+
+			_, err = tx.Exec(mi.Up())
+			if err != nil {
+				return err
+			}
+
+			migration.Status = 1
+			err = record.Save(migration)
+			if err != nil {
+				return nil
+			}
 		}
 
-		migration.Status = 1
-		err = record.Save(migration)
-		if err != nil {
-			conn.Rollback()
-			return nil
-		}
-	}
-
-	conn.Commit()
-
-	return nil
+		return nil
+	})
 }
