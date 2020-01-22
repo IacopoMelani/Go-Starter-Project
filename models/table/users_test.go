@@ -24,14 +24,14 @@ func TestTableMirror(t *testing.T) {
 		t.Error(err.Error())
 	}
 
-	if u.tr.GetID() == 0 {
+	if u.RecordID == 0 {
 		t.Error("Chiave non salvata")
 	}
 
 	tempName := *u.Name
-	tempID := u.tr.GetID()
+	tempID := u.RecordID
 
-	err = record.LoadByID(u, u.GetTableRecord().GetID())
+	err = record.LoadByID(u, u.RecordID)
 	if err != nil {
 		t.Error(err.Error())
 	}
@@ -47,7 +47,7 @@ func TestTableMirror(t *testing.T) {
 		t.Error(err.Error())
 	}
 
-	if tempID != u.tr.GetID() {
+	if tempID != u.RecordID {
 		t.Error("Chiave primaria è cambiata durante l'update")
 	}
 

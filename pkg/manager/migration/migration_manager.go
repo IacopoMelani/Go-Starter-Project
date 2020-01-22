@@ -108,7 +108,7 @@ func (m *Migrator) DoDownMigrations() error {
 			return err
 		}
 
-		if migration.GetTableRecord().GetID() != 0 && migration.Status == 1 {
+		if migration.RecordID != 0 && migration.Status == 1 {
 
 			_, err = conn.Exec(m.migrationsList[i].Down())
 			if err != nil {
@@ -155,7 +155,7 @@ func (m *Migrator) DoUpMigrations() error {
 			return err
 		}
 
-		if migration.GetTableRecord().GetID() != 0 && migration.Status == 1 {
+		if migration.RecordID != 0 && migration.Status == 1 {
 			continue
 		}
 

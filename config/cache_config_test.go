@@ -7,8 +7,10 @@ import (
 )
 
 func TestCacheConfigBoot(t *testing.T) {
-	
-	gotenv.Load("../.env")
+
+	if err := gotenv.Load("../.env"); err != nil {
+		t.Fatal("Errore caricamento configurazione")
+	}
 
 	config := GetInstance()
 

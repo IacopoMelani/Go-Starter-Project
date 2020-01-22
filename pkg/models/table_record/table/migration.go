@@ -29,6 +29,7 @@ const (
 // implementa TableRecordInterface
 type Migration struct {
 	tr        *record.TableRecord
+	RecordID  int64     `db:"record_id"`
 	CreatedAt time.Time `db:"created_at"`
 	Name      string    `db:"name"`
 	Status    int       `db:"status"`
@@ -115,6 +116,11 @@ func (m Migration) GetTableRecord() *record.TableRecord {
 // GetPrimaryKeyName - Restituisce il nome della chiave primaria
 func (m Migration) GetPrimaryKeyName() string {
 	return MigrationsColRecordID
+}
+
+// GetPrimaryKeyValue - Restituisce l'indirizzo di memoria del valore della chiave primaria
+func (m Migration) GetPrimaryKeyValue() int64 {
+	return m.RecordID
 }
 
 // GetTableName - Restituisce il nome della tabella

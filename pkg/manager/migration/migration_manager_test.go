@@ -53,10 +53,6 @@ func TestMigrationManager(t *testing.T) {
 		t.Fatal(err.Error())
 	}
 
-	migrationsList = make([]Migrable, 0)
-
-	migrationsList = append(migrationsList, TestTable{})
-
 	migrator := GetMigratorInstance()
 
 	err = migrator.DoDownMigrations()

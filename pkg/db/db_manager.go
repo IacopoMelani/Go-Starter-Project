@@ -1,7 +1,7 @@
 package db
 
 import (
-	"database/sql"
+	"github.com/jmoiron/sqlx"
 
 	"github.com/IacopoMelani/Go-Starter-Project/config"
 
@@ -13,17 +13,17 @@ import (
 )
 
 var (
-	db   *sql.DB
+	db   *sqlx.DB
 	once sync.Once
 )
 
 // GetConnection - restituisce un'istanza di connessione al database
-func GetConnection() *sql.DB {
+func GetConnection() *sqlx.DB {
 
 	once.Do(func() {
 
 		config := config.GetInstance()
-		conn, err := sql.Open("mysql", config.StringConnection)
+		conn, err := sqlx.Open("mysql", config.StringConnection)
 		if err != nil {
 			log.Panic(err.Error())
 		}
@@ -39,19 +39,19 @@ func GetConnection() *sql.DB {
 }
 
 // Query - Esegue fisicamente la query e restituisce l'istanza di *Rows
-func Query(query string, args ...interface{}) (*sql.Rows, error) {
+func Query(query string, args ...interface{}) (*sqlx.Rows, error) {
 
 	db := GetConnection()
-	rows, err := db.Query(query, args...)
+	rows, err := db.Queryx(query, args...)
 	if err != nil {
 		return nil, err
 	}
 
-	return rows, nil
+	return rows, err
 }
 
 // QueryOrPanic - Esegue fisicamente la query e restituisce l'istanza di *Rows, panic in caso di errore
-func QueryOrPanic(query string, args ...interface{}) *sql.Rows {
+func QueryOrPanic(query string, args ...interface{}) *sqlx.Rows {
 
 	rows, err := Query(query, args...)
 	if err != nil {
@@ -68,7 +68,7 @@ func TableExists(tableName string) bool {
 
 	db := GetConnection()
 
-	rows, err := db.Query(query)
+	rows, err := db.Queryx(query)
 	if err != nil {
 		return false
 	}
