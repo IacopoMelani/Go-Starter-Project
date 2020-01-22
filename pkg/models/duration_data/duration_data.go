@@ -76,10 +76,11 @@ func (d *DurationData) GetContent() (interface{}, error) {
 		return nil, errors.New("Dati mancanti")
 	}
 
-	diff := d.ExpiredAt.Sub(time.Now())
+	diff := time.Until(d.ExpiredAt)
 	if diff.Seconds() <= 0 {
 		return nil, errors.New("Data scaduta")
 	}
+
 	return d.content, nil
 }
 
@@ -96,7 +97,7 @@ func (d *DurationData) GetSafeContent() interface{} {
 // SetContent - Imposta dei nuovi dati e aggiorando il tempo di scadenza solo se i precedenti non sono più validi, altrimenti non fa niente
 func (d *DurationData) SetContent(content interface{}, secondsInterval int) {
 
-	if diff := d.ExpiredAt.Sub(time.Now()); diff.Seconds() > 0 {
+	if diff := time.Until(d.ExpiredAt); diff.Seconds() > 0 {
 		return
 	}
 
