@@ -1,13 +1,12 @@
 package record
 
 import (
-	"database/sql"
 	"errors"
-	"reflect"
 	"strings"
 
 	"github.com/IacopoMelani/Go-Starter-Project/pkg/db"
 	builder "github.com/IacopoMelani/Go-Starter-Project/pkg/db/query_builder"
+	"github.com/jmoiron/sqlx"
 )
 
 // NewTableModel - Tipo per definire una funzione che restituisce una TableRecordInterface
@@ -17,13 +16,13 @@ type NewTableModel func() TableRecordInterface
 type TableRecordInterface interface {
 	GetTableRecord() *TableRecord
 	GetPrimaryKeyName() string
+	GetPrimaryKeyValue() int64
 	GetTableName() string
 }
 
 // TableRecord - Struct per l'implementazione di TableRecordInterface
 // implementa QueryBuilderInterface
 type TableRecord struct {
-	recordID   int64
 	isNew      bool
 	isReadOnly bool
 	builder.Builder
@@ -47,65 +46,10 @@ func executeSaveUpdateQuery(query string, params []interface{}) (int64, error) {
 	return lastID, nil
 }
 
-// genDeleteQuery - Si occupa di generare la query per la cancellazione del record
-func genDeleteQuery(ti TableRecordInterface) string {
-
-	query := "DELETE FROM " + ti.GetTableName() + " WHERE " + ti.GetPrimaryKeyName() + " = ?"
-
-	return query
-}
-
-// genSaveQuery - Si occupa di generare la query di salvataggio
-func genSaveQuery(ti TableRecordInterface) string {
-
-	fName, _ := GetFieldMapper(ti)
-
-	query := "INSERT INTO " + ti.GetTableName() + " (" + strings.Join(fName, ", ") + ") VALUES ( " + strings.Join(getSaveFieldParams(ti), ", ") + " )"
-
-	return query
-}
-
-// genUpdateQuery - Si occupa di generare la query di aggiornamento
-func genUpdateQuery(ti TableRecordInterface) string {
-
-	query := "UPDATE  " + ti.GetTableName() + " SET " + strings.Join(getUpdateFieldParams(ti), ", ") + " WHERE " + ti.GetPrimaryKeyName() + " = ?"
-	return query
-}
-
-// getSaveFieldParams -  Si occupa di generare uno slice di "?" tanti quanti sono i parametri della query di inserimento
-func getSaveFieldParams(ti TableRecordInterface) []string {
-
-	fName, _ := GetFieldMapper(ti)
-
-	s := make([]string, len(fName))
-
-	for i := 0; i < len(fName); i++ {
-		s[i] = "?"
-	}
-
-	return s
-}
-
-// getUpdateFiledParams - Si occupa di generare uno slice di "?" tanti quanti sono i parametri della query di aggiornamento
-func getUpdateFieldParams(ti TableRecordInterface) []string {
-
-	fName, _ := GetFieldMapper(ti)
-
-	updateStmt := make([]string, len(fName))
-
-	for i := 0; i < len(fName); i++ {
-		updateStmt[i] = fName[i] + " = ?"
-	}
-
-	return updateStmt
-}
-
 // AllField - Restitusice tutti i campi per la select *
 func AllField(ti TableRecordInterface) string {
 
 	fieldName, _ := GetFieldMapper(ti)
-
-	fieldName = append([]string{ti.GetPrimaryKeyName()}, fieldName...)
 
 	return strings.Join(fieldName, ",")
 }
@@ -121,7 +65,7 @@ func All(ntm NewTableModel) ([]TableRecordInterface, error) {
 
 	query := "SELECT " + AllField(pivot) + " FROM " + pivot.GetTableName()
 
-	rows, err := db.Query(query)
+	rows, err := db.Queryx(query)
 	if err != nil {
 		return nil, err
 	}
@@ -145,8 +89,6 @@ func All(ntm NewTableModel) ([]TableRecordInterface, error) {
 // Delete - Si occupa di cancellare un record sul database
 func Delete(ti TableRecordInterface) (int64, error) {
 
-	t := ti.GetTableRecord()
-
 	db := db.GetConnection()
 
 	stmt, err := db.Prepare(genDeleteQuery(ti))
@@ -155,7 +97,7 @@ func Delete(ti TableRecordInterface) (int64, error) {
 	}
 	defer stmt.Close()
 
-	res, err := stmt.Exec(t.recordID)
+	res, err := stmt.Exec(ti.GetPrimaryKeyValue())
 	if err != nil {
 		return 0, err
 	}
@@ -179,7 +121,7 @@ func ExecQuery(ti TableRecordInterface, ntm NewTableModel) ([]TableRecordInterfa
 	}
 	defer stmt.Close()
 
-	rows, err := stmt.Query(t.Params...)
+	rows, err := stmt.Queryx(t.Params...)
 	if err != nil {
 		return nil, err
 	}
@@ -203,27 +145,6 @@ func ExecQuery(ti TableRecordInterface, ntm NewTableModel) ([]TableRecordInterfa
 	return tiList, nil
 }
 
-// GetFieldMapper - Si occupa di recuperare in reflection i nomi dei tag "db" e l'indirizzo del valore del campo
-func GetFieldMapper(ti TableRecordInterface) (fieldsName []string, fieldsValue []interface{}) {
-
-	vPtr := reflect.ValueOf(ti)
-
-	t := reflect.TypeOf(ti)
-	v := reflect.Indirect(vPtr)
-
-	for i := 0; i < v.NumField(); i++ {
-
-		if !v.Field(i).CanInterface() || !v.Field(i).CanSet() || t.Elem().Field(i).Tag.Get("db") == "" {
-			continue
-		}
-
-		fieldsValue = append(fieldsValue, v.Field(i).Addr().Interface())
-		fieldsName = append(fieldsName, t.Elem().Field(i).Tag.Get("db"))
-	}
-
-	return
-}
-
 // LoadByID - Carica l'istanza passata con i valori della sua tabella ricercando per chiave primaria
 func LoadByID(ti TableRecordInterface, id int64) error {
 
@@ -233,13 +154,13 @@ func LoadByID(ti TableRecordInterface, id int64) error {
 
 	params := []interface{}{interface{}(id)}
 
-	stmt, err := db.Prepare(query)
+	stmt, err := db.Preparex(query)
 	if err != nil {
 		return err
 	}
 	defer stmt.Close()
 
-	rows, err := stmt.Query(params...)
+	rows, err := stmt.Queryx(params...)
 	if err != nil {
 		return err
 	}
@@ -256,13 +177,9 @@ func LoadByID(ti TableRecordInterface, id int64) error {
 }
 
 // LoadFromRow - Si occupa di caricare la struct dal result - row della query
-func LoadFromRow(r *sql.Rows, tri TableRecordInterface) error {
+func LoadFromRow(r *sqlx.Rows, tri TableRecordInterface) error {
 
-	_, vField := GetFieldMapper(tri)
-
-	dest := append([]interface{}{&tri.GetTableRecord().recordID}, vField...)
-
-	if err := r.Scan(dest...); err != nil {
+	if err := r.StructScan(tri); err != nil {
 		return err
 	}
 
@@ -293,31 +210,33 @@ func Save(ti TableRecordInterface) error {
 	if t.isNew {
 
 		query := genSaveQuery(ti)
-		_, fValue := GetFieldMapper(ti)
+		fValue := getFieldsValueNoPrimary(ti)
 		id, err := executeSaveUpdateQuery(query, fValue)
 		if err != nil {
 			return err
 		}
 
-		t.recordID = id
+		if err := LoadByID(ti, id); err != nil {
+			return err
+		}
+
 		t.SetIsNew(false)
 
 	} else {
 
 		query := genUpdateQuery(ti)
-		_, fValue := GetFieldMapper(ti)
-		_, err := executeSaveUpdateQuery(query, append(fValue, ti.GetTableRecord().recordID))
+		fValue := getFieldsValueNoPrimary(ti)
+		_, err := executeSaveUpdateQuery(query, append(fValue, ti.GetPrimaryKeyValue()))
 		if err != nil {
+			return err
+		}
+
+		if err := LoadByID(ti, ti.GetPrimaryKeyValue()); err != nil {
 			return err
 		}
 	}
 
 	return nil
-}
-
-// GetID - Restituisce l'id del record
-func (t TableRecord) GetID() int64 {
-	return t.recordID
 }
 
 // IsNew - Restituisce se il record è nuovo
@@ -326,13 +245,13 @@ func (t *TableRecord) IsNew() bool {
 }
 
 // PrepareStmt - Restituisce lo stmt della query pronta da essere eseguita
-func (t *TableRecord) PrepareStmt(tableName string) (*sql.Stmt, error) {
+func (t *TableRecord) PrepareStmt(tableName string) (*sqlx.Stmt, error) {
 
 	db := db.GetConnection()
 
 	query := t.BuildQuery(tableName)
 
-	stmt, err := db.Prepare(query)
+	stmt, err := db.Preparex(query)
 	if err != nil {
 		return nil, err
 	}

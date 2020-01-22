@@ -60,10 +60,12 @@ func InitServer() {
 
 	var file *os.File
 	defer file.Close()
-	go func(file *os.File) {
+	go func() {
 		defer wg.Done()
 		if _, err := os.Stat("./log"); os.IsNotExist(err) {
-			os.Mkdir("./log", os.ModePerm)
+			if err = os.Mkdir("./log", os.ModePerm); err != nil {
+				panic(err)
+			}
 		}
 		file, err := os.OpenFile("./log/info.log", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 		if err != nil {
@@ -72,7 +74,7 @@ func InitServer() {
 		log.NewLogBackend(os.Stdout, "", 0, logging.DEBUG, log.DefaultLogFormatter)
 		log.NewLogBackend(file, "", 0, logging.WARNING, log.VerboseLogFilePathFormatter)
 		log.Init()
-	}(file)
+	}()
 
 	go func() {
 		defer wg.Done()

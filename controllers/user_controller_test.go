@@ -93,7 +93,9 @@ func TestLogin(t *testing.T) {
 	}
 
 	var responseData testLoginResponseDTO
-	json.NewDecoder(res.Result().Body).Decode(&responseData)
+	if err := json.NewDecoder(res.Result().Body).Decode(&responseData); err != nil {
+		t.Error(err.Error())
+	}
 
 	bearer := "Bearer " + responseData.Content.Token
 
