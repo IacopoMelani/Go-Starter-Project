@@ -75,14 +75,12 @@ func (rm *RequestManager) work() {
 
 	go func() {
 
-		for {
-			select {
-			case <-rm.next:
-				rm.mu.Lock()
-				rm.requestQueue[0].getData()
-				rm.popFromQueue()
-				rm.mu.Unlock()
-			}
+		for range rm.next {
+
+			rm.mu.Lock()
+			rm.requestQueue[0].getData()
+			rm.popFromQueue()
+			rm.mu.Unlock()
 		}
 	}()
 }

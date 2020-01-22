@@ -61,7 +61,7 @@ func TestRemoteData(t *testing.T) {
 
 	tre := exampleRemoteDataErrorURL{}
 
-	content, err = GetRemoteData(tre)
+	_, err = GetRemoteData(tre)
 	if err == nil {
 		t.Fatal(err.Error())
 	}

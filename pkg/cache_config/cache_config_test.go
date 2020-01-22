@@ -39,7 +39,9 @@ func (c CacheConfigTest) GetFieldMapper() map[string]string {
 
 func TestCacheConfigBoot(t *testing.T) {
 
-	gotenv.Load("../../.env")
+	if err := gotenv.Load("../../.env"); err != nil {
+		t.Fatal("Errore durante il caricamento della configurazione")
+	}
 
 	config := GetInstance()
 

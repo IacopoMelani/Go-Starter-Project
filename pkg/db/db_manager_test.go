@@ -116,5 +116,7 @@ func TestTableExists(t *testing.T) {
 }
 
 func loadEnv() {
-	gotenv.Load("../../.env")
+	if err := gotenv.Load("../../.env"); err != nil {
+		panic(err)
+	}
 }

@@ -24,7 +24,9 @@ func TestGetUserData(t *testing.T) {
 
 	d.SetContent(12, 3)
 
-	d.GetContent()
+	if _, err := d.GetContent(); err != nil {
+		t.Error(err.Error())
+	}
 
 	d.GetSafeContent()
 }
