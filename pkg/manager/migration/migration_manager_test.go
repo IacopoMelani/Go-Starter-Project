@@ -41,7 +41,7 @@ func TestMigrationManager(t *testing.T) {
 		t.Fatal("Errore caricamento configurazione")
 	}
 
-	transactions.WithTransactionx(db.GetConnection().(*sqlx.DB), func(tx db.SQLConnector) error {
+	err := transactions.WithTransactionx(db.GetConnection().(*sqlx.DB), func(tx db.SQLConnector) error {
 
 		var migrationsList = []Migrable{
 			TestTable{},
@@ -90,4 +90,8 @@ func TestMigrationManager(t *testing.T) {
 
 		return errors.New("Rollback")
 	})
+
+	if err.Error() != "Rollback" {
+		t.Fatal(err.Error())
+	}
 }
