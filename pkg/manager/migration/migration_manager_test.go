@@ -1,7 +1,12 @@
 package migration
 
 import (
+	"errors"
 	"testing"
+
+	"github.com/jmoiron/sqlx"
+
+	"github.com/IacopoMelani/Go-Starter-Project/pkg/manager/transactions"
 
 	"github.com/IacopoMelani/Go-Starter-Project/pkg/db"
 	"github.com/IacopoMelani/Go-Starter-Project/pkg/models/table_record/table"
@@ -32,66 +37,57 @@ func (t TestTable) Up() string {
 
 func TestMigrationManager(t *testing.T) {
 
-	gotenv.Load("./../../../.env")
-
-	db := db.GetConnection()
-
-	var migrationsList = []Migrable{
-		TestTable{},
+	if err := gotenv.Load("./../../../.env"); err != nil {
+		t.Fatal("Errore caricamento configurazione")
 	}
 
-	InitMigrationsList(migrationsList)
+	transactions.WithTransactionx(db.GetConnection().(*sqlx.DB), func(tx db.SQLConnector) error {
 
-	conn, err := db.Begin()
-	if err != nil {
-		t.Fatal(err.Error())
-	}
+		var migrationsList = []Migrable{
+			TestTable{},
+		}
 
-	_, err = db.Exec("DROP TABLE IF EXISTS migrations")
-	if err != nil {
-		conn.Rollback()
-		t.Fatal(err.Error())
-	}
+		InitMigrationsList(migrationsList)
 
-	migrator := GetMigratorInstance()
+		_, err := tx.Exec("DROP TABLE IF EXISTS migrations")
+		if err != nil {
+			t.Fatal(err.Error())
+		}
 
-	err = migrator.DoDownMigrations()
-	if err != nil {
-		conn.Rollback()
-		t.Fatal(err.Error())
-	}
+		migrator := GetMigratorInstance()
 
-	err = DoUpMigrations()
-	if err != nil {
-		conn.Rollback()
-		t.Fatal(err.Error())
-	}
+		err = migrator.DoDownMigrations()
+		if err != nil {
+			t.Fatal(err.Error())
+		}
 
-	err = DoUpMigrations()
-	if err != nil {
-		conn.Rollback()
-		t.Fatal(err.Error())
-	}
+		err = DoUpMigrations()
+		if err != nil {
+			t.Fatal(err.Error())
+		}
 
-	err = DoDownMigrations()
-	if err != nil {
-		conn.Rollback()
-		t.Fatal(err.Error())
-	}
+		err = DoDownMigrations()
+		if err != nil {
+			t.Fatal(err.Error())
+		}
 
-	migration := table.NewMigration()
+		err = DoUpMigrations()
+		if err != nil {
+			t.Fatal(err.Error())
+		}
 
-	err = table.LoadMigrationByName("create_test_table", migration)
-	if err != nil {
-		conn.Rollback()
-		t.Fatal(err.Error())
-	}
+		migration := table.NewMigration(tx)
 
-	_, err = record.Delete(migration)
-	if err != nil {
-		conn.Rollback()
-		t.Fatal(err.Error())
-	}
+		err = table.LoadMigrationByName("create_test_table", migration)
+		if err != nil {
+			t.Fatal(err.Error())
+		}
 
-	conn.Commit()
+		_, err = record.Delete(migration)
+		if err != nil {
+			t.Fatal(err.Error())
+		}
+
+		return errors.New("Rollback")
+	})
 }

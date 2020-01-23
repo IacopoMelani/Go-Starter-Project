@@ -19,7 +19,10 @@ type testStruct struct {
 
 func TestQueryBuilder(t *testing.T) {
 
-	gotenv.Load("./../../../.env")
+	if err := gotenv.Load("./../../../.env"); err != nil {
+		t.Fatal("Errore caricamento configurazione")
+	}
+
 	db := db.GetConnection()
 
 	ts := new(testStruct)

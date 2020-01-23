@@ -1,7 +1,12 @@
 package table
 
 import (
+	"errors"
 	"testing"
+
+	"github.com/jmoiron/sqlx"
+
+	"github.com/IacopoMelani/Go-Starter-Project/pkg/manager/transactions"
 
 	"github.com/IacopoMelani/Go-Starter-Project/pkg/db"
 	"github.com/subosito/gotenv"
@@ -9,42 +14,39 @@ import (
 
 func TestMigration(t *testing.T) {
 
-	gotenv.Load("./../../../../.env")
-
-	db := db.GetConnection()
-	conn, err := db.Begin()
-	if err != nil {
-		t.Fatal(err.Error())
-	}
-	defer conn.Rollback()
-
-	mName := "test_migration"
-
-	migration, err := InsertNewMigration(mName, 1)
-	if err != nil {
-		conn.Rollback()
-		t.Fatal(err.Error())
+	if err := gotenv.Load("./../../../../.env"); err != nil {
+		t.Fatal("Errore caricamento configurazione")
 	}
 
-	m := NewMigration()
+	transactions.WithTransactionx(db.GetConnection().(*sqlx.DB), func(tx db.SQLConnector) error {
 
-	err = LoadMigrationByName(mName, m)
-	if err != nil {
-		conn.Rollback()
-		t.Fatal(err.Error())
-	}
+		mName := "test_migration"
 
-	if m.Name != migration.Name || m.Status != migration.Status {
-		conn.Rollback()
-		t.Fatal("Operazione di migrazione errata")
-	}
+		migration, err := InsertNewMigration(tx, mName, 1)
+		if err != nil {
+			t.Fatal(err.Error())
+		}
 
-	allMigrations, err := LoadAllMigrations()
-	if err != nil {
-		t.Fatal(err.Error())
-	}
+		m := NewMigration(tx)
 
-	if len(allMigrations) == 0 {
-		t.Fatal("Migrazioni non caricate correttamente")
-	}
+		err = LoadMigrationByName(mName, m)
+		if err != nil {
+			t.Fatal(err.Error())
+		}
+
+		if m.Name != migration.Name || m.Status != migration.Status {
+			t.Fatal("Operazione di migrazione errata")
+		}
+
+		allMigrations, err := LoadAllMigrations(tx)
+		if err != nil {
+			t.Fatal(err.Error())
+		}
+
+		if len(allMigrations) == 0 {
+			t.Fatal("Migrazioni non caricate correttamente")
+		}
+
+		return errors.New("Rollback")
+	})
 }

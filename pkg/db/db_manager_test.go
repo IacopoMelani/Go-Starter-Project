@@ -38,7 +38,7 @@ func TestGetConnection(t *testing.T) {
 
 	loadEnv()
 
-	db := GetConnection()
+	GetConnection()
 
 	err := db.Ping()
 

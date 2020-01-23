@@ -4,8 +4,6 @@ import (
 	"os"
 	"sync"
 
-	"github.com/IacopoMelani/Go-Starter-Project/pkg/db"
-
 	"github.com/IacopoMelani/Go-Starter-Project/pkg/manager/log"
 	"github.com/op/go-logging"
 
@@ -84,9 +82,6 @@ func InitServer() {
 	wg.Wait()
 
 	config := config.GetInstance()
-
-	db := db.GetConnection()
-	defer db.Close()
 
 	logger := log.GetLogger()
 	logger.Info("Applicazione avviata!")
