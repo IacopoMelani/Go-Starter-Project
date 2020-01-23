@@ -1,6 +1,7 @@
 package migration
 
 import (
+	"errors"
 	"testing"
 
 	"github.com/IacopoMelani/Go-Starter-Project/pkg/manager/transactions"
@@ -85,6 +86,6 @@ func TestMigrationManager(t *testing.T) {
 			t.Fatal(err.Error())
 		}
 
-		return nil
+		return errors.New("Rollback")
 	})
 }
