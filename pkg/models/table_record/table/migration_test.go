@@ -6,9 +6,9 @@ import (
 
 	"github.com/jmoiron/sqlx"
 
-	"github.com/IacopoMelani/Go-Starter-Project/pkg/manager/transactions"
+	"github.com/IacopoMelani/Go-Starter-Project/pkg/manager/db"
+	"github.com/IacopoMelani/Go-Starter-Project/pkg/manager/db/transactions"
 
-	"github.com/IacopoMelani/Go-Starter-Project/pkg/db"
 	"github.com/subosito/gotenv"
 )
 
@@ -51,6 +51,6 @@ func TestMigration(t *testing.T) {
 	})
 
 	if err.Error() != "Rollback" {
-		t.Fatal(err.Error()) 
+		t.Fatal(err.Error())
 	}
 }

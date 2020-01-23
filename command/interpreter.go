@@ -9,7 +9,7 @@ import (
 	cacheconf "github.com/IacopoMelani/Go-Starter-Project/pkg/cache_config"
 
 	"github.com/IacopoMelani/Go-Starter-Project/db"
-	dbm "github.com/IacopoMelani/Go-Starter-Project/pkg/db"
+	dbm "github.com/IacopoMelani/Go-Starter-Project/pkg/manager/db"
 
 	"github.com/IacopoMelani/Go-Starter-Project/pkg/manager/migration"
 	"github.com/IacopoMelani/Go-Starter-Project/pkg/models/table_record/table"
