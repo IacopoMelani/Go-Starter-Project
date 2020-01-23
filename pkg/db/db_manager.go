@@ -1,6 +1,8 @@
 package db
 
 import (
+	"database/sql"
+
 	"github.com/jmoiron/sqlx"
 
 	"github.com/IacopoMelani/Go-Starter-Project/config"
@@ -12,13 +14,23 @@ import (
 	"sync"
 )
 
+// SQLConnector - Interfaccia per gestire operazioni sotto transaction
+type SQLConnector interface {
+	Exec(string, ...interface{}) (sql.Result, error)
+	Prepare(string) (*sql.Stmt, error)
+	Preparex(string) (*sqlx.Stmt, error)
+	Query(string, ...interface{}) (*sql.Rows, error)
+	Queryx(string, ...interface{}) (*sqlx.Rows, error)
+	QueryRow(string, ...interface{}) *sql.Row
+}
+
 var (
 	db   *sqlx.DB
 	once sync.Once
 )
 
 // GetConnection - restituisce un'istanza di connessione al database
-func GetConnection() *sqlx.DB {
+func GetConnection() SQLConnector {
 
 	once.Do(func() {
 
@@ -31,7 +43,6 @@ func GetConnection() *sqlx.DB {
 		if err := conn.Ping(); err != nil {
 			log.Panic(err.Error())
 		}
-
 		db = conn
 	})
 

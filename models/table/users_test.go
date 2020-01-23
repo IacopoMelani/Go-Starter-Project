@@ -3,6 +3,8 @@ package table
 import (
 	"testing"
 
+	"github.com/IacopoMelani/Go-Starter-Project/pkg/db"
+
 	"github.com/IacopoMelani/Go-Starter-Project/pkg/helpers/copy"
 
 	record "github.com/IacopoMelani/Go-Starter-Project/pkg/models/table_record"
@@ -15,7 +17,7 @@ func TestTableMirror(t *testing.T) {
 		t.Fatal("Errore caricamento configurazione")
 	}
 
-	u := NewUser()
+	u := NewUser(db.GetConnection())
 
 	u.Name = copy.String("Mario")
 	u.Lastname = copy.String("Rossi")

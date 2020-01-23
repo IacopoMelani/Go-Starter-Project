@@ -3,6 +3,8 @@ package migration
 import (
 	"sync"
 
+	"github.com/jmoiron/sqlx"
+
 	"github.com/IacopoMelani/Go-Starter-Project/pkg/manager/transactions"
 
 	"github.com/IacopoMelani/Go-Starter-Project/pkg/db"
@@ -31,7 +33,7 @@ var (
 )
 
 // createMigrationsTable - Si occupa di creare la tabella delle migrazioni
-func createMigrationsTable(conn transactions.Transaction) error {
+func createMigrationsTable(conn db.SQLConnector) error {
 
 	query := `CREATE TABLE IF NOT EXISTS migrations (
     record_id INT AUTO_INCREMENT,
@@ -91,7 +93,7 @@ func InitMigrationsList(ml []Migrable) {
 // DoDownMigrations - Si occupa di fare il rollback delle tabelle definite in migrations_list
 func (m *Migrator) DoDownMigrations() error {
 
-	return transactions.WithTransactionx(db.GetConnection(), func(tx transactions.Transaction) error {
+	return transactions.WithTransactionx(db.GetConnection().(*sqlx.DB), func(tx db.SQLConnector) error {
 
 		exist := db.TableExists(table.MigrationsTableName)
 
@@ -101,7 +103,7 @@ func (m *Migrator) DoDownMigrations() error {
 
 		for i := len(m.migrationsList) - 1; i >= 0; i-- {
 
-			migration := table.NewMigration()
+			migration := table.NewMigration(tx)
 
 			err := table.LoadMigrationByName(m.migrationsList[i].GetMigrationName(), migration)
 			if err != nil {
@@ -130,7 +132,7 @@ func (m *Migrator) DoDownMigrations() error {
 // DoUpMigrations - Si occupa di migrare le tabelle definite in migrations_list
 func (m *Migrator) DoUpMigrations() error {
 
-	return transactions.WithTransactionx(db.GetConnection(), func(tx transactions.Transaction) error {
+	return transactions.WithTransactionx(db.GetConnection().(*sqlx.DB), func(tx db.SQLConnector) error {
 
 		exist := db.TableExists(table.MigrationsTableName)
 
@@ -143,7 +145,7 @@ func (m *Migrator) DoUpMigrations() error {
 
 		for _, mi := range m.migrationsList {
 
-			migration := table.NewMigration()
+			migration := table.NewMigration(tx)
 
 			err := table.LoadMigrationByName(mi.GetMigrationName(), migration)
 			if err != nil {
@@ -156,7 +158,7 @@ func (m *Migrator) DoUpMigrations() error {
 
 			if migration.GetTableRecord().IsNew() {
 
-				migration, err = table.InsertNewMigration(mi.GetMigrationName(), 0)
+				migration, err = table.InsertNewMigration(tx, mi.GetMigrationName(), 0)
 				if err != nil {
 					return err
 				}
