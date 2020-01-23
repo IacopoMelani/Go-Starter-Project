@@ -29,6 +29,46 @@ type TableRecord struct {
 	db db.SQLConnector
 }
 
+// save - Si occupa di inserire un nuovo record nella tabella
+func save(ti TableRecordInterface) error {
+
+	t := ti.GetTableRecord()
+
+	query := genSaveQuery(ti)
+	fValue := getFieldsValueNoPrimary(ti)
+	id, err := t.executeSaveUpdateQuery(query, fValue)
+	if err != nil {
+		return err
+	}
+
+	if err := LoadByID(ti, id); err != nil {
+		return err
+	}
+
+	t.SetIsNew(false)
+
+	return nil
+}
+
+// update - Si occupa di aggiornare il record nel database
+func update(ti TableRecordInterface) error {
+
+	t := ti.GetTableRecord()
+
+	query := genUpdateQuery(ti)
+	fValue := getFieldsValueNoPrimary(ti)
+	_, err := t.executeSaveUpdateQuery(query, append(fValue, ti.GetPrimaryKeyValue()))
+	if err != nil {
+		return err
+	}
+
+	if err := LoadByID(ti, ti.GetPrimaryKeyValue()); err != nil {
+		return err
+	}
+
+	return nil
+}
+
 // executeSaveUpdateQuery - Si occupa di eseguire fisicamente la query, in caso di successo restituisce l'Id appena inserito
 func (t *TableRecord) executeSaveUpdateQuery(query string, params []interface{}) (int64, error) {
 
@@ -210,31 +250,11 @@ func Save(ti TableRecordInterface) error {
 
 	if t.isNew {
 
-		query := genSaveQuery(ti)
-		fValue := getFieldsValueNoPrimary(ti)
-		id, err := t.executeSaveUpdateQuery(query, fValue)
-		if err != nil {
-			return err
-		}
-
-		if err := LoadByID(ti, id); err != nil {
-			return err
-		}
-
-		t.SetIsNew(false)
+		save(ti)
 
 	} else {
 
-		query := genUpdateQuery(ti)
-		fValue := getFieldsValueNoPrimary(ti)
-		_, err := t.executeSaveUpdateQuery(query, append(fValue, ti.GetPrimaryKeyValue()))
-		if err != nil {
-			return err
-		}
-
-		if err := LoadByID(ti, ti.GetPrimaryKeyValue()); err != nil {
-			return err
-		}
+		update(ti)
 	}
 
 	return nil
