@@ -4,6 +4,8 @@ import (
 	"errors"
 	"testing"
 
+	"github.com/jmoiron/sqlx"
+
 	"github.com/IacopoMelani/Go-Starter-Project/pkg/manager/transactions"
 
 	"github.com/IacopoMelani/Go-Starter-Project/pkg/db"
@@ -39,7 +41,7 @@ func TestMigrationManager(t *testing.T) {
 		t.Fatal("Errore caricamento configurazione")
 	}
 
-	transactions.WithTransactionx(db.GetConnection(), func(tx transactions.Transaction) error {
+	transactions.WithTransactionx(db.GetConnection().(*sqlx.DB), func(tx db.SQLConnector) error {
 
 		var migrationsList = []Migrable{
 			TestTable{},
@@ -74,7 +76,7 @@ func TestMigrationManager(t *testing.T) {
 			t.Fatal(err.Error())
 		}
 
-		migration := table.NewMigration()
+		migration := table.NewMigration(tx)
 
 		err = table.LoadMigrationByName("create_test_table", migration)
 		if err != nil {

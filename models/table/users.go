@@ -39,7 +39,7 @@ func LoadAllUsers() ([]*User, error) {
 
 	for rows.Next() {
 
-		u := NewUser()
+		u := NewUser(db.GetConnection())
 
 		if err := record.LoadFromRow(rows, u); err != nil {
 			return nil, err
@@ -53,10 +53,11 @@ func LoadAllUsers() ([]*User, error) {
 
 // NewUser - Si occupa di istanziare un nuovo oggetto User istanziando il relativo TableRecord e impostandolo come "nuovo"
 // È consigliato utilizzare sempre questo metodo per creare una nuova istanza di User
-func NewUser() *User {
+func NewUser(db db.SQLConnector) *User {
 
 	u := new(User)
 	u.tr = record.NewTableRecord(true, false)
+	u.tr.SetSQLConnection(db)
 
 	return u
 }

@@ -26,12 +26,13 @@ type TableRecord struct {
 	isNew      bool
 	isReadOnly bool
 	builder.Builder
+	db db.SQLConnector
 }
 
 // executeSaveUpdateQuery - Si occupa di eseguire fisicamente la query, in caso di successo restituisce l'Id appena inserito
-func executeSaveUpdateQuery(query string, params []interface{}) (int64, error) {
+func (t *TableRecord) executeSaveUpdateQuery(query string, params []interface{}) (int64, error) {
 
-	db := db.GetConnection()
+	db := t.db
 
 	res, err := db.Exec(query, params...)
 	if err != nil {
@@ -59,9 +60,9 @@ func All(ntm NewTableModel) ([]TableRecordInterface, error) {
 
 	var result []TableRecordInterface
 
-	db := db.GetConnection()
-
 	pivot := ntm()
+
+	db := pivot.GetTableRecord().db
 
 	query := "SELECT " + AllField(pivot) + " FROM " + pivot.GetTableName()
 
@@ -89,7 +90,7 @@ func All(ntm NewTableModel) ([]TableRecordInterface, error) {
 // Delete - Si occupa di cancellare un record sul database
 func Delete(ti TableRecordInterface) (int64, error) {
 
-	db := db.GetConnection()
+	db := ti.GetTableRecord().db
 
 	stmt, err := db.Prepare(genDeleteQuery(ti))
 	if err != nil {
@@ -148,7 +149,7 @@ func ExecQuery(ti TableRecordInterface, ntm NewTableModel) ([]TableRecordInterfa
 // LoadByID - Carica l'istanza passata con i valori della sua tabella ricercando per chiave primaria
 func LoadByID(ti TableRecordInterface, id int64) error {
 
-	db := db.GetConnection()
+	db := ti.GetTableRecord().db
 
 	query := "SELECT " + AllField(ti) + " FROM " + ti.GetTableName() + " WHERE " + ti.GetPrimaryKeyName() + " = ?"
 
@@ -183,7 +184,7 @@ func LoadFromRow(r *sqlx.Rows, tri TableRecordInterface) error {
 		return err
 	}
 
-	tri.GetTableRecord().SetIsNew(false)
+	tri.GetTableRecord().SetIsNew(false).SetSQLConnection(tri.GetTableRecord().db)
 
 	return nil
 }
@@ -211,7 +212,7 @@ func Save(ti TableRecordInterface) error {
 
 		query := genSaveQuery(ti)
 		fValue := getFieldsValueNoPrimary(ti)
-		id, err := executeSaveUpdateQuery(query, fValue)
+		id, err := t.executeSaveUpdateQuery(query, fValue)
 		if err != nil {
 			return err
 		}
@@ -226,7 +227,7 @@ func Save(ti TableRecordInterface) error {
 
 		query := genUpdateQuery(ti)
 		fValue := getFieldsValueNoPrimary(ti)
-		_, err := executeSaveUpdateQuery(query, append(fValue, ti.GetPrimaryKeyValue()))
+		_, err := t.executeSaveUpdateQuery(query, append(fValue, ti.GetPrimaryKeyValue()))
 		if err != nil {
 			return err
 		}
@@ -239,6 +240,11 @@ func Save(ti TableRecordInterface) error {
 	return nil
 }
 
+// GetDB - Restituisce la risorsa di connessione al database
+func (t *TableRecord) GetDB() db.SQLConnector {
+	return t.db
+}
+
 // IsNew - Restituisce se il record è nuovo
 func (t *TableRecord) IsNew() bool {
 	return t.isNew
@@ -247,7 +253,7 @@ func (t *TableRecord) IsNew() bool {
 // PrepareStmt - Restituisce lo stmt della query pronta da essere eseguita
 func (t *TableRecord) PrepareStmt(tableName string) (*sqlx.Stmt, error) {
 
-	db := db.GetConnection()
+	db := t.db
 
 	query := t.BuildQuery(tableName)
 
@@ -262,5 +268,11 @@ func (t *TableRecord) PrepareStmt(tableName string) (*sqlx.Stmt, error) {
 // SetIsNew - Si occupa di impostare il valore del campo TableRecord::isNews
 func (t *TableRecord) SetIsNew(new bool) *TableRecord {
 	t.isNew = new
+	return t
+}
+
+// SetSQLConnection - Imposta la connessione
+func (t *TableRecord) SetSQLConnection(db db.SQLConnector) *TableRecord {
+	t.db = db
 	return t
 }

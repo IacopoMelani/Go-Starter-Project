@@ -19,10 +19,12 @@ type TestStruct struct {
 }
 
 // NewTestStruct - Restitusice una nuova istaza di TestStruct
-func NewTestStruct() *TestStruct {
+func NewTestStruct(db db.SQLConnector) *TestStruct {
 
 	ts := new(TestStruct)
 	ts.tr = NewTableRecord(true, false)
+	ts.tr.SetSQLConnection(db)
+
 	return ts
 }
 
@@ -31,7 +33,7 @@ func loadAllTestTableRecordStruct() ([]*TestStruct, error) {
 
 	db := db.GetConnection()
 
-	ts := NewTestStruct()
+	ts := NewTestStruct(db)
 
 	query := "SELECT " + AllField(ts) + " FROM " + ts.GetTableName()
 
@@ -44,7 +46,7 @@ func loadAllTestTableRecordStruct() ([]*TestStruct, error) {
 
 	for rows.Next() {
 
-		ts := NewTestStruct()
+		ts := NewTestStruct(db)
 
 		if err := LoadFromRow(rows, ts); err != nil {
 			return nil, err
@@ -86,10 +88,11 @@ type TestStructReadOnly struct {
 }
 
 // NewTestStructReadOnly - Restituisce una nuova istanza di TestStructReadOnly
-func NewTestStructReadOnly() *TestStructReadOnly {
+func NewTestStructReadOnly(db db.SQLConnector) *TestStructReadOnly {
 
 	tsro := new(TestStructReadOnly)
 	tsro.tr = NewTableRecord(true, true)
+	tsro.tr.SetSQLConnection(db)
 
 	return tsro
 }
@@ -126,7 +129,9 @@ func TestTableRecord(t *testing.T) {
 		t.Fatal("Errore caricamento configurazione")
 	}
 
-	ts := NewTestStruct()
+	db := db.GetConnection()
+
+	ts := NewTestStruct(db)
 
 	ts.Name = copy.String("Mario")
 	ts.Lastname = copy.String("Rossi")
@@ -168,12 +173,12 @@ func TestTableRecord(t *testing.T) {
 		t.Fatal("Chiave primaria è cambiata durante l'update")
 	}
 
-	ts = NewTestStruct()
+	ts = NewTestStruct(db)
 
 	ts.tr.WhereEqual("name", "Marco").OrderByDesc("record_id").WhereOperator("record_id", "<", 23)
 
 	tsList, err := ExecQuery(ts, func() TableRecordInterface {
-		return NewTestStruct()
+		return NewTestStruct(db)
 	})
 	if err != nil {
 		t.Fatal(err.Error())
@@ -183,7 +188,7 @@ func TestTableRecord(t *testing.T) {
 		t.Error("La query sembra non aver restituito zero valori")
 	}
 
-	ts = NewTestStruct()
+	ts = NewTestStruct(db)
 
 	ts.Name = copy.String("Mario")
 	ts.Lastname = copy.String("Rossi")
@@ -213,7 +218,7 @@ func TestTableRecord(t *testing.T) {
 	}
 
 	testAll, err := All(func() TableRecordInterface {
-		return NewTestStruct()
+		return NewTestStruct(db)
 	})
 	if err != nil {
 		t.Fatal(err.Error())
@@ -223,7 +228,7 @@ func TestTableRecord(t *testing.T) {
 		t.Error("La lista restituita sembra vuota")
 	}
 
-	tsr := NewTestStructReadOnly()
+	tsr := NewTestStructReadOnly(db)
 
 	tsr.Name = copy.String("foffo")
 	tsr.Lastname = copy.String("bomba")
