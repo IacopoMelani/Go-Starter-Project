@@ -5,9 +5,8 @@ import (
 
 	"github.com/jmoiron/sqlx"
 
-	"github.com/IacopoMelani/Go-Starter-Project/pkg/manager/transactions"
-
-	"github.com/IacopoMelani/Go-Starter-Project/pkg/db"
+	"github.com/IacopoMelani/Go-Starter-Project/pkg/manager/db"
+	"github.com/IacopoMelani/Go-Starter-Project/pkg/manager/db/transactions"
 	"github.com/IacopoMelani/Go-Starter-Project/pkg/models/table_record/table"
 
 	record "github.com/IacopoMelani/Go-Starter-Project/pkg/models/table_record"

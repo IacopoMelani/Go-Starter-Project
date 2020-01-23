@@ -1,7 +1,7 @@
 package table
 
 import (
-	"github.com/IacopoMelani/Go-Starter-Project/pkg/db"
+	"github.com/IacopoMelani/Go-Starter-Project/pkg/manager/db"
 	record "github.com/IacopoMelani/Go-Starter-Project/pkg/models/table_record"
 )
 

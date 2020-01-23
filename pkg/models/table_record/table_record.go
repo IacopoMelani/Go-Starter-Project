@@ -4,8 +4,8 @@ import (
 	"errors"
 	"strings"
 
-	"github.com/IacopoMelani/Go-Starter-Project/pkg/db"
-	builder "github.com/IacopoMelani/Go-Starter-Project/pkg/db/query_builder"
+	"github.com/IacopoMelani/Go-Starter-Project/pkg/manager/db"
+	builder "github.com/IacopoMelani/Go-Starter-Project/pkg/manager/db/query_builder"
 	"github.com/jmoiron/sqlx"
 )
 

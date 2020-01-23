@@ -4,8 +4,8 @@ import (
 	"testing"
 
 	"github.com/IacopoMelani/Go-Starter-Project/pkg/helpers/copy"
+	"github.com/IacopoMelani/Go-Starter-Project/pkg/manager/db"
 
-	"github.com/IacopoMelani/Go-Starter-Project/pkg/db"
 	"github.com/subosito/gotenv"
 )
 
