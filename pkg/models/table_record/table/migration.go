@@ -38,37 +38,40 @@ type Migration struct {
 var dm = &Migration{}
 
 // InsertNewMigration - Si occupa di inserire un record nella tabella migrations
-func InsertNewMigration(name string, status int) (*Migration, error) {
+func InsertNewMigration(db db.SQLConnector, name string, status int) (*Migration, error) {
 
 	if name == "" {
 		return nil, errors.New("Empty migration's name")
 	}
 
-	m := NewMigration()
+	m := NewMigration(db)
 	m.Name = name
 	m.Status = status
 	m.CreatedAt = time.Now().UTC()
 	if err := record.Save(m); err != nil {
 		return nil, err
 	}
-	m.tr.SetIsNew(false)
+	m.tr.SetIsNew(false).SetSQLConnection(db)
 
 	return m, nil
 }
 
 // LoadAllMigrations - Carica tutte le istanze di Migration dal database
-func LoadAllMigrations() ([]*Migration, error) {
+func LoadAllMigrations(db db.SQLConnector) ([]*Migration, error) {
 
 	query := "SELECT " + record.AllField(dm) + " FROM " + dm.GetTableName()
 
-	rows := db.QueryOrPanic(query)
+	rows, err := db.Queryx(query)
+	if err != nil {
+		return nil, err
+	}
 	defer rows.Close()
 
 	var result []*Migration
 
 	for rows.Next() {
 
-		m := NewMigration()
+		m := NewMigration(db)
 
 		if err := record.LoadFromRow(rows, m); err != nil {
 			return nil, err
@@ -85,7 +88,12 @@ func LoadMigrationByName(name string, m *Migration) error {
 
 	query := "SELECT " + record.AllField(m) + " FROM " + m.GetTableName() + " WHERE " + MigrationsColName + " = ?"
 
-	rows := db.QueryOrPanic(query, name)
+	db := m.GetTableRecord().GetDB()
+
+	rows, err := db.Queryx(query, name)
+	if err != nil {
+		return err
+	}
 	defer rows.Close()
 
 	if rows.Next() {
@@ -100,11 +108,11 @@ func LoadMigrationByName(name string, m *Migration) error {
 
 // NewMigration - Si occupa di istanziare un nuovo oggetto Migration istanziando il relativo TableRecord e impostandolo come "nuovo"
 // È consigliato utilizzare sempre questo metodo per creare una nuova istanza di Migration
-func NewMigration() *Migration {
+func NewMigration(db db.SQLConnector) *Migration {
 
 	m := new(Migration)
 	m.tr = record.NewTableRecord(true, false)
-
+	m.tr.SetSQLConnection(db)
 	return m
 }
 
