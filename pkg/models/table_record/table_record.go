@@ -4,8 +4,8 @@ import (
 	"errors"
 	"strings"
 
-	"github.com/IacopoMelani/Go-Starter-Project/pkg/db"
-	builder "github.com/IacopoMelani/Go-Starter-Project/pkg/db/query_builder"
+	"github.com/IacopoMelani/Go-Starter-Project/pkg/manager/db"
+	builder "github.com/IacopoMelani/Go-Starter-Project/pkg/manager/db/query_builder"
 	"github.com/jmoiron/sqlx"
 )
 
@@ -250,11 +250,17 @@ func Save(ti TableRecordInterface) error {
 
 	if t.isNew {
 
-		save(ti)
+		err := save(ti)
+		if err != nil {
+			return err
+		}
 
 	} else {
 
-		update(ti)
+		err := update(ti)
+		if err != nil {
+			return err
+		}
 	}
 
 	return nil

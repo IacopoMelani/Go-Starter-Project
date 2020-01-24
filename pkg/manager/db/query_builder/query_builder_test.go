@@ -4,8 +4,7 @@ import (
 	"database/sql"
 	"testing"
 
-	"github.com/IacopoMelani/Go-Starter-Project/pkg/db"
-
+	"github.com/IacopoMelani/Go-Starter-Project/pkg/manager/db"
 	"github.com/subosito/gotenv"
 )
 
@@ -19,7 +18,7 @@ type testStruct struct {
 
 func TestQueryBuilder(t *testing.T) {
 
-	if err := gotenv.Load("./../../../.env"); err != nil {
+	if err := gotenv.Load("./../../../../.env"); err != nil {
 		t.Fatal("Errore caricamento configurazione")
 	}
 
