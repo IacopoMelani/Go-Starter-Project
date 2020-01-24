@@ -33,6 +33,7 @@ func LoadAllUsers() ([]*User, error) {
 	query := "SELECT " + record.AllField(du) + " FROM " + du.GetTableName()
 
 	rows := db.QueryOrPanic(query)
+
 	defer rows.Close()
 
 	var result []*User

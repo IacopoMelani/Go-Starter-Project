@@ -250,11 +250,17 @@ func Save(ti TableRecordInterface) error {
 
 	if t.isNew {
 
-		save(ti)
+		err := save(ti)
+		if err != nil {
+			return err
+		}
 
 	} else {
 
-		update(ti)
+		err := update(ti)
+		if err != nil {
+			return err
+		}
 	}
 
 	return nil

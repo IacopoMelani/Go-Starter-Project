@@ -46,7 +46,9 @@ func TestGetAllUser(t *testing.T) {
 
 func TestGetDurataionUsers(t *testing.T) {
 
-	gotenv.Load("../.env")
+	if err := gotenv.Load("../.env"); err != nil {
+		t.Fatal("Errore caricamento configurazione")
+	}
 
 	e := echo.New()
 
@@ -62,7 +64,9 @@ func TestGetDurataionUsers(t *testing.T) {
 
 func TestLogin(t *testing.T) {
 
-	gotenv.Load("../.env")
+	if err := gotenv.Load("../.env"); err != nil {
+		t.Fatal("Errore caricamento configurazione")
+	}
 
 	e := echo.New()
 
