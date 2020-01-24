@@ -89,6 +89,75 @@ func InitMigrationsList(ml []Migrable) {
 	})
 }
 
+// execDownMigrations - Esegue fisicamente il rollback
+func (m *Migrator) execDownMigrations(db db.SQLConnector) error {
+
+	for i := len(m.migrationsList) - 1; i >= 0; i-- {
+
+		migration := table.NewMigration(db)
+
+		err := table.LoadMigrationByName(m.migrationsList[i].GetMigrationName(), migration)
+		if err != nil {
+			return err
+		}
+
+		if migration.RecordID != 0 && migration.Status == 1 {
+
+			_, err = db.Exec(m.migrationsList[i].Down())
+			if err != nil {
+				return err
+			}
+
+			migration.Status = 0
+			err = record.Save(migration)
+			if err != nil {
+				return err
+			}
+		}
+	}
+
+	return nil
+}
+
+// execUpMigrations - Si occupa di eseguire fisicamente la migrazione del database
+func (m *Migrator) execUpMigrations(db db.SQLConnector) error {
+
+	for _, mi := range m.migrationsList {
+
+		migration := table.NewMigration(db)
+
+		err := table.LoadMigrationByName(mi.GetMigrationName(), migration)
+		if err != nil {
+			return err
+		}
+
+		if migration.RecordID != 0 && migration.Status == 1 {
+			continue
+		}
+
+		if migration.GetTableRecord().IsNew() {
+
+			migration, err = table.InsertNewMigration(db, mi.GetMigrationName(), 0)
+			if err != nil {
+				return err
+			}
+		}
+
+		_, err = db.Exec(mi.Up())
+		if err != nil {
+			return err
+		}
+
+		migration.Status = 1
+		err = record.Save(migration)
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
 // DoDownMigrations - Si occupa di fare il rollback delle tabelle definite in migrations_list
 func (m *Migrator) DoDownMigrations() error {
 
@@ -100,28 +169,8 @@ func (m *Migrator) DoDownMigrations() error {
 			return nil
 		}
 
-		for i := len(m.migrationsList) - 1; i >= 0; i-- {
-
-			migration := table.NewMigration(tx)
-
-			err := table.LoadMigrationByName(m.migrationsList[i].GetMigrationName(), migration)
-			if err != nil {
-				return err
-			}
-
-			if migration.RecordID != 0 && migration.Status == 1 {
-
-				_, err = tx.Exec(m.migrationsList[i].Down())
-				if err != nil {
-					return err
-				}
-
-				migration.Status = 0
-				err = record.Save(migration)
-				if err != nil {
-					return err
-				}
-			}
+		if err := m.execDownMigrations(tx); err != nil {
+			return err
 		}
 
 		return nil
@@ -142,37 +191,8 @@ func (m *Migrator) DoUpMigrations() error {
 			}
 		}
 
-		for _, mi := range m.migrationsList {
-
-			migration := table.NewMigration(tx)
-
-			err := table.LoadMigrationByName(mi.GetMigrationName(), migration)
-			if err != nil {
-				return err
-			}
-
-			if migration.RecordID != 0 && migration.Status == 1 {
-				continue
-			}
-
-			if migration.GetTableRecord().IsNew() {
-
-				migration, err = table.InsertNewMigration(tx, mi.GetMigrationName(), 0)
-				if err != nil {
-					return err
-				}
-			}
-
-			_, err = tx.Exec(mi.Up())
-			if err != nil {
-				return err
-			}
-
-			migration.Status = 1
-			err = record.Save(migration)
-			if err != nil {
-				return nil
-			}
+		if err := m.execUpMigrations(tx); err != nil {
+			return err
 		}
 
 		return nil
