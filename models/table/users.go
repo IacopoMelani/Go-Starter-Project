@@ -1,7 +1,7 @@
 package table
 
 import (
-	"github.com/IacopoMelani/Go-Starter-Project/pkg/db"
+	"github.com/IacopoMelani/Go-Starter-Project/pkg/manager/db"
 	record "github.com/IacopoMelani/Go-Starter-Project/pkg/models/table_record"
 )
 
@@ -33,6 +33,7 @@ func LoadAllUsers() ([]*User, error) {
 	query := "SELECT " + record.AllField(du) + " FROM " + du.GetTableName()
 
 	rows := db.QueryOrPanic(query)
+
 	defer rows.Close()
 
 	var result []*User

@@ -1,7 +1,7 @@
 package transactions
 
 import (
-	"github.com/IacopoMelani/Go-Starter-Project/pkg/db"
+	"github.com/IacopoMelani/Go-Starter-Project/pkg/manager/db"
 	"github.com/jmoiron/sqlx"
 )
 
