@@ -80,7 +80,5 @@ func TestTransactionx(t *testing.T) {
 		}
 
 		panic("Rollback")
-
-		return nil
 	})
 }
