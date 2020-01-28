@@ -29,6 +29,11 @@ type TableRecord struct {
 	db db.SQLConnector
 }
 
+// getTableRecordConnection - Restituisce la connessione di un TableRecordInterface
+func getTableRecordConnection(ti TableRecordInterface) db.SQLConnector {
+	return ti.GetTableRecord().db
+}
+
 // save - Si occupa di inserire un nuovo record nella tabella
 func save(ti TableRecordInterface) error {
 
@@ -130,7 +135,7 @@ func All(ntm NewTableModel) ([]TableRecordInterface, error) {
 // Delete - Si occupa di cancellare un record sul database
 func Delete(ti TableRecordInterface) (int64, error) {
 
-	db := ti.GetTableRecord().db
+	db := getTableRecordConnection(ti)
 
 	stmt, err := db.Prepare(genDeleteQuery(ti))
 	if err != nil {
@@ -189,7 +194,7 @@ func ExecQuery(ti TableRecordInterface, ntm NewTableModel) ([]TableRecordInterfa
 // LoadByID - Carica l'istanza passata con i valori della sua tabella ricercando per chiave primaria
 func LoadByID(ti TableRecordInterface, id int64) error {
 
-	db := ti.GetTableRecord().db
+	db := getTableRecordConnection(ti)
 
 	query := "SELECT " + AllField(ti) + " FROM " + ti.GetTableName() + " WHERE " + ti.GetPrimaryKeyName() + " = ?"
 

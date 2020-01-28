@@ -2,6 +2,7 @@ package boot
 
 import (
 	"testing"
+	"time"
 
 	"github.com/subosito/gotenv"
 
@@ -15,6 +16,8 @@ func TestInitServer(t *testing.T) {
 	}
 
 	go InitServer()
+
+	time.Sleep(1 * time.Second)
 
 	config := config.GetInstance()
 

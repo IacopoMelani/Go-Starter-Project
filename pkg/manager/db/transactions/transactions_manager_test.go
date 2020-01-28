@@ -58,27 +58,4 @@ func TestTransactionx(t *testing.T) {
 	if err == nil {
 		t.Error("err dovrebbe essere valorizzato")
 	}
-
-	defer func() {
-		if p := recover(); p == nil {
-			t.Error("Dovrebbe essere panic")
-		}
-	}()
-	WithTransactionx(db.GetConnection().(*sqlx.DB), func(tx db.SQLConnector) error {
-
-		newMigration := table.NewMigration(tx)
-
-		newMigration.Name = testMigrationName
-
-		if err := record.Save(newMigration); err != nil {
-			return err
-		}
-
-		migration := table.NewMigration(tx)
-		if err := table.LoadMigrationByName(testMigrationName, migration); err != nil {
-			return err
-		}
-
-		panic("Rollback")
-	})
 }
