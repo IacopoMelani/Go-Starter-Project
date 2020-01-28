@@ -133,6 +133,10 @@ func TestTableRecord(t *testing.T) {
 
 	ts := NewTestStruct(db)
 
+	if db != ts.tr.GetDB() {
+		t.Error("Errore: Database assegnato")
+	}
+
 	ts.Name = copy.String("Mario")
 	ts.Lastname = copy.String("Rossi")
 	ts.Gender = copy.String("M")
@@ -247,5 +251,4 @@ func TestTableRecord(t *testing.T) {
 	if tsr.RecordID < 0 {
 		t.Fatal("Errore: record id non valido")
 	}
-
 }

@@ -22,9 +22,18 @@ func TestMigration(t *testing.T) {
 
 		mName := "test_migration"
 
+		_, err := InsertNewMigration(tx, "", 1)
+		if err == nil {
+			t.Error("Dovrebbe essere errore")
+		}
+
 		migration, err := InsertNewMigration(tx, mName, 1)
 		if err != nil {
 			t.Fatal(err.Error())
+		}
+
+		if migration.GetPrimaryKeyValue() == 0 {
+			t.Error("Chiave primaria non impostata")
 		}
 
 		m := NewMigration(tx)
