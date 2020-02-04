@@ -8,6 +8,7 @@ import (
 
 // CacheConfig - struttura dove immagazzinare le configurazioni
 type CacheConfig struct {
+	AppName           string
 	StringConnection  string
 	AppPort           string
 	UserTimeToRefresh int
@@ -30,6 +31,7 @@ func GetInstance() *CacheConfig {
 // GetFieldMapper - Si occupa di restituire l'array di mappatura dell'env
 func (c CacheConfig) GetFieldMapper() map[string]string {
 	return map[string]string{
+		"APP_NAME":    "AppName",
 		"STRING_CONNECTION":    "StringConnection",
 		"APP_PORT":             "AppPort",
 		"USER_TIME_TO_REFRESH": "UserTimeToRefresh",

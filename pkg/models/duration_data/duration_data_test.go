@@ -7,7 +7,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/IacopoMelani/Go-Starter-Project/config"
 	"github.com/IacopoMelani/Go-Starter-Project/pkg/helpers/request"
 	"github.com/subosito/gotenv"
 )
@@ -23,7 +22,7 @@ func GeDurationDataTest() *DurationData {
 	onceUser.Do(func() {
 		ddt = new(DurationData)
 		ddt.SetDurationDataInterface(DurationDataTest{})
-		ddt.SetTimeToRefresh(config.GetInstance().UserTimeToRefresh)
+		ddt.SetTimeToRefresh(1)
 		ddt.Daemon()
 	})
 	return ddt
@@ -67,12 +66,6 @@ func TestDurationData(t *testing.T) {
 	d := GeDurationDataTest()
 
 	d.StopDaemon()
-
-	d.SetContent(12, 3)
-
-	if _, err := d.GetContent(); err != nil {
-		t.Error(err.Error())
-	}
 
 	d.GetSafeContent()
 }

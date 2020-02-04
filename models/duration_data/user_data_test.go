@@ -24,11 +24,5 @@ func TestGetUserData(t *testing.T) {
 
 	d.StopDaemon()
 
-	d.SetContent(12, 3)
-
-	if _, err := d.GetContent(); err != nil {
-		t.Error(err.Error())
-	}
-
 	d.GetSafeContent()
 }
