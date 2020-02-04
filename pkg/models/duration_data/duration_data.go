@@ -1,7 +1,6 @@
 package durationdata
 
 import (
-	"errors"
 	"sync"
 	"time"
 )
@@ -11,15 +10,13 @@ type DDInterface interface {
 	HandlerData() (interface{}, error)
 }
 
-// DurationData - Struct per immagazzinare i dati raccolti con il suo relativo tempo di scadenza dopo il quale è obbligato a ricevere nuovi dati
-//in alternativa è possibile definere una fuzione handler da assegnare all'istanza di DurationData, un intervallo di tempo in secondi nel quale l'handler viene richiamato per poi avviare il demone relativo alla stessa istanza
+// DurationData - Struct per immagazzinare i dati raccolti con il suo relativo tempo di scadenza è necessario definere una fuzione handler da assegnare all'istanza di DurationData, un intervallo di tempo in secondi nel quale l'handler viene richiamato per poi avviare il demone relativo alla stessa istanza
 type DurationData struct {
 	mu          sync.Mutex
 	ddi         DDInterface
 	stopSignal  chan bool
 	sleepSecond int
 	content     interface{}
-	ExpiredAt   time.Time
 }
 
 var registeredInitDurationData []func() *DurationData
@@ -40,9 +37,7 @@ func RegisterInitDurationData(f ...func() *DurationData) {
 func (d *DurationData) getDaemonData() {
 	content, err := d.ddi.HandlerData()
 	if err == nil {
-		d.mu.Lock()
-		d.content = content
-		d.mu.Unlock()
+		d.SetSafeContent(content)
 	}
 }
 
@@ -69,21 +64,6 @@ func (d *DurationData) Daemon() {
 	}()
 }
 
-// GetContent - Restituisce i dati recuperati nel caso siano presenti e non siano scaduti altrimenti errore
-func (d *DurationData) GetContent() (interface{}, error) {
-
-	if d.ExpiredAt.IsZero() || d.content == nil {
-		return nil, errors.New("Dati mancanti")
-	}
-
-	diff := time.Until(d.ExpiredAt)
-	if diff.Seconds() <= 0 {
-		return nil, errors.New("Data scaduta")
-	}
-
-	return d.content, nil
-}
-
 // GetSafeContent - Restituisce in modo esclusivo il contenuto di duration data
 func (d *DurationData) GetSafeContent() interface{} {
 
@@ -94,16 +74,10 @@ func (d *DurationData) GetSafeContent() interface{} {
 	return content
 }
 
-// SetContent - Imposta dei nuovi dati e aggiorando il tempo di scadenza solo se i precedenti non sono più validi, altrimenti non fa niente
-func (d *DurationData) SetContent(content interface{}, secondsInterval int) {
-
-	if diff := time.Until(d.ExpiredAt); diff.Seconds() > 0 {
-		return
-	}
-
+// SetSafeContent - Imposta il valore di safe content in modo sicuro
+func (d *DurationData) SetSafeContent(content interface{}) {
 	d.mu.Lock()
 	d.content = content
-	d.ExpiredAt = time.Now().Add(time.Second * time.Duration(secondsInterval))
 	d.mu.Unlock()
 }
 
