@@ -7,7 +7,9 @@ import (
 
 func main() {
 
-	gotenv.Load()
+	if err := gotenv.Load(); err != nil {
+		panic(err)
+	}
 
 	command.InterpretingHumanWord()
 }
