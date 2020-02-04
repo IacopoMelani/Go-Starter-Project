@@ -33,6 +33,7 @@ go build main.go
 ## Configuration
 In the root directory is present a .env.sample
 ```env
+export APP_NAME="Go-Starter-Project"
 export STRING_CONNECTION="root:root@tcp(127.0.0.1:3306)/test?parseTime=true"
 export APP_PORT=:8888
 export USER_TIME_TO_REFRESH=30
