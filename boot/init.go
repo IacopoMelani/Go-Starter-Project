@@ -71,7 +71,7 @@ func InitServer() {
 		}
 		log.NewLogBackend(os.Stdout, "", 0, logging.DEBUG, log.DefaultLogFormatter)
 		log.NewLogBackend(file, "", 0, logging.WARNING, log.VerboseLogFilePathFormatter)
-		log.Init()
+		log.Init(config.GetInstance().AppName)
 	}()
 
 	go func() {
