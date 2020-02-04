@@ -28,7 +28,7 @@ func TestLogger(t *testing.T) {
 	NewLogBackend(os.Stderr, "", 0, logging.DEBUG, nil)
 	NewLogBackend(file, "", 0, logging.WARNING, VerboseLogFilePathFormatter)
 	NewLogBackend(os.Stdout, "", 0, logging.INFO, LowVerboseLogFormatter)
-	Init()
+	Init("Test-App")
 
 	testLogger := GetLogger()
 	testLogger.Info("Test info")
