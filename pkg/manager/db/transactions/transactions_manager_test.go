@@ -23,7 +23,7 @@ func TestTransactionx(t *testing.T) {
 		t.Fatal("Errore caricamento configurazione")
 	}
 
-	WithTransactionx(db.GetConnection().(*sqlx.DB), func(tx db.SQLConnector) error {
+	err := WithTransactionx(db.GetConnection().(*sqlx.DB), func(tx db.SQLConnector) error {
 
 		_, err := table.LoadAllMigrations(tx)
 		if err != nil {
@@ -32,8 +32,11 @@ func TestTransactionx(t *testing.T) {
 
 		return nil
 	})
+	if err != nil {
+		t.Error("Errore durante test loadAll")
+	}
 
-	err := WithTransactionx(db.GetConnection().(*sqlx.DB), func(tx db.SQLConnector) error {
+	err = WithTransactionx(db.GetConnection().(*sqlx.DB), func(tx db.SQLConnector) error {
 
 		newMigration := table.NewMigration(tx)
 
