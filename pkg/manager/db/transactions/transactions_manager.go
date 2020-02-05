@@ -20,7 +20,6 @@ func WithTransactionx(db *sqlx.DB, fn TxFn) (err error) {
 	defer func() {
 		if p := recover(); p != nil {
 			tx.Rollback()
-			panic(p)
 		} else if err != nil {
 			tx.Rollback()
 		} else {
