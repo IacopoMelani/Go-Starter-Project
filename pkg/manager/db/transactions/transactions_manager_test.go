@@ -8,10 +8,6 @@ import (
 
 	"github.com/jmoiron/sqlx"
 
-	record "github.com/IacopoMelani/Go-Starter-Project/pkg/models/table_record"
-
-	"github.com/IacopoMelani/Go-Starter-Project/pkg/models/table_record/table"
-
 	"github.com/IacopoMelani/Go-Starter-Project/pkg/manager/db"
 )
 
@@ -24,24 +20,6 @@ func TestTransactionx(t *testing.T) {
 	}
 
 	err := WithTransactionx(db.GetConnection().(*sqlx.DB), func(tx db.SQLConnector) error {
-
-		newMigration := table.NewMigration(tx)
-
-		newMigration.Name = testMigrationName
-
-		if err := record.Save(newMigration); err != nil {
-			return err
-		}
-
-		migration := table.NewMigration(tx)
-		if err := table.LoadMigrationByName(testMigrationName, migration); err != nil {
-			return err
-		}
-
-		if migration.Name != testMigrationName {
-			t.Error("Fallimento caricamento migrazione")
-		}
-
 		return errors.New("Rollback")
 	})
 	if err == nil {
@@ -49,13 +27,14 @@ func TestTransactionx(t *testing.T) {
 	}
 
 	err = WithTransactionx(db.GetConnection().(*sqlx.DB), func(tx db.SQLConnector) error {
-
-		_, err := table.LoadAllMigrations(tx)
-		if err != nil {
-			return err
-		}
-
 		return nil
+	})
+	if err != nil {
+		t.Fatal(err.Error())
+	}
+
+	err = WithTransactionx(db.GetConnection().(*sqlx.DB), func(tx db.SQLConnector) error {
+		panic("panic")
 	})
 	if err != nil {
 		t.Fatal(err.Error())
