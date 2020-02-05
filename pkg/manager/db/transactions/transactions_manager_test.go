@@ -25,19 +25,6 @@ func TestTransactionx(t *testing.T) {
 
 	err := WithTransactionx(db.GetConnection().(*sqlx.DB), func(tx db.SQLConnector) error {
 
-		_, err := table.LoadAllMigrations(tx)
-		if err != nil {
-			return err
-		}
-
-		return nil
-	})
-	if err != nil {
-		t.Error("Errore durante test loadAll")
-	}
-
-	err = WithTransactionx(db.GetConnection().(*sqlx.DB), func(tx db.SQLConnector) error {
-
 		newMigration := table.NewMigration(tx)
 
 		newMigration.Name = testMigrationName
@@ -57,8 +44,20 @@ func TestTransactionx(t *testing.T) {
 
 		return errors.New("Rollback")
 	})
-
 	if err == nil {
 		t.Error("err dovrebbe essere valorizzato")
+	}
+
+	err = WithTransactionx(db.GetConnection().(*sqlx.DB), func(tx db.SQLConnector) error {
+
+		_, err := table.LoadAllMigrations(tx)
+		if err != nil {
+			return err
+		}
+
+		return nil
+	})
+	if err != nil {
+		t.Fatal(err.Error())
 	}
 }
