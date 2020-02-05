@@ -8,6 +8,10 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/jmoiron/sqlx"
+
+	"github.com/IacopoMelani/Go-Starter-Project/pkg/manager/db"
+
 	"github.com/stretchr/testify/assert"
 
 	"github.com/labstack/echo"
@@ -41,6 +45,19 @@ func TestGetAllUser(t *testing.T) {
 
 	if assert.NoError(t, GetAllUser(c)) {
 		assert.Equal(t, http.StatusOK, rec.Code)
+	}
+
+	db := db.GetConnection().(*sqlx.DB)
+
+	db.Close()
+
+	req = httptest.NewRequest(http.MethodGet, "/user/all", nil)
+	rec = httptest.NewRecorder()
+
+	c = e.NewContext(req, rec)
+
+	if assert.NoError(t, GetAllUser(c)) {
+		assert.Equal(t, http.StatusInternalServerError, rec.Code)
 	}
 }
 
