@@ -2,10 +2,9 @@ package db
 
 import (
 	"database/sql"
+	"os"
 
 	"github.com/jmoiron/sqlx"
-
-	"github.com/IacopoMelani/Go-Starter-Project/config"
 
 	// Carica il driver mysql per la connessione al db
 	_ "github.com/go-sql-driver/mysql"
@@ -34,8 +33,7 @@ func GetConnection() SQLConnector {
 
 	once.Do(func() {
 
-		config := config.GetInstance()
-		conn, err := sqlx.Open("mysql", config.StringConnection)
+		conn, err := sqlx.Open("mysql", os.Getenv("STRING_CONNECTION"))
 		if err != nil {
 			log.Panic(err.Error())
 		}
