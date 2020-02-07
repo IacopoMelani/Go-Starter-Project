@@ -2,7 +2,9 @@ package db
 
 import (
 	"os"
+	"sync"
 	"testing"
+	"time"
 
 	"github.com/subosito/gotenv"
 )
@@ -114,6 +116,42 @@ func TestTableExists(t *testing.T) {
 		t.Fatal("Errore, la tabella non dovrebbe esistere")
 	}
 
+}
+
+func TestConnectionConcurrency(t *testing.T) {
+
+	if err := gotenv.Load("../../../.env"); err != nil {
+		panic(err)
+	}
+
+	wg := sync.WaitGroup{}
+
+	wg.Add(4)
+
+	go func() {
+		defer wg.Done()
+		GetConnection()
+	}()
+	go func() {
+		defer wg.Done()
+		GetConnection()
+	}()
+	go func() {
+		defer wg.Done()
+		GetConnection()
+	}()
+	go func() {
+		defer wg.Done()
+		GetConnection()
+	}()
+
+	time.Sleep(500 * time.Millisecond)
+
+	InitConnection("mysql", os.Getenv("STRING_CONNECTION"))
+
+	GetConnection()
+
+	wg.Wait()
 }
 
 func loadEnv() {

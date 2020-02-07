@@ -5,7 +5,6 @@ import (
 	"net/http"
 	"sync"
 	"testing"
-	"time"
 
 	"github.com/IacopoMelani/Go-Starter-Project/pkg/helpers/request"
 	durationdata "github.com/IacopoMelani/Go-Starter-Project/pkg/models/duration_data"
@@ -56,9 +55,14 @@ func TestRequestManager(t *testing.T) {
 
 	rm := GetRequestManager()
 
+	wg := sync.WaitGroup{}
+	wg.Add(10)
+
 	for i := 0; i < 10; i++ {
 
 		go func() {
+
+			defer wg.Done()
 
 			u := DurationDataTest{}
 
@@ -73,6 +77,5 @@ func TestRequestManager(t *testing.T) {
 
 		}()
 	}
-
-	time.Sleep(5 * time.Second)
+	wg.Wait()
 }
