@@ -95,6 +95,8 @@ func InterpretingHumanWord() {
 	start := flag.String(fire, "", getDefaultMessage())
 
 	flag.Parse()
+	config := config.GetInstance()
+	dbm.InitConnection("mysql", config.StringConnection)
 
 	switch *start {
 
@@ -104,19 +106,15 @@ func InterpretingHumanWord() {
 
 	case showConfig:
 
-		config.GetInstance()
 		fmt.Println(cacheconf.GetCurrentConfig())
 
 	case migrate:
-
 		migrateCommand()
 
 	case rollback:
-
 		rollbackCommand()
 
 	case migrateStatus:
-
 		migrateStatusCommand()
 
 	default:
