@@ -39,8 +39,8 @@ type RequestManager struct {
 var requestManager *RequestManager
 var onceRequestManager sync.Once
 
-// newrequestContainer - Restituisce un'istanza di requestContainer prendendo un'istanza che implementa RemoteData
-func newrequestContainer(r request.RemoteData) requestContainer {
+// newRequestContainer - Restituisce un'istanza di requestContainer prendendo un'istanza che implementa RemoteData
+func newRequestContainer(r request.RemoteData) requestContainer {
 
 	rc := *new(requestContainer)
 	rc.rd = r
@@ -88,7 +88,7 @@ func (rm *RequestManager) work() {
 // AddRequest - Si occupa di aggiungere una richiesta alla coda
 func (rm *RequestManager) AddRequest(r request.RemoteData) (<-chan interface{}, <-chan error) {
 
-	rc := newrequestContainer(r)
+	rc := newRequestContainer(r)
 
 	rm.mu.Lock()
 	rm.requestQueue = append(rm.requestQueue, rc)
