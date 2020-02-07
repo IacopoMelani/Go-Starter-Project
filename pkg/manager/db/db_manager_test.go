@@ -1,6 +1,7 @@
 package db
 
 import (
+	"os"
 	"testing"
 
 	"github.com/subosito/gotenv"
@@ -119,4 +120,5 @@ func loadEnv() {
 	if err := gotenv.Load("../../../.env"); err != nil {
 		panic(err)
 	}
+	InitConnection("mysql", os.Getenv("STRING_CONNECTION"))
 }

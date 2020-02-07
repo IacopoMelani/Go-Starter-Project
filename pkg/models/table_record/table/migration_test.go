@@ -2,6 +2,7 @@ package table
 
 import (
 	"errors"
+	"os"
 	"testing"
 
 	"github.com/jmoiron/sqlx"
@@ -17,6 +18,7 @@ func TestMigration(t *testing.T) {
 	if err := gotenv.Load("./../../../../.env"); err != nil {
 		t.Fatal("Errore caricamento configurazione")
 	}
+	db.InitConnection("mysql", os.Getenv("STRING_CONNECTION"))
 
 	err := transactions.WithTransactionx(db.GetConnection().(*sqlx.DB), func(tx db.SQLConnector) error {
 

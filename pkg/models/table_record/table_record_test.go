@@ -1,6 +1,7 @@
 package record
 
 import (
+	"os"
 	"testing"
 
 	"github.com/IacopoMelani/Go-Starter-Project/pkg/helpers/copy"
@@ -128,6 +129,7 @@ func TestTableRecord(t *testing.T) {
 	if err := gotenv.Load("./../../../.env"); err != nil {
 		t.Fatal("Errore caricamento configurazione")
 	}
+	db.InitConnection("mysql", os.Getenv("STRING_CONNECTION"))
 
 	db := db.GetConnection()
 

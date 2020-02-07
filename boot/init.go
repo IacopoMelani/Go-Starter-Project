@@ -4,6 +4,8 @@ import (
 	"os"
 	"sync"
 
+	"github.com/IacopoMelani/Go-Starter-Project/pkg/manager/db"
+
 	"github.com/IacopoMelani/Go-Starter-Project/pkg/manager/log"
 	"github.com/op/go-logging"
 
@@ -34,11 +36,17 @@ func InitServer() {
 
 	var wg sync.WaitGroup
 
-	wg.Add(5)
+	wg.Add(6)
 
 	go func() {
 		defer wg.Done()
 		config.GetInstance()
+	}()
+
+	go func() {
+		defer wg.Done()
+		config := config.GetInstance()
+		db.InitConnection("mysql", config.StringConnection)
 	}()
 
 	go func() {

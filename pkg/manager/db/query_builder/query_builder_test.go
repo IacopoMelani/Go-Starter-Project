@@ -2,6 +2,7 @@ package builder
 
 import (
 	"database/sql"
+	"os"
 	"testing"
 
 	"github.com/IacopoMelani/Go-Starter-Project/pkg/manager/db"
@@ -21,6 +22,7 @@ func TestQueryBuilder(t *testing.T) {
 	if err := gotenv.Load("./../../../../.env"); err != nil {
 		t.Fatal("Errore caricamento configurazione")
 	}
+	db.InitConnection("mysql", os.Getenv("STRING_CONNECTION"))
 
 	db := db.GetConnection()
 

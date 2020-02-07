@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"net/url"
+	"os"
 	"strings"
 	"testing"
 
@@ -32,9 +33,10 @@ type testLoginResponseDTO struct {
 
 func TestGetAllUser(t *testing.T) {
 
-	if err := gotenv.Load("../.env"); err != nil {
+	if err := gotenv.Load("./../.env"); err != nil {
 		t.Fatal("Errore caricamento configurazione")
 	}
+	db.InitConnection("mysql", os.Getenv("STRING_CONNECTION"))
 
 	e := echo.New()
 

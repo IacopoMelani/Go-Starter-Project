@@ -2,7 +2,6 @@ package db
 
 import (
 	"database/sql"
-	"os"
 
 	"github.com/jmoiron/sqlx"
 
@@ -25,15 +24,22 @@ type SQLConnector interface {
 
 var (
 	db   *sqlx.DB
+	ok   = make(chan bool, 1)
 	once sync.Once
 )
 
 // GetConnection - restituisce un'istanza di connessione al database
 func GetConnection() SQLConnector {
+	<-ok
+	return db
+}
+
+// InitConnection - Inizializza la connessione impostando il driver e la stringa di connessione
+func InitConnection(drvName string, connection string) {
 
 	once.Do(func() {
 
-		conn, err := sqlx.Open("mysql", os.Getenv("STRING_CONNECTION"))
+		conn, err := sqlx.Open(drvName, connection)
 		if err != nil {
 			log.Panic(err.Error())
 		}
@@ -42,9 +48,10 @@ func GetConnection() SQLConnector {
 			log.Panic(err.Error())
 		}
 		db = conn
-	})
 
-	return db
+		ok <- true
+		close(ok)
+	})
 }
 
 // Query - Esegue fisicamente la query e restituisce l'istanza di *Rows

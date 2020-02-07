@@ -1,6 +1,7 @@
 package table
 
 import (
+	"os"
 	"testing"
 
 	"github.com/IacopoMelani/Go-Starter-Project/pkg/helpers/copy"
@@ -15,6 +16,7 @@ func TestTableMirror(t *testing.T) {
 	if err := gotenv.Load("./../../.env"); err != nil {
 		t.Fatal("Errore caricamento configurazione")
 	}
+	db.InitConnection("mysql", os.Getenv("STRING_CONNECTION"))
 
 	u := NewUser(db.GetConnection())
 
