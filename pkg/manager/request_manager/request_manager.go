@@ -36,8 +36,10 @@ type RequestManager struct {
 	mu           sync.Mutex
 }
 
-var requestManager *RequestManager
-var onceRequestManager sync.Once
+var (
+	requestManager     *RequestManager
+	onceRequestManager sync.Once
+)
 
 // newRequestContainer - Restituisce un'istanza di requestContainer prendendo un'istanza che implementa RemoteData
 func newRequestContainer(r request.RemoteData) requestContainer {
