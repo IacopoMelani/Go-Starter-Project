@@ -2,23 +2,16 @@ package boot
 
 import (
 	"os"
-	"sync"
 
-	"github.com/IacopoMelani/Go-Starter-Project/pkg/manager/db"
+	bootmanger "github.com/IacopoMelani/Go-Starter-Project/pkg/manager/boot"
 
 	"github.com/IacopoMelani/Go-Starter-Project/pkg/manager/log"
 	"github.com/op/go-logging"
 
 	durationmodel "github.com/IacopoMelani/Go-Starter-Project/models/duration_data"
 
-	durationdata "github.com/IacopoMelani/Go-Starter-Project/pkg/models/duration_data"
-
-	"github.com/IacopoMelani/Go-Starter-Project/controllers"
-
 	"github.com/IacopoMelani/Go-Starter-Project/config"
 	"github.com/IacopoMelani/Go-Starter-Project/routes"
-
-	"github.com/labstack/echo/middleware"
 
 	"github.com/labstack/echo"
 )
@@ -34,45 +27,19 @@ func initEchoRoutes(e *echo.Echo) {
 // InitServer - Si occupa di lanciare l'applicazione con tutte le dovute operazioni iniziali
 func InitServer() {
 
-	var wg sync.WaitGroup
+	bm := bootmanger.GetBootManager()
 
-	wg.Add(6)
+	bm.RegisterEchoRoutes(initEchoRoutes)
 
-	go func() {
-		defer wg.Done()
-		config.GetInstance()
-	}()
+	bm.UseEchoLogger()
+	bm.UseEchoRecover()
 
-	go func() {
-		defer wg.Done()
-		config := config.GetInstance()
-		db.InitConnection("mysql", config.StringConnection)
-	}()
+	bm.RegisterDDataProc(durationmodel.GetUsersData)
 
-	go func() {
-		defer wg.Done()
-		durationdata.RegisterInitDurationData(durationmodel.GetUsersData)
-		durationdata.InitDurationData()
-	}()
+	bm.RegisterProc(func() {
 
-	go func() {
-		defer wg.Done()
-		e = echo.New()
-		e.Use(middleware.Recover())
-		e.Use(middleware.Logger())
-		initEchoRoutes(e)
+		var file *os.File
 
-	}()
-
-	var file *os.File
-	defer file.Close()
-	go func() {
-		defer wg.Done()
-		if _, err := os.Stat("./log"); os.IsNotExist(err) {
-			if err = os.Mkdir("./log", os.ModePerm); err != nil {
-				panic(err)
-			}
-		}
 		file, err := os.OpenFile("./log/info.log", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 		if err != nil {
 			panic(err)
@@ -80,19 +47,7 @@ func InitServer() {
 		log.NewLogBackend(os.Stdout, "", 0, logging.DEBUG, log.DefaultLogFormatter)
 		log.NewLogBackend(file, "", 0, logging.WARNING, log.VerboseLogFilePathFormatter)
 		log.Init(config.GetInstance().AppName)
-	}()
+	})
 
-	go func() {
-		defer wg.Done()
-		controllers.InitCustomHandler()
-	}()
-
-	wg.Wait()
-
-	config := config.GetInstance()
-
-	logger := log.GetLogger()
-	logger.Info("Applicazione avviata!")
-
-	e.Logger.Fatal(e.Start(config.AppPort))
+	bm.StartApp()
 }
