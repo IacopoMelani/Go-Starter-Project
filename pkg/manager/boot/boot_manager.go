@@ -18,9 +18,9 @@ type BManager interface {
 	RegisterDDataProc(func() *durationdata.DurationData)
 	RegisterProc(func())
 	RegisterEchoRoutes(func(e *echo.Echo))
-	setAppPort(string)
-	setDriverSQL(string)
-	setConnectionSting(string)
+	SetAppPort(string)
+	SetDriverSQL(string)
+	SetConnectionSting(string)
 	UseEchoLogger()
 	UseEchoRecover()
 }
@@ -32,7 +32,6 @@ type boot struct {
 	driverSQL              string
 	durationDataRegistered []func() *durationdata.DurationData
 	e                      *echo.Echo
-	ok                     chan bool
 	runnig                 bool
 	mu                     sync.Mutex
 	procRegistered         []func()
@@ -42,8 +41,9 @@ type boot struct {
 const minWaitGroupCap = 2
 
 var (
-	onceB   = sync.Once{}
 	bmanger *boot
+	ok      chan bool
+	onceB   = sync.Once{}
 )
 
 func (b *boot) initDbConnection() {
@@ -124,7 +124,7 @@ func (b *boot) RegisterEchoRoutes(f func(e *echo.Echo)) {
 	f(b.e)
 }
 
-func (b *boot) setAppPort(appPort string) {
+func (b *boot) SetAppPort(appPort string) {
 
 	b.mu.Lock()
 	defer b.mu.Unlock()
@@ -132,7 +132,7 @@ func (b *boot) setAppPort(appPort string) {
 	b.appPort = appPort
 }
 
-func (b *boot) setDriverSQL(driver string) {
+func (b *boot) SetDriverSQL(driver string) {
 
 	b.mu.Lock()
 	defer b.mu.Unlock()
@@ -140,7 +140,7 @@ func (b *boot) setDriverSQL(driver string) {
 	b.driverSQL = driver
 }
 
-func (b *boot) setConnectionSting(conn string) {
+func (b *boot) SetConnectionSting(conn string) {
 
 	b.mu.Lock()
 	defer b.mu.Unlock()

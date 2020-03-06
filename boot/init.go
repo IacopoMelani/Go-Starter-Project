@@ -27,7 +27,13 @@ func initEchoRoutes(e *echo.Echo) {
 // InitServer - Si occupa di lanciare l'applicazione con tutte le dovute operazioni iniziali
 func InitServer() {
 
+	config := config.GetInstance()
+
 	bm := bootmanger.GetBootManager()
+
+	bm.SetAppPort(config.AppPort)
+	bm.SetConnectionSting(config.StringConnection)
+	bm.SetDriverSQL("mysql")
 
 	bm.RegisterEchoRoutes(initEchoRoutes)
 
@@ -46,7 +52,11 @@ func InitServer() {
 		}
 		log.NewLogBackend(os.Stdout, "", 0, logging.DEBUG, log.DefaultLogFormatter)
 		log.NewLogBackend(file, "", 0, logging.WARNING, log.VerboseLogFilePathFormatter)
-		log.Init(config.GetInstance().AppName)
+		log.Init(config.AppName)
+
+		logger := log.GetLogger()
+
+		logger.Debug("App avviata")
 	})
 
 	bm.StartApp()
