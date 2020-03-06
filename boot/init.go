@@ -46,7 +46,13 @@ func InitServer() {
 
 		var file *os.File
 
-		file, err := os.OpenFile("./log/info.log", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+		if _, err := os.Stat("./../log"); os.IsNotExist(err) {
+			if err = os.Mkdir("./../log", os.ModePerm); err != nil {
+				panic(err)
+			}
+		}
+
+		file, err := os.OpenFile("./../log/info.log", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 		if err != nil {
 			panic(err)
 		}
