@@ -3,7 +3,7 @@ package boot
 import (
 	"os"
 
-	bootmanger "github.com/IacopoMelani/Go-Starter-Project/pkg/manager/boot"
+	bootmanager "github.com/IacopoMelani/Go-Starter-Project/pkg/manager/boot"
 
 	"github.com/IacopoMelani/Go-Starter-Project/pkg/manager/log"
 	"github.com/op/go-logging"
@@ -29,7 +29,7 @@ func InitServer() {
 
 	config := config.GetInstance()
 
-	bm := bootmanger.GetBootManager()
+	bm := bootmanager.GetBootManager()
 
 	bm.SetAppPort(config.AppPort)
 	bm.SetConnectionSting(config.StringConnection)
