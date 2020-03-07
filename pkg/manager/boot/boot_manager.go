@@ -83,7 +83,9 @@ func (b *boot) StartApp() {
 
 	b.wg.Add(minWaitGroupCap + len(b.procRegistered))
 
+	b.mu.Lock()
 	b.runnig = true
+	b.mu.Unlock()
 
 	go func() {
 		defer b.wg.Done()
@@ -102,7 +104,6 @@ func (b *boot) StartApp() {
 	// start echo
 
 	b.e.Logger.Fatal(b.e.Start(b.appPort))
-
 }
 
 // RegisterDDataProc - Si occupa di registrare tutti i componenti che utilizzano duration Data
