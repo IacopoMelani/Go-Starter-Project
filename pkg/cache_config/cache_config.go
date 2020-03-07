@@ -11,6 +11,13 @@ type CacheConfigInterface interface {
 	GetFieldMapper() map[string]string
 }
 
+// DefaultCacheConfig - Definisce la configurazione generica dell'aplicazione
+type DefaultCacheConfig struct {
+	AppName          string
+	StringConnection string
+	AppPort          string
+}
+
 // config - Stringa con tutte le configurazione caricate
 var config string
 
@@ -51,9 +58,26 @@ func GetCurrentConfig() string {
 
 // LoadEnvConfig - si occupa di caricare tutte le configurazioni dell'env nella struttura di configurazione
 func LoadEnvConfig(c CacheConfigInterface) {
+
 	config = "\n"
+
+	d := DefaultCacheConfig{}
+	for envName, StructName := range d.GetFieldMapper() {
+		setField(c, StructName, os.Getenv(envName))
+		config = config + StructName + " -> " + os.Getenv(envName) + "\n"
+	}
+
 	for envName, StructName := range c.GetFieldMapper() {
 		setField(c, StructName, os.Getenv(envName))
 		config = config + StructName + " -> " + os.Getenv(envName) + "\n"
+	}
+}
+
+// GetFieldMapper - Restitusice la mappatura tra l'env e i campi di configurazione
+func (d DefaultCacheConfig) GetFieldMapper() map[string]string {
+	return map[string]string{
+		"APP_NAME":          "AppName",
+		"STRING_CONNECTION": "StringConnection",
+		"APP_PORT":          "AppPort",
 	}
 }

@@ -9,6 +9,7 @@ import (
 
 // CacheConfigTest - struttura dove immagazzinare le configurazioni
 type CacheConfigTest struct {
+	DefaultCacheConfig
 	StringConnection  string
 	AppPort           string
 	UserTimeToRefresh int
@@ -49,4 +50,5 @@ func TestCacheConfigBoot(t *testing.T) {
 		t.Error("Errore: variabili d'ambiente non caricate correttamente")
 	}
 
+	GetCurrentConfig()
 }
