@@ -16,8 +16,6 @@ import (
 	"github.com/labstack/echo"
 )
 
-var e *echo.Echo
-
 func initEchoRoutes(e *echo.Echo) {
 
 	routes.InitGetRoutes(e)
