@@ -12,8 +12,6 @@ import (
 	"github.com/IacopoMelani/Go-Starter-Project/pkg/manager/db"
 )
 
-const testMigrationName = "FOFFO"
-
 func TestTransactionx(t *testing.T) {
 
 	if err := gotenv.Load("./../../../../.env"); err != nil {

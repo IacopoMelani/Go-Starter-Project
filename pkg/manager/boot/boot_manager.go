@@ -42,7 +42,6 @@ const minWaitGroupCap = 2
 
 var (
 	bmanger *boot
-	ok      chan bool
 	onceB   = sync.Once{}
 )
 
@@ -181,7 +180,7 @@ func (b *boot) UseEchoLogger() {
 func (b *boot) UseEchoRecover() {
 
 	b.mu.Lock()
-	b.mu.Unlock()
+	defer b.mu.Unlock()
 
 	b.e.Use(middleware.Recover())
 }

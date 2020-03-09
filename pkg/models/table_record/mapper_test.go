@@ -27,36 +27,6 @@ func NewTestMapperTableRecord(db db.SQLConnector) *TestMapperTableRecord {
 	return ts
 }
 
-// loadAllTestMapperTableRecord - carica tutte le istanze della classe
-func loadAllTestMapperTableRecord() ([]*TestMapperTableRecord, error) {
-
-	db := db.GetConnection()
-
-	ts := NewTestMapperTableRecord(db)
-
-	query := "SELECT " + AllField(ts) + " FROM " + ts.GetTableName()
-
-	rows, err := db.Queryx(query)
-	if err != nil {
-		return nil, err
-	}
-
-	var result []*TestMapperTableRecord
-
-	for rows.Next() {
-
-		ts := NewTestMapperTableRecord(db)
-
-		if err := LoadFromRow(rows, ts); err != nil {
-			return nil, err
-		}
-
-		result = append(result, ts)
-	}
-
-	return result, nil
-}
-
 // GetTableRecord - Restituisce l'istanza di TableRecord
 func (t TestMapperTableRecord) GetTableRecord() *TableRecord {
 	return t.tr

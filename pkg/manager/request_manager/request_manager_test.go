@@ -3,51 +3,35 @@ package rmanager
 import (
 	"io"
 	"net/http"
-	"sync"
 	"testing"
 	"time"
 
 	"github.com/IacopoMelani/Go-Starter-Project/pkg/helpers/request"
-	durationdata "github.com/IacopoMelani/Go-Starter-Project/pkg/models/duration_data"
 )
 
-// DurationDataTest - Definisce una struct che implementa RemoteData
-type DurationDataTest struct{}
-
-var ddt *durationdata.DurationData
-var onceUser sync.Once
-
-// GeDurationDataTest - Restituisce l'istanza di DurantionData relativo agli utenti
-func GeDurationDataTest() *durationdata.DurationData {
-	onceUser.Do(func() {
-		ddt = new(durationdata.DurationData)
-		ddt.SetDurationDataInterface(DurationDataTest{})
-		ddt.SetTimeToRefresh(1)
-		ddt.Daemon()
-	})
-	return ddt
-}
+// RemoteDataTest - Definisce una struct che implementa RemoteData
+type RemoteDataTest struct{}
 
 // EncodeQueryString - Si occupa di aggiungere i paratri dell'header alla request
-func (u DurationDataTest) EncodeQueryString(req *http.Request) {}
+func (u RemoteDataTest) EncodeQueryString(req *http.Request) {}
 
 // GetBody - Restituisce il corpo della request
-func (u DurationDataTest) GetBody() io.Reader {
+func (u RemoteDataTest) GetBody() io.Reader {
 	return nil
 }
 
 // GetMethod - Restituisce il metodo della richiesta remota
-func (u DurationDataTest) GetMethod() string {
+func (u RemoteDataTest) GetMethod() string {
 	return "GET"
 }
 
 // GetURL - Restituisce la url della richiesta remota
-func (u DurationDataTest) GetURL() string {
+func (u RemoteDataTest) GetURL() string {
 	return "https://randomuser.me/api/"
 }
 
 // HandlerData - Si occupa di eseguire la funzione di handler per ricevere i dati
-func (u DurationDataTest) HandlerData() (interface{}, error) {
+func (u RemoteDataTest) HandlerData() (interface{}, error) {
 	content, err := request.GetRemoteData(u)
 	return content, err
 }
@@ -60,7 +44,7 @@ func TestRequestManager(t *testing.T) {
 
 		go func() {
 
-			u := DurationDataTest{}
+			u := RemoteDataTest{}
 
 			res, err := rm.AddRequest(u)
 
