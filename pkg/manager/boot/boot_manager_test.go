@@ -94,7 +94,7 @@ func TestBootManager(t *testing.T) {
 
 	go bm.StartApp()
 
-	time.Sleep(3 * time.Second)
+	time.Sleep(1 * time.Second)
 
 	bm.RegisterDDataProc(GeDurationDataTest)
 
