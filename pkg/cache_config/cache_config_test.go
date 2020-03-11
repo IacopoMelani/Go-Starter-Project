@@ -10,9 +10,9 @@ import (
 // CacheConfigTest - struttura dove immagazzinare le configurazioni
 type CacheConfigTest struct {
 	DefaultCacheConfig
-	StringConnection  string
-	AppPort           string
-	UserTimeToRefresh int
+	StringConnection  string `config:"APP_NAME"`
+	AppPort           string `config:"STRING_CONNECTION"`
+	UserTimeToRefresh int    `config:"APP_PORT"`
 }
 
 var (
@@ -27,15 +27,6 @@ func GetInstance() *CacheConfigTest {
 		LoadEnvConfig(cct)
 	})
 	return cct
-}
-
-// GetFieldMapper - Si occupa di restituire l'array di mappatura dell'env
-func (c CacheConfigTest) GetFieldMapper() map[string]string {
-	return map[string]string{
-		"STRING_CONNECTION":    "StringConnection",
-		"APP_PORT":             "AppPort",
-		"USER_TIME_TO_REFRESH": "UserTimeToRefresh",
-	}
 }
 
 func TestCacheConfigBoot(t *testing.T) {

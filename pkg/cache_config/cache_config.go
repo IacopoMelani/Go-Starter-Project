@@ -4,22 +4,33 @@ import (
 	"os"
 	"reflect"
 	"strconv"
+
+	refl "github.com/IacopoMelani/Go-Starter-Project/pkg/helpers/reflect"
 )
 
 // CacheConfigInterface - Interfaccia per implementare CacheConfig
-type CacheConfigInterface interface {
-	GetFieldMapper() map[string]string
-}
+type CacheConfigInterface interface{}
 
 // DefaultCacheConfig - Definisce la configurazione generica dell'aplicazione
 type DefaultCacheConfig struct {
-	AppName          string
-	StringConnection string
-	AppPort          string
+	AppName          string `config:"APP_NAME"`
+	StringConnection string `config:"STRING_CONNECTION"`
+	AppPort          string `config:"APP_PORT"`
 }
+
+// ConfigTagName - Definisce il nome del tag config per la mappatura della configurazione
+const ConfigTagName = "config"
 
 // config - Stringa con tutte le configurazione caricate
 var config string
+
+func loadEnvByFieldsMapper(c CacheConfigInterface, envFields []string, structFieldsName []string) {
+	for i := 0; i < len(envFields); i++ {
+		setField(c, structFieldsName[i], os.Getenv(envFields[i]))
+		config = config + structFieldsName[i] + " -> " + os.Getenv(envFields[i]) + "\n"
+
+	}
+}
 
 // setField - si occupa di impostare  attrun campo averso la reflection, c รจ necessario sia un puntatore a una struttura
 func setField(c CacheConfigInterface, name string, value string) {
@@ -62,22 +73,10 @@ func LoadEnvConfig(c CacheConfigInterface) {
 	config = "\n"
 
 	d := DefaultCacheConfig{}
-	for envName, StructName := range d.GetFieldMapper() {
-		setField(c, StructName, os.Getenv(envName))
-		config = config + StructName + " -> " + os.Getenv(envName) + "\n"
-	}
 
-	for envName, StructName := range c.GetFieldMapper() {
-		setField(c, StructName, os.Getenv(envName))
-		config = config + StructName + " -> " + os.Getenv(envName) + "\n"
-	}
-}
+	envFields, structFieldsName := refl.GetStructFieldsNameAndTagByTagName(d, ConfigTagName)
+	loadEnvByFieldsMapper(c, envFields, structFieldsName)
 
-// GetFieldMapper - Restitusice la mappatura tra l'env e i campi di configurazione
-func (d DefaultCacheConfig) GetFieldMapper() map[string]string {
-	return map[string]string{
-		"APP_NAME":          "AppName",
-		"STRING_CONNECTION": "StringConnection",
-		"APP_PORT":          "AppPort",
-	}
+	envFields, structFieldsName = refl.GetStructFieldsNameAndTagByTagName(c, ConfigTagName)
+	loadEnvByFieldsMapper(c, envFields, structFieldsName)
 }
