@@ -72,7 +72,7 @@ func TestBootManager(t *testing.T) {
 	}
 
 	conn := os.Getenv("STRING_CONNECTION")
-	port := os.Getenv("APP_PORT")
+	port := ":8889"
 
 	bm := GetBootManager()
 
