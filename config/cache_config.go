@@ -9,7 +9,7 @@ import (
 // CacheConfig - struttura dove immagazzinare le configurazioni
 type CacheConfig struct {
 	cacheconf.DefaultCacheConfig
-	UserTimeToRefresh int
+	UserTimeToRefresh int `config:"USER_TIME_TO_REFRESH"`
 }
 
 var (
@@ -24,11 +24,4 @@ func GetInstance() *CacheConfig {
 		cacheconf.LoadEnvConfig(cacheConfig)
 	})
 	return cacheConfig
-}
-
-// GetFieldMapper - Si occupa di restituire l'array di mappatura dell'env
-func (c CacheConfig) GetFieldMapper() map[string]string {
-	return map[string]string{
-		"USER_TIME_TO_REFRESH": "UserTimeToRefresh",
-	}
 }
