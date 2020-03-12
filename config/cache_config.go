@@ -6,7 +6,8 @@ import (
 	cacheconf "github.com/IacopoMelani/Go-Starter-Project/pkg/cache_config"
 )
 
-// CacheConfig - struttura dove immagazzinare le configurazioni
+// CacheConfig - It's the custom struct used to store application configuration over the default struct defined in pkg/cache_config
+// Every fields need to be declared with tag `config:""`
 type CacheConfig struct {
 	cacheconf.DefaultCacheConfig
 	UserTimeToRefresh int `config:"USER_TIME_TO_REFRESH"`
@@ -17,7 +18,7 @@ var (
 	once        sync.Once
 )
 
-// GetInstance - restituisce l'unica istanza della struttura contenente le configurazioni
+// GetInstance - Return the one struct for application configuration
 func GetInstance() *CacheConfig {
 	once.Do(func() {
 		cacheConfig = &CacheConfig{}

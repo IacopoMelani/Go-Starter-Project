@@ -11,13 +11,13 @@ import (
 	"github.com/labstack/echo"
 )
 
-// JwtCustomClaims - Definisce il custom claims per la generazione del token
+// JwtCustomClaims - Define custom claims for token generation
 type JwtCustomClaims struct {
 	Name string `json:"name"`
 	jwt.StandardClaims
 }
 
-// GetAllUser - Restituisce tutti gli utenti
+// GetAllUser - Return all users
 func GetAllUser(c echo.Context) error {
 
 	userList, err := table.LoadAllUsers()
@@ -38,7 +38,7 @@ func GetAllUser(c echo.Context) error {
 	})
 }
 
-// GetDurataionUsers - Restituisce gli utenti recuperati con DurationData
+// GetDurataionUsers - Return users retrived with pkg/model/duration_data
 func GetDurataionUsers(c echo.Context) error {
 
 	data := durationdata.GetUsersData()
@@ -51,7 +51,7 @@ func GetDurataionUsers(c echo.Context) error {
 	})
 }
 
-// Login - Si occupa di effettuare il login
+// Login - Define login controller
 func Login(c echo.Context) error {
 
 	username := c.FormValue("username")

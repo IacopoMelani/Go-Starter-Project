@@ -16,13 +16,14 @@ import (
 	"github.com/labstack/echo"
 )
 
+// initEchoRoutes - Initialize all defined routes
 func initEchoRoutes(e *echo.Echo) {
 
 	routes.InitGetRoutes(e)
 	routes.InitPostRoutes(e)
 }
 
-// InitServer - Si occupa di lanciare l'applicazione con tutte le dovute operazioni iniziali
+// InitServer - It takes care of launching the application with all the necessary initial operations
 func InitServer() {
 
 	config := config.GetInstance()

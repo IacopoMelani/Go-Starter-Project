@@ -1,17 +1,17 @@
 package migrations
 
-// CreateTasksTable - Definisce la strut per la generazione della tabella users
+// CreateTasksTable - Some example
 type CreateTasksTable struct{}
 
-// GetMigrationName - Restituisce il nome della migrazione
+// GetMigrationName -
 func (c CreateTasksTable) GetMigrationName() string {
 	return "create_tasks_table"
 }
 
-// Down - Definisce la query di migrazione down
+// Down -
 func (c CreateTasksTable) Down() string { return "DROP TABLE IF EXISTS tasks" }
 
-// Up - Definisce la query di migrazione up
+// Up -
 func (c CreateTasksTable) Up() string {
 	return `CREATE TABLE IF NOT EXISTS tasks (
     record_id INT AUTO_INCREMENT,
