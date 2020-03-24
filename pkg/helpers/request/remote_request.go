@@ -6,7 +6,7 @@ import (
 	"net/http"
 )
 
-// RemoteData -	Interfaccia che defisce una richiesta remota
+// RemoteData -	Interface to generalize a remote request
 type RemoteData interface {
 	EncodeQueryString(req *http.Request)
 	GetBody() io.Reader
@@ -14,7 +14,7 @@ type RemoteData interface {
 	GetURL() string
 }
 
-// GetRemoteData - Si occupa di eseguire una una richiesta remota
+// GetRemoteData - Exec the request
 func GetRemoteData(r RemoteData) (interface{}, error) {
 
 	req, err := http.NewRequest(r.GetMethod(), r.GetURL(), r.GetBody())

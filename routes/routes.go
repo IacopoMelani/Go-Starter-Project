@@ -7,7 +7,7 @@ import (
 	"github.com/labstack/echo/middleware"
 )
 
-// InitGetRoutes - Dichiara tutte le route GET
+// InitGetRoutes - Declare the GET routes
 func InitGetRoutes(e *echo.Echo) {
 	e.GET("user/all", controllers.GetAllUser)
 	r := e.Group("/restricted")
@@ -22,7 +22,7 @@ func InitGetRoutes(e *echo.Echo) {
 	e.GET("user/duration", controllers.GetDurataionUsers)
 }
 
-// InitPostRoutes - Dichiara tutte le route POST
+// InitPostRoutes - Declare the POST routes
 func InitPostRoutes(e *echo.Echo) {
 	e.POST("/user/login", controllers.Login)
 }

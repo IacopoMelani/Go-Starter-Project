@@ -11,13 +11,13 @@ import (
 	"github.com/IacopoMelani/Go-Starter-Project/config"
 )
 
-// UserRemoteData - Definisce una struct che implementa RemoteData
+// UserRemoteData - Define a struct that implements DDInterface
 type UserRemoteData struct{}
 
 var userData *durationdata.DurationData
 var onceUser sync.Once
 
-// GetUsersData - Restituisce l'istanza di DurantionData relativo agli utenti
+// GetUsersData - Returns the instance of DurationData relative to user duration data
 func GetUsersData() *durationdata.DurationData {
 	onceUser.Do(func() {
 		userData = new(durationdata.DurationData)
@@ -28,25 +28,25 @@ func GetUsersData() *durationdata.DurationData {
 	return userData
 }
 
-// EncodeQueryString - Si occupa di aggiungere i paratri dell'header alla request
+// EncodeQueryString - Define the to-implement func to add extra data to request header
 func (u UserRemoteData) EncodeQueryString(req *http.Request) {}
 
-// GetBody - Restituisce il corpo della request
+// GetBody - Returns the body of request
 func (u UserRemoteData) GetBody() io.Reader {
 	return nil
 }
 
-// GetMethod - Restituisce il metodo della richiesta remota
+// GetMethod - Returns the method of request ex "POST"
 func (u UserRemoteData) GetMethod() string {
 	return "GET"
 }
 
-// GetURL - Restituisce la url della richiesta remota
+// GetURL - Returns the endpoint of the resource
 func (u UserRemoteData) GetURL() string {
 	return "https://randomuser.me/api/"
 }
 
-// HandlerData - Si occupa di eseguire la funzione di handler per ricevere i dati
+// HandlerData - Exec the method handler to retrive the remote data
 func (u UserRemoteData) HandlerData() (interface{}, error) {
 	content, err := request.GetRemoteData(u)
 	return content, err

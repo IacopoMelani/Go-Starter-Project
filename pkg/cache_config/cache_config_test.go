@@ -7,7 +7,7 @@ import (
 	"github.com/subosito/gotenv"
 )
 
-// CacheConfigTest - struttura dove immagazzinare le configurazioni
+// CacheConfigTest - Example CacheConfig test struct
 type CacheConfigTest struct {
 	DefaultCacheConfig
 	StringConnection  string `config:"APP_NAME"`
@@ -20,7 +20,7 @@ var (
 	once sync.Once
 )
 
-// GetInstance - restituisce l'unica istanza della struttura contenente le configurazioni
+// GetInstance - Return the one struct for tes
 func GetInstance() *CacheConfigTest {
 	once.Do(func() {
 		cct = &CacheConfigTest{}

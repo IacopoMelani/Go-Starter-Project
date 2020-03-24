@@ -8,22 +8,24 @@ import (
 	refl "github.com/IacopoMelani/Go-Starter-Project/pkg/helpers/reflect"
 )
 
-// CacheConfigInterface - Interfaccia per implementare CacheConfig
+// CacheConfigInterface - Interface to implements CacheConfig
+// No methods, all you need is to define the tag "config" for your Custom CacheConfig
 type CacheConfigInterface interface{}
 
-// DefaultCacheConfig - Definisce la configurazione generica dell'aplicazione
+// DefaultCacheConfig - Defines the standard configuration
 type DefaultCacheConfig struct {
 	AppName          string `config:"APP_NAME"`
 	StringConnection string `config:"STRING_CONNECTION"`
 	AppPort          string `config:"APP_PORT"`
 }
 
-// ConfigTagName - Definisce il nome del tag config per la mappatura della configurazione
+// ConfigTagName - Defines the tag name to permit CacheConfig stores your configurations
 const ConfigTagName = "config"
 
-// config - Stringa con tutte le configurazione caricate
+// config - Stores all configurations for display
 var config string
 
+// loadEnvByFieldsMapper - Loops over env fields name and sets the value to CacheConfig instance passed, with the env value read with os pkg
 func loadEnvByFieldsMapper(c CacheConfigInterface, envFields []string, structFieldsName []string) {
 	for i := 0; i < len(envFields); i++ {
 		setField(c, structFieldsName[i], os.Getenv(envFields[i]))
@@ -32,7 +34,7 @@ func loadEnvByFieldsMapper(c CacheConfigInterface, envFields []string, structFie
 	}
 }
 
-// setField - si occupa di impostare  attrun campo averso la reflection, c รจ necessario sia un puntatore a una struttura
+// setField - Try to sets the value passed to an CacheConfigInterface, "name" is the struct field name
 func setField(c CacheConfigInterface, name string, value string) {
 
 	rv := reflect.ValueOf(c)
@@ -62,12 +64,12 @@ func setField(c CacheConfigInterface, name string, value string) {
 	}
 }
 
-// GetCurrentConfig - Restituisce l'attuale configurazione
+// GetCurrentConfig - Returns the current config
 func GetCurrentConfig() string {
 	return config
 }
 
-// LoadEnvConfig - si occupa di caricare tutte le configurazioni dell'env nella struttura di configurazione
+// LoadEnvConfig - Try to init the CacheConfigInterface using DefaultCacheConfig for default config fields and the custom CacheConfig passed as CacheConfigInterface, requires that "c" is a pointer to your custom CacheConfig
 func LoadEnvConfig(c CacheConfigInterface) {
 
 	config = "\n"

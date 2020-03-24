@@ -15,8 +15,8 @@ const (
 	UsersTableName = "users"
 )
 
-// User - Struct che definisce la tabella "users"
-// implementa TableRecordInterface
+// User - Define the users table
+// Implements TableRecordInterface
 type User struct {
 	tr       *record.TableRecord
 	RecordID int64   `json:"id" db:"record_id"`
@@ -27,7 +27,7 @@ type User struct {
 
 var du = &User{}
 
-// LoadAllUsers - Si occupa di restituire tutti gli utenti presenti nel database
+// LoadAllUsers - Returns all users
 func LoadAllUsers() ([]*User, error) {
 
 	query := "SELECT " + record.AllField(du) + " FROM " + du.GetTableName()
@@ -55,8 +55,8 @@ func LoadAllUsers() ([]*User, error) {
 	return result, nil
 }
 
-// NewUser - Si occupa di istanziare un nuovo oggetto User istanziando il relativo TableRecord e impostandolo come "nuovo"
-// È consigliato utilizzare sempre questo metodo per creare una nuova istanza di User
+// NewUser - Returns new instance of the struct with the init of TableRecord and set the flag "isNew"
+// It's suggest to use always this to get new instance of the struct
 func NewUser(db db.SQLConnector) *User {
 
 	u := new(User)
@@ -66,22 +66,22 @@ func NewUser(db db.SQLConnector) *User {
 	return u
 }
 
-// GetTableRecord - Restituisce l'istanza di TableRecord
+// GetTableRecord - Returns TableRecord instance of the User struct
 func (u User) GetTableRecord() *record.TableRecord {
 	return u.tr
 }
 
-// GetPrimaryKeyName - Restituisce il nome della chiave primaria
+// GetPrimaryKeyName - Returns primary key name
 func (u User) GetPrimaryKeyName() string {
 	return UsersColRecordID
 }
 
-// GetPrimaryKeyValue - Restituisce l'indirizzo di memoria del valore della chiave primaria
+// GetPrimaryKeyValue - Returns the value of the primary key
 func (u User) GetPrimaryKeyValue() int64 {
 	return u.RecordID
 }
 
-// GetTableName - Restituisce il nome della tabella
+// GetTableName - Returns table name
 func (u User) GetTableName() string {
 	return UsersTableName
 }
