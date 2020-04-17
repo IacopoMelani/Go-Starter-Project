@@ -8,7 +8,7 @@ import (
 	record "github.com/IacopoMelani/Go-Starter-Project/pkg/models/table_record"
 )
 
-// Costanti relative alla tabella migrations
+// Constants related to the migrations table
 const (
 	MigrationsColRecordID  = "record_id"
 	MigrationsColCreatedAt = "created_at"
@@ -17,16 +17,15 @@ const (
 
 	MigrationsTableName = "migrations"
 
-	// MigrationNotRun - Definisce la costante per lo stato di una migrazione che non è stata ancora eseguita
+	// MigrationNotRun - Defines the constant for the state of a migration that has not yet been performed
 	MigrationNotRun = 0
-	// MigrationSuccess - Definisce la costante per lo stato di una migrazione che è stata eseguita con successo
+	// MigrationSuccess - Defines the constant for the state of a successful migration
 	MigrationSuccess = 1
-	// MigrationFailed - Definisce la costante per lo stato di una migrazione che è stata eseguita ma è fallita
+	// MigrationFailed - Defines the constant for the state of a migration that has been performed but has failed
 	MigrationFailed = 2
 )
 
-// Migration - Struct che definisce la tabella migrations
-// implementa TableRecordInterface
+// Migration - Struct that defines the migrations table, implements TableRecordInterface
 type Migration struct {
 	tr        *record.TableRecord
 	RecordID  int64     `db:"record_id"`
@@ -37,7 +36,7 @@ type Migration struct {
 
 var dm = &Migration{}
 
-// InsertNewMigration - Si occupa di inserire un record nella tabella migrations
+// InsertNewMigration - It takes care of inserting a record in the migrations table
 func InsertNewMigration(db db.SQLConnector, name string, status int) (*Migration, error) {
 
 	if name == "" {
@@ -56,7 +55,7 @@ func InsertNewMigration(db db.SQLConnector, name string, status int) (*Migration
 	return m, nil
 }
 
-// LoadAllMigrations - Carica tutte le istanze di Migration dal database
+// LoadAllMigrations - Load all instances of Migration from the database
 func LoadAllMigrations(db db.SQLConnector) ([]*Migration, error) {
 
 	query := "SELECT " + record.AllField(dm) + " FROM " + dm.GetTableName()
@@ -83,7 +82,7 @@ func LoadAllMigrations(db db.SQLConnector) ([]*Migration, error) {
 	return result, nil
 }
 
-// LoadMigrationByName - Si occupa di caricare l'istanza di un record della tabella migrations dato il nome
+// LoadMigrationByName - It takes care of loading the instance of a record of the migrations table given the name
 func LoadMigrationByName(name string, m *Migration) error {
 
 	query := "SELECT " + record.AllField(m) + " FROM " + m.GetTableName() + " WHERE " + MigrationsColName + " = ?"
@@ -106,8 +105,8 @@ func LoadMigrationByName(name string, m *Migration) error {
 	return nil
 }
 
-// NewMigration - Si occupa di istanziare un nuovo oggetto Migration istanziando il relativo TableRecord e impostandolo come "nuovo"
-// È consigliato utilizzare sempre questo metodo per creare una nuova istanza di Migration
+// NewMigration - It takes care of instantiating a new Migration object by instantiating its TableRecord and setting it as "new"
+// We recommend that you always use this method to create a new Migration instance
 func NewMigration(db db.SQLConnector) *Migration {
 
 	m := new(Migration)
@@ -116,22 +115,22 @@ func NewMigration(db db.SQLConnector) *Migration {
 	return m
 }
 
-// GetTableRecord - Restituisce l'istanza di TableRecord
+// GetTableRecord - Returns the instance of TableRecord
 func (m Migration) GetTableRecord() *record.TableRecord {
 	return m.tr
 }
 
-// GetPrimaryKeyName - Restituisce il nome della chiave primaria
+// GetPrimaryKeyName - Returns the primary key name
 func (m Migration) GetPrimaryKeyName() string {
 	return MigrationsColRecordID
 }
 
-// GetPrimaryKeyValue - Restituisce l'indirizzo di memoria del valore della chiave primaria
+// GetPrimaryKeyValue - Returns the primary key value
 func (m Migration) GetPrimaryKeyValue() int64 {
 	return m.RecordID
 }
 
-// GetTableName - Restituisce il nome della tabella
+// GetTableName - Returns the table name
 func (m Migration) GetTableName() string {
 	return MigrationsTableName
 }
