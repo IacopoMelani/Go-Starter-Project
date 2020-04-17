@@ -12,7 +12,7 @@ import (
 	"sync"
 )
 
-// SQLConnector - Interfaccia per gestire operazioni sotto transaction
+// SQLConnector - Generalizes a sql connection
 type SQLConnector interface {
 	Exec(string, ...interface{}) (sql.Result, error)
 	Prepare(string) (*sql.Stmt, error)
@@ -28,13 +28,13 @@ var (
 	once sync.Once
 )
 
-// GetConnection - restituisce un'istanza di connessione al database
+// GetConnection - Returns an instance of the db connection
 func GetConnection() SQLConnector {
 	<-ok
 	return db
 }
 
-// InitConnection - Inizializza la connessione impostando il driver e la stringa di connessione
+// InitConnection - Initialize the connection with driver and connection string
 func InitConnection(drvName string, connection string) {
 
 	once.Do(func() {
@@ -54,7 +54,7 @@ func InitConnection(drvName string, connection string) {
 	})
 }
 
-// Query - Esegue fisicamente la query e restituisce l'istanza di *Rows
+// Query - Executes the query and return a *Rows instance
 func Query(query string, args ...interface{}) (*sqlx.Rows, error) {
 
 	db := GetConnection()
@@ -66,7 +66,7 @@ func Query(query string, args ...interface{}) (*sqlx.Rows, error) {
 	return rows, err
 }
 
-// QueryOrPanic - Esegue fisicamente la query e restituisce l'istanza di *Rows, panic in caso di errore
+// QueryOrPanic - Executes the query and return a *Rows instance, panics if error occurs
 func QueryOrPanic(query string, args ...interface{}) *sqlx.Rows {
 
 	rows, err := Query(query, args...)
@@ -77,7 +77,7 @@ func QueryOrPanic(query string, args ...interface{}) *sqlx.Rows {
 	return rows
 }
 
-// TableExists - Restituisce true se la tabella esiste altrimenti false
+// TableExists - Returns true if table exists otherwise false
 func TableExists(tableName string) bool {
 
 	query := "SELECT * FROM " + tableName + " LIMIT 1"

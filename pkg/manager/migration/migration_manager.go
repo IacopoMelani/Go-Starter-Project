@@ -12,14 +12,14 @@ import (
 	record "github.com/IacopoMelani/Go-Starter-Project/pkg/models/table_record"
 )
 
-// Migrable - Definisce l'interfaccia per poter avviare una migrazione sul database
+// Migrable - Defines the generic interface to manage a migration
 type Migrable interface {
 	Down() string
 	GetMigrationName() string
 	Up() string
 }
 
-// Migrator - Struct che si occupa di effettuare le migrazione sul database
+// Migrator - Manages the migration
 type Migrator struct {
 	migrationsList []Migrable
 }
@@ -31,6 +31,7 @@ var (
 	onceMigrationsList sync.Once
 )
 
+// createMigrationsTable - Creates the migrations table
 // createMigrationsTable - Si occupa di creare la tabella delle migrazioni
 func createMigrationsTable(conn db.SQLConnector) error {
 
@@ -47,7 +48,7 @@ func createMigrationsTable(conn db.SQLConnector) error {
 	return err
 }
 
-// DoUpMigrations - Esegue la migrazione del DB
+// DoUpMigrations - Start the migrations
 func DoUpMigrations() error {
 
 	migrationManager := GetMigratorInstance()
@@ -59,7 +60,7 @@ func DoUpMigrations() error {
 	return nil
 }
 
-// DoDownMigrations - Esegue il rollbacl del DB
+// DoDownMigrations - Start the rollbacks
 func DoDownMigrations() error {
 
 	migrationManager := GetMigratorInstance()
@@ -71,6 +72,7 @@ func DoDownMigrations() error {
 	return nil
 }
 
+// GetMigratorInstance - Returns the Migrator's instance
 // GetMigratorInstance - Restituisce l'unica istanza di migrator
 func GetMigratorInstance() *Migrator {
 
@@ -82,14 +84,14 @@ func GetMigratorInstance() *Migrator {
 	return migrator
 }
 
-// InitMigrationsList - Imposta la lista delle migrazioni
+// InitMigrationsList - Sets the migrations list
 func InitMigrationsList(ml []Migrable) {
 	onceMigrationsList.Do(func() {
 		migrationsList = ml
 	})
 }
 
-// execDownMigrations - Esegue fisicamente il rollback
+// execDownMigrations - Executes the rollbacks at low level
 func (m *Migrator) execDownMigrations(db db.SQLConnector) error {
 
 	for i := len(m.migrationsList) - 1; i >= 0; i-- {
@@ -119,7 +121,7 @@ func (m *Migrator) execDownMigrations(db db.SQLConnector) error {
 	return nil
 }
 
-// execUpMigrations - Si occupa di eseguire fisicamente la migrazione del database
+// execUpMigrations - Executes the migrations at low level
 func (m *Migrator) execUpMigrations(db db.SQLConnector) error {
 
 	for _, mi := range m.migrationsList {
@@ -158,7 +160,7 @@ func (m *Migrator) execUpMigrations(db db.SQLConnector) error {
 	return nil
 }
 
-// DoDownMigrations - Si occupa di fare il rollback delle tabelle definite in migrations_list
+// DoDownMigrations - Executes the rollbacks defined in the migrations list
 func (m *Migrator) DoDownMigrations() error {
 
 	return transactions.WithTransactionx(db.GetConnection().(*sqlx.DB), func(tx db.SQLConnector) error {
@@ -177,7 +179,7 @@ func (m *Migrator) DoDownMigrations() error {
 	})
 }
 
-// DoUpMigrations - Si occupa di migrare le tabelle definite in migrations_list
+// DoUpMigrations - Executes the migrations
 func (m *Migrator) DoUpMigrations() error {
 
 	return transactions.WithTransactionx(db.GetConnection().(*sqlx.DB), func(tx db.SQLConnector) error {
