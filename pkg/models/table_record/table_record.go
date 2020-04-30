@@ -23,10 +23,11 @@ type TableRecordInterface interface {
 // TableRecord - Struct per l'implementazione di TableRecordInterface
 // implementa QueryBuilderInterface
 type TableRecord struct {
+	builder.Builder
+	isLoaded   bool
 	isNew      bool
 	isReadOnly bool
-	builder.Builder
-	db db.SQLConnector
+	db         db.SQLConnector
 }
 
 // getTableRecordConnection - Restituisce la connessione di un TableRecordInterface
@@ -126,7 +127,6 @@ func All(ntm NewTableModel) ([]TableRecordInterface, error) {
 		}
 
 		result = append(result, ti)
-
 	}
 
 	return result, nil
@@ -191,22 +191,12 @@ func ExecQuery(ti TableRecordInterface, ntm NewTableModel) ([]TableRecordInterfa
 	return tiList, nil
 }
 
-// LoadByID - Carica l'istanza passata con i valori della sua tabella ricercando per chiave primaria
-func LoadByID(ti TableRecordInterface, id int64) error {
+// FetchSingleRow -
+func FetchSingleRow(tri TableRecordInterface, query string, params ...interface{}) error {
 
-	db := getTableRecordConnection(ti)
+	db := getTableRecordConnection(tri)
 
-	query := "SELECT " + AllField(ti) + " FROM " + ti.GetTableName() + " WHERE " + ti.GetPrimaryKeyName() + " = ?"
-
-	params := []interface{}{interface{}(id)}
-
-	stmt, err := db.Preparex(query)
-	if err != nil {
-		return err
-	}
-	defer stmt.Close()
-
-	rows, err := stmt.Queryx(params...)
+	rows, err := db.Queryx(query, params...)
 	if err != nil {
 		return err
 	}
@@ -214,12 +204,22 @@ func LoadByID(ti TableRecordInterface, id int64) error {
 
 	if rows.Next() {
 
-		if err := LoadFromRow(rows, ti); err != nil {
+		if err := LoadFromRow(rows, tri); err != nil {
 			return err
 		}
 	}
 
 	return nil
+}
+
+// LoadByID - Carica l'istanza passata con i valori della sua tabella ricercando per chiave primaria
+func LoadByID(ti TableRecordInterface, id int64) error {
+
+	query := "SELECT " + AllField(ti) + " FROM " + ti.GetTableName() + " WHERE " + ti.GetPrimaryKeyName() + " = ?"
+
+	params := []interface{}{interface{}(id)}
+
+	return FetchSingleRow(ti, query, params...)
 }
 
 // LoadFromRow - Si occupa di caricare la struct dal result - row della query
@@ -229,7 +229,11 @@ func LoadFromRow(r *sqlx.Rows, tri TableRecordInterface) error {
 		return err
 	}
 
-	tri.GetTableRecord().SetIsNew(false).SetSQLConnection(tri.GetTableRecord().db)
+	tr := tri.GetTableRecord()
+
+	tr.SetIsNew(false)
+	tr.SetSQLConnection(tri.GetTableRecord().db)
+	tr.isLoaded = true
 
 	return nil
 }
@@ -241,7 +245,7 @@ func NewTableRecord(isNew bool, isReadOnly bool) *TableRecord {
 	tr.isNew = isNew
 	tr.isReadOnly = isReadOnly
 
-	return tr
+	return tr 
 }
 
 // Save - Si occupa di eseguire il salvataggio della TableRecord eseguendo un inserimento se TableRecord::isNew risulta false, altrimenti ne aggiorna il valore
@@ -274,6 +278,11 @@ func Save(ti TableRecordInterface) error {
 // GetDB - Restituisce la risorsa di connessione al database
 func (t *TableRecord) GetDB() db.SQLConnector {
 	return t.db
+}
+
+// IsLoaded - Restituisce se TableRecord è stato caricato correttamente
+func (t *TableRecord) IsLoaded() bool {
+	return t.isLoaded
 }
 
 // IsNew - Restituisce se il record è nuovo

@@ -250,7 +250,7 @@ func TestTableRecord(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	if tsr.RecordID < 0 {
+	if !tsr.GeetTableRecord().IsLoaded() {
 		t.Fatal("Errore: record id non valido")
 	}
 }

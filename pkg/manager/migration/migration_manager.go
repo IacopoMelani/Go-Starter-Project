@@ -101,7 +101,7 @@ func (m *Migrator) execDownMigrations(db db.SQLConnector) error {
 			return err
 		}
 
-		if migration.RecordID != 0 && migration.Status == 1 {
+		if migration.GetTableRecord().IsLoaded() && migration.Status == 1 {
 
 			_, err = db.Exec(m.migrationsList[i].Down())
 			if err != nil {
@@ -131,7 +131,7 @@ func (m *Migrator) execUpMigrations(db db.SQLConnector) error {
 			return err
 		}
 
-		if migration.RecordID != 0 && migration.Status == 1 {
+		if migration.GetTableRecord().IsLoaded() && migration.Status == 1 {
 			continue
 		}
 

@@ -45,6 +45,10 @@ func TestMigration(t *testing.T) {
 			t.Fatal(err.Error())
 		}
 
+		if !m.GetTableRecord().IsLoaded() {
+			t.Fatal("Migrazione non caricata")
+		}
+
 		if m.Name != migration.Name || m.Status != migration.Status {
 			t.Fatal("Operazione di migrazione errata")
 		}
