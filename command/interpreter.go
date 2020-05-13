@@ -96,7 +96,7 @@ func InterpretingHumanWord() {
 
 	flag.Parse()
 	config := config.GetInstance()
-	dbm.InitConnection("mysql", config.StringConnection)
+	dbm.InitConnection(config.SQLDriver, config.StringConnection)
 
 	switch *start {
 

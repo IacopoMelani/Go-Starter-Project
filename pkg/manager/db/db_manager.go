@@ -14,6 +14,7 @@ import (
 
 // SQLConnector - Interfaccia per gestire operazioni sotto transaction
 type SQLConnector interface {
+	DriverName() string
 	Exec(string, ...interface{}) (sql.Result, error)
 	Prepare(string) (*sql.Stmt, error)
 	Preparex(string) (*sqlx.Stmt, error)
@@ -21,6 +22,12 @@ type SQLConnector interface {
 	Queryx(string, ...interface{}) (*sqlx.Rows, error)
 	QueryRow(string, ...interface{}) *sql.Row
 }
+
+// Defines all possible sql drivers
+const (
+	DriverSQLServer = "sqlserver"
+	DriverMySQL     = "mysql"
+)
 
 var (
 	db   *sqlx.DB

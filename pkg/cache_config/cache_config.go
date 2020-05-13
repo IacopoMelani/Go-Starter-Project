@@ -14,6 +14,7 @@ type CacheConfigInterface interface{}
 // DefaultCacheConfig - Definisce la configurazione generica dell'aplicazione
 type DefaultCacheConfig struct {
 	AppName          string `config:"APP_NAME"`
+	SQLDriver        string `config:"SQL_DRIVER"`
 	StringConnection string `config:"STRING_CONNECTION"`
 	AppPort          string `config:"APP_PORT"`
 }

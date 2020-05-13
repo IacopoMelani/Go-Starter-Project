@@ -30,6 +30,47 @@ type TableRecord struct {
 	db         db.SQLConnector
 }
 
+// executeSaveUpdateQuery - Si occupa di eseguire fisicamente la query, in caso di successo restituisce l'Id appena inserito
+func executeSaveUpdateQuery(ti TableRecordInterface, query string, params []interface{}) error {
+
+	conn := getTableRecordConnection(ti)
+
+	switch ti.GetTableRecord().DriverName() {
+
+	case db.DriverSQLServer:
+
+		rows, err := conn.Queryx(query, params...)
+		if err != nil {
+			return err
+		}
+
+		if rows.Next() {
+
+			if err := LoadFromRow(rows, ti); err != nil {
+				return err
+			}
+		}
+
+	case db.DriverMySQL:
+
+		res, err := conn.Exec(query, params...)
+		if err != nil {
+			return err
+		}
+
+		lastID, err := res.LastInsertId()
+		if err != nil {
+			return err
+		}
+
+		if err := LoadByID(ti, lastID); err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
 // getTableRecordConnection - Restituisce la connessione di un TableRecordInterface
 func getTableRecordConnection(ti TableRecordInterface) db.SQLConnector {
 	return ti.GetTableRecord().db
@@ -38,20 +79,12 @@ func getTableRecordConnection(ti TableRecordInterface) db.SQLConnector {
 // save - Si occupa di inserire un nuovo record nella tabella
 func save(ti TableRecordInterface) error {
 
-	t := ti.GetTableRecord()
-
 	query := genSaveQuery(ti)
 	fValue := getFieldsValueNoPrimary(ti)
-	id, err := t.executeSaveUpdateQuery(query, fValue)
+	err := executeSaveUpdateQuery(ti, query, fValue)
 	if err != nil {
 		return err
 	}
-
-	if err := LoadByID(ti, id); err != nil {
-		return err
-	}
-
-	t.SetIsNew(false)
 
 	return nil
 }
@@ -59,11 +92,9 @@ func save(ti TableRecordInterface) error {
 // update - Si occupa di aggiornare il record nel database
 func update(ti TableRecordInterface) error {
 
-	t := ti.GetTableRecord()
-
 	query := genUpdateQuery(ti)
 	fValue := getFieldsValueNoPrimary(ti)
-	_, err := t.executeSaveUpdateQuery(query, append(fValue, ti.GetPrimaryKeyValue()))
+	err := executeSaveUpdateQuery(ti, query, append(fValue, ti.GetPrimaryKeyValue()))
 	if err != nil {
 		return err
 	}
@@ -73,24 +104,6 @@ func update(ti TableRecordInterface) error {
 	}
 
 	return nil
-}
-
-// executeSaveUpdateQuery - Si occupa di eseguire fisicamente la query, in caso di successo restituisce l'Id appena inserito
-func (t *TableRecord) executeSaveUpdateQuery(query string, params []interface{}) (int64, error) {
-
-	db := t.db
-
-	res, err := db.Exec(query, params...)
-	if err != nil {
-		return 0, err
-	}
-
-	lastID, err := res.LastInsertId()
-	if err != nil {
-		return 0, err
-	}
-
-	return lastID, nil
 }
 
 // AllField - Restitusice tutti i campi per la select *
@@ -245,7 +258,7 @@ func NewTableRecord(isNew bool, isReadOnly bool) *TableRecord {
 	tr.isNew = isNew
 	tr.isReadOnly = isReadOnly
 
-	return tr 
+	return tr
 }
 
 // Save - Si occupa di eseguire il salvataggio della TableRecord eseguendo un inserimento se TableRecord::isNew risulta false, altrimenti ne aggiorna il valore
@@ -288,6 +301,11 @@ func (t *TableRecord) IsLoaded() bool {
 // IsNew - Restituisce se il record è nuovo
 func (t *TableRecord) IsNew() bool {
 	return t.isNew
+}
+
+// DriverName - Returns the sql driver name for TableRecord's instance
+func (t *TableRecord) DriverName() string {
+	return t.db.DriverName()
 }
 
 // PrepareStmt - Restituisce lo stmt della query pronta da essere eseguita
