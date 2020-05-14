@@ -5,6 +5,8 @@ import (
 	"os"
 	"testing"
 
+	record "github.com/IacopoMelani/Go-Starter-Project/pkg/models/table_record"
+
 	"github.com/jmoiron/sqlx"
 
 	"github.com/IacopoMelani/Go-Starter-Project/pkg/manager/db"
@@ -18,7 +20,7 @@ func TestMigration(t *testing.T) {
 	if err := gotenv.Load("./../../../../.env"); err != nil {
 		t.Fatal("Errore caricamento configurazione")
 	}
-	db.InitConnection("mysql", os.Getenv("STRING_CONNECTION"))
+	db.InitConnection(os.Getenv("SQL_DRIVER"), os.Getenv("STRING_CONNECTION"))
 
 	err := transactions.WithTransactionx(db.GetConnection().(*sqlx.DB), func(tx db.SQLConnector) error {
 
@@ -34,7 +36,7 @@ func TestMigration(t *testing.T) {
 			t.Fatal(err.Error())
 		}
 
-		if migration.GetPrimaryKeyValue() == 0 {
+		if record.GetPrimaryKeyValue(migration) == 0 {
 			t.Error("Chiave primaria non impostata")
 		}
 

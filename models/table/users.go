@@ -76,11 +76,6 @@ func (u User) GetPrimaryKeyName() string {
 	return UsersColRecordID
 }
 
-// GetPrimaryKeyValue - Restituisce l'indirizzo di memoria del valore della chiave primaria
-func (u User) GetPrimaryKeyValue() int64 {
-	return u.RecordID
-}
-
 // GetTableName - Restituisce il nome della tabella
 func (u User) GetTableName() string {
 	return UsersTableName

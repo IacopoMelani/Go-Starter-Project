@@ -17,7 +17,7 @@ func TestTransactionx(t *testing.T) {
 	if err := gotenv.Load("./../../../../.env"); err != nil {
 		t.Fatal("Errore caricamento configurazione")
 	}
-	db.InitConnection("mysql", os.Getenv("STRING_CONNECTION"))
+	db.InitConnection(os.Getenv("SQL_DRIVER"), os.Getenv("STRING_CONNECTION"))
 
 	err := WithTransactionx(db.GetConnection().(*sqlx.DB), func(tx db.SQLConnector) error {
 		return errors.New("Rollback")

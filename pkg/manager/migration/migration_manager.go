@@ -34,13 +34,30 @@ var (
 // createMigrationsTable - Si occupa di creare la tabella delle migrazioni
 func createMigrationsTable(conn db.SQLConnector) error {
 
-	query := `CREATE TABLE IF NOT EXISTS migrations (
-    record_id INT AUTO_INCREMENT,
-    created_at DATETIME NOT NULL,
-    name VARCHAR(255) NOT NULL,
-    status INT NOT NULL,
-	PRIMARY KEY (record_id)
-	)`
+	var query string
+
+	switch conn.DriverName() {
+
+	case db.DriverSQLServer:
+		query = `
+		IF NOT EXISTS (SELECT * FROM sysobjects WHERE name='migrations' and xtype='U')
+		CREATE TABLE migrations (
+		record_id BIGINT IDENTITY(1, 1) NOT NULL PRIMARY KEY,
+		created_at DATETIME2(1) NOT NULL,
+		name NVARCHAR(255) NOT NULL,
+		status INT NOT NULL
+		)`
+
+	case db.DriverMySQL:
+		query = `CREATE TABLE IF NOT EXISTS migrations (
+		record_id INT AUTO_INCREMENT,
+		created_at DATETIME NOT NULL,
+		name VARCHAR(255) NOT NULL,
+		status INT NOT NULL,
+		PRIMARY KEY (record_id)
+		)`
+	}
+
 
 	_, err := conn.Exec(query)
 

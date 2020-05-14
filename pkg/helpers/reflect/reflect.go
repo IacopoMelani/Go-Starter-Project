@@ -1,8 +1,31 @@
 package refl
 
 import (
+	"errors"
 	"reflect"
 )
+
+// GetStructFieldValueByTagName -
+func GetStructFieldValueByTagName(c interface{}, tagType string, tagName string) interface{} {
+
+	vPtr := reflect.ValueOf(c)
+
+	t := reflect.TypeOf(c)
+	v := reflect.Indirect(vPtr)
+
+	for i := 0; i < v.NumField(); i++ {
+
+		name := t.Elem().Field(i).Tag.Get(tagType)
+
+		if !v.Field(i).CanInterface() || !v.Field(i).CanSet() || name != tagName {
+			continue
+		}
+
+		return v.Field(i).Addr().Interface()
+	}
+
+	return errors.New("Field value not found for " + tagName)
+}
 
 // GetStructFieldsMapperByTagName - Restituisce i campi di mappatura di una struct, i due slice rappresentato:
 // il primo uno slice con i nomi dei tag
@@ -33,8 +56,8 @@ func GetStructFieldsMapperByTagName(c interface{}, tagName string) (fieldsName [
 func GetStructFieldsNameAndTagByTagName(c interface{}, tagName string) (tagFields []string, structFields []string) {
 
 	s := reflect.ValueOf(c)
-	i := reflect.Indirect(s)
-	t := i.Type()
+	v := reflect.Indirect(s)
+	t := v.Type()
 
 	for i := 0; i < t.NumField(); i++ {
 

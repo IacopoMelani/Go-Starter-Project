@@ -22,7 +22,7 @@ func TestQueryBuilder(t *testing.T) {
 	if err := gotenv.Load("./../../../../.env"); err != nil {
 		t.Fatal("Errore caricamento configurazione")
 	}
-	db.InitConnection("mysql", os.Getenv("STRING_CONNECTION"))
+	db.InitConnection(os.Getenv("SQL_DRIVER"), os.Getenv("STRING_CONNECTION"))
 
 	db := db.GetConnection()
 

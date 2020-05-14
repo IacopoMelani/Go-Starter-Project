@@ -111,11 +111,6 @@ func (m Migration) GetPrimaryKeyName() string {
 	return MigrationsColRecordID
 }
 
-// GetPrimaryKeyValue - Restituisce l'indirizzo di memoria del valore della chiave primaria
-func (m Migration) GetPrimaryKeyValue() int64 {
-	return m.RecordID
-}
-
 // GetTableName - Restituisce il nome della tabella
 func (m Migration) GetTableName() string {
 	return MigrationsTableName

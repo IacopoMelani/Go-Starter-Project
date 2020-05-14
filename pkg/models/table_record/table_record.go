@@ -4,6 +4,8 @@ import (
 	"errors"
 	"strings"
 
+	refl "github.com/IacopoMelani/Go-Starter-Project/pkg/helpers/reflect"
+
 	"github.com/IacopoMelani/Go-Starter-Project/pkg/manager/db"
 	builder "github.com/IacopoMelani/Go-Starter-Project/pkg/manager/db/query_builder"
 	"github.com/jmoiron/sqlx"
@@ -16,7 +18,6 @@ type NewTableModel func() TableRecordInterface
 type TableRecordInterface interface {
 	GetTableRecord() *TableRecord
 	GetPrimaryKeyName() string
-	GetPrimaryKeyValue() int64
 	GetTableName() string
 }
 
@@ -94,12 +95,12 @@ func update(ti TableRecordInterface) error {
 
 	query := genUpdateQuery(ti)
 	fValue := getFieldsValueNoPrimary(ti)
-	err := executeSaveUpdateQuery(ti, query, append(fValue, ti.GetPrimaryKeyValue()))
+	err := executeSaveUpdateQuery(ti, query, append(fValue, GetPrimaryKeyValue(ti)))
 	if err != nil {
 		return err
 	}
 
-	if err := LoadByID(ti, ti.GetPrimaryKeyValue()); err != nil {
+	if err := LoadByID(ti, GetPrimaryKeyValue(ti)); err != nil {
 		return err
 	}
 
@@ -156,7 +157,7 @@ func Delete(ti TableRecordInterface) (int64, error) {
 	}
 	defer stmt.Close()
 
-	res, err := stmt.Exec(ti.GetPrimaryKeyValue())
+	res, err := stmt.Exec(GetPrimaryKeyValue(ti))
 	if err != nil {
 		return 0, err
 	}
@@ -225,8 +226,13 @@ func FetchSingleRow(tri TableRecordInterface, query string, params ...interface{
 	return nil
 }
 
+// GetPrimaryKeyValue - Returs the primary key value
+func GetPrimaryKeyValue(ti TableRecordInterface) interface{} {
+	return refl.GetStructFieldValueByTagName(ti, "db", ti.GetPrimaryKeyName())
+}
+
 // LoadByID - Carica l'istanza passata con i valori della sua tabella ricercando per chiave primaria
-func LoadByID(ti TableRecordInterface, id int64) error {
+func LoadByID(ti TableRecordInterface, id interface{}) error {
 
 	query := "SELECT " + AllField(ti) + " FROM " + ti.GetTableName() + " WHERE " + ti.GetPrimaryKeyName() + " = ?"
 

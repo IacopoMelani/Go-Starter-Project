@@ -31,7 +31,7 @@ func InitServer() {
 
 	bm.SetAppPort(config.AppPort)
 	bm.SetConnectionSting(config.StringConnection)
-	bm.SetDriverSQL("mysql")
+	bm.SetDriverSQL(config.SQLDriver)
 
 	bm.RegisterEchoRoutes(initEchoRoutes)
 

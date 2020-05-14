@@ -26,14 +26,46 @@ func (t TestTable) GetMigrationName() string {
 }
 
 // Down - Definisce la query di migrazione down
-func (t TestTable) Down() string { return "DROP TABLE IF EXISTS test" }
+func (t TestTable) Down() string {
+
+	var query string
+
+	switch db.DriverName() {
+
+	case db.DriverMySQL:
+		query = "DROP TABLE IF EXISTS test"
+	case db.DriverSQLServer:
+		query = `
+		IF EXISTS (SELECT * FROM sysobjects WHERE name='test' and xtype='U')
+		DROP TABLE test`
+	}
+
+	return query
+}
 
 // Up - Definisce la query di migrazione up
 func (t TestTable) Up() string {
-	return `CREATE TABLE IF NOT EXISTS test (
-    record_id INT AUTO_INCREMENT,
-    PRIMARY KEY (record_id)
-	)`
+
+	var query string
+
+	switch db.DriverName() {
+
+	case db.DriverMySQL:
+		query = `CREATE TABLE IF NOT EXISTS test (
+		record_id INT AUTO_INCREMENT,
+		PRIMARY KEY (record_id)
+		)`
+
+	case db.DriverSQLServer:
+		query = `
+		IF NOT EXISTS (SELECT * FROM sysobjects WHERE name='test' and xtype='U')
+		CREATE TABLE test (
+			record_id BIGINT IDENTITY(1, 1) NOT NULL PRIMARY KEY
+		)`
+	}
+
+	return query
+
 }
 
 func TestMigrationManager(t *testing.T) {
@@ -41,7 +73,7 @@ func TestMigrationManager(t *testing.T) {
 	if err := gotenv.Load("./../../../.env"); err != nil {
 		t.Fatal("Errore caricamento configurazione")
 	}
-	db.InitConnection("mysql", os.Getenv("STRING_CONNECTION"))
+	db.InitConnection(os.Getenv("SQL_DRIVER"), os.Getenv("STRING_CONNECTION"))
 
 	err := transactions.WithTransactionx(db.GetConnection().(*sqlx.DB), func(tx db.SQLConnector) error {
 
