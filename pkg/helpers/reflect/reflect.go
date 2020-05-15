@@ -5,7 +5,7 @@ import (
 	"reflect"
 )
 
-// GetStructFieldValueByTagName -
+// GetStructFieldValueByTagName - Returns a value ptr to struct field by tag type and tag name
 func GetStructFieldValueByTagName(c interface{}, tagType string, tagName string) interface{} {
 
 	vPtr := reflect.ValueOf(c)
