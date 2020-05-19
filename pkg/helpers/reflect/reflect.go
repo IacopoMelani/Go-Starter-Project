@@ -6,7 +6,7 @@ import (
 )
 
 // GetStructFieldValueByTagName - Returns a value ptr to struct field by tag type and tag name
-func GetStructFieldValueByTagName(c interface{}, tagType string, tagName string) interface{} {
+func GetStructFieldValueByTagName(c interface{}, tagType string, tagName string) (interface{}, error) {
 
 	vPtr := reflect.ValueOf(c)
 
@@ -21,10 +21,10 @@ func GetStructFieldValueByTagName(c interface{}, tagType string, tagName string)
 			continue
 		}
 
-		return v.Field(i).Addr().Interface()
+		return v.Field(i).Addr().Interface(), nil
 	}
 
-	return errors.New("Field value not found for " + tagName)
+	return nil, errors.New("Field value not found for " + tagName)
 }
 
 // GetStructFieldsMapperByTagName - Restituisce i campi di mappatura di una struct, i due slice rappresentato:
