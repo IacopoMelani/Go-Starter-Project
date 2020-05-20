@@ -228,7 +228,11 @@ func FetchSingleRow(tri TableRecordInterface, query string, params ...interface{
 
 // GetPrimaryKeyValue - Returs the primary key value
 func GetPrimaryKeyValue(ti TableRecordInterface) interface{} {
-	return refl.GetStructFieldValueByTagName(ti, "db", ti.GetPrimaryKeyName())
+	value, err := refl.GetStructFieldValueByTagName(ti, "db", ti.GetPrimaryKeyName())
+	if err != nil {
+		panic(err)
+	}
+	return value
 }
 
 // LoadByID - Carica l'istanza passata con i valori della sua tabella ricercando per chiave primaria
