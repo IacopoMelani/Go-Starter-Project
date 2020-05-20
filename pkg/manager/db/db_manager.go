@@ -22,6 +22,7 @@ type SQLConnector interface {
 	Query(string, ...interface{}) (*sql.Rows, error)
 	Queryx(string, ...interface{}) (*sqlx.Rows, error)
 	QueryRow(string, ...interface{}) *sql.Row
+	QueryRowx(string, ...interface{}) *sqlx.Row
 }
 
 // Defines all possible sql drivers
