@@ -1,8 +1,6 @@
 package transactions
 
 import (
-	"database/sql"
-
 	"github.com/IacopoMelani/Go-Starter-Project/pkg/manager/db"
 	"github.com/jmoiron/sqlx"
 )
@@ -31,41 +29,4 @@ func WithTransactionx(db *sqlx.DB, fn TxFn) (err error) {
 
 	err = fn(tx)
 	return err
-}
-
-// PipelineStmt - Defines a wrapper for sql stmt
-type PipelineStmt struct {
-	query string
-	args  []interface{}
-}
-
-func NewPipelineStmt(query string, args ...interface{}) *PipelineStmt {
-	return &PipelineStmt{query, args}
-}
-
-func (ps *PipelineStmt) Exec(conn db.SQLConnector) (sql.Result, error) {
-	return conn.Exec(ps.query, ps.args...)
-}
-
-func RunPipelineStmts(conn db.SQLConnector, stmts ...*PipelineStmt) error {
-
-	for _, ps := range stmts {
-
-		_, err := ps.Exec(conn)
-		if err != nil {
-			return err
-		}
-	}
-
-	return nil
-}
-
-func RunPipelineStmtsWithTransactionx(conn db.SQLConnector, stmts ...*PipelineStmt) error {
-	return WithTransactionx(conn.(*sqlx.DB), func(tx db.SQLConnector) error {
-		return RunPipelineStmts(tx, stmts...)
-	})
-}
-
-type Pipeline interface {
-
 }
