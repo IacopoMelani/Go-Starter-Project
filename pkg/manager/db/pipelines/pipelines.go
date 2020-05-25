@@ -9,12 +9,12 @@ import (
 	"github.com/jmoiron/sqlx"
 )
 
-// Pipeline -
+// Pipeline - Defines generics interface to implemtns a pipeline
 type Pipeline interface {
 	Exec(conn db.SQLConnector) (sql.Result, error)
 }
 
-// RunPipelines -
+// RunPipelines - Takes a slice of Pipeline and execs all them
 func RunPipelines(conn db.SQLConnector, pipelines ...Pipeline) error {
 
 	for _, ps := range pipelines {
@@ -28,35 +28,35 @@ func RunPipelines(conn db.SQLConnector, pipelines ...Pipeline) error {
 	return nil
 }
 
-// RunpipelinesWithTransactionx -
+// RunpipelinesWithTransactionx - Takes a slice of Pipeline and execs all them under transaction
 func RunpipelinesWithTransactionx(conn db.SQLConnector, pipelines ...Pipeline) error {
 	return transactions.WithTransactionx(conn.(*sqlx.DB), func(tx db.SQLConnector) error {
 		return RunPipelines(tx, pipelines...)
 	})
 }
 
-// PipelineManager -
+// PipelineManager - Defines a manager for executing pipeline
 type PipelineManager struct {
 	conn      db.SQLConnector
 	mu        sync.Mutex
 	pipelines []Pipeline
 }
 
-// NewPipelineManager -
+// NewPipelineManager - Returns a new instance ptr of PipelineManager
 func NewPipelineManager(conn db.SQLConnector) *PipelineManager {
 	pm := new(PipelineManager)
 	pm.conn = conn
 	return pm
 }
 
-// AddPipe -
+// AddPipe - Appends the single pipe to the queue
 func (pm *PipelineManager) AddPipe(p Pipeline) {
 	pm.mu.Lock()
 	defer pm.mu.Unlock()
 	pm.pipelines = append(pm.pipelines, p)
 }
 
-// RunPipelines -
+// RunPipelines - Runs all added Pipeline interfaces
 func (pm *PipelineManager) RunPipelines() error {
 	pm.mu.Lock()
 	defer func() {
@@ -66,7 +66,7 @@ func (pm *PipelineManager) RunPipelines() error {
 	return RunPipelines(pm.conn, pm.pipelines...)
 }
 
-// RunPipelinesWithTransactionx -
+// RunPipelinesWithTransactionx - Runs all added Pipeline interfaces under transaction
 func (pm *PipelineManager) RunPipelinesWithTransactionx() error {
 	return transactions.WithTransactionx(pm.conn.(*sqlx.DB), func(tx db.SQLConnector) error {
 		return pm.RunPipelines()
@@ -79,12 +79,12 @@ type PipelineStmt struct {
 	args  []interface{}
 }
 
-// NewPipelineStmt -
+// NewPipelineStmt - Returns instance ptr of PipelineStmt
 func NewPipelineStmt(query string, args ...interface{}) *PipelineStmt {
 	return &PipelineStmt{query, args}
 }
 
-// RunPipelineStmts -
+// RunPipelineStmts - Runs a slice of *PipelineStmt
 func RunPipelineStmts(conn db.SQLConnector, stmts ...*PipelineStmt) error {
 
 	var pipelines []Pipeline
@@ -95,14 +95,14 @@ func RunPipelineStmts(conn db.SQLConnector, stmts ...*PipelineStmt) error {
 	return RunPipelines(conn, pipelines...)
 }
 
-// RunPipelineStmtsWithTransactionx -
+// RunPipelineStmtsWithTransactionx - Runs a slice of *PipelineStmt under transaction
 func RunPipelineStmtsWithTransactionx(conn db.SQLConnector, stmts ...*PipelineStmt) error {
 	return transactions.WithTransactionx(conn.(*sqlx.DB), func(tx db.SQLConnector) error {
 		return RunPipelineStmts(tx, stmts...)
 	})
 }
 
-// Exec -
+// Exec - Exec a stmt, necessary to implemnt Pipeline
 func (ps *PipelineStmt) Exec(conn db.SQLConnector) (sql.Result, error) {
 	return conn.Exec(ps.query, ps.args...)
 }
