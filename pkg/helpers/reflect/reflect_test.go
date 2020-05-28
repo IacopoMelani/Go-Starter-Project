@@ -46,4 +46,14 @@ func TestRefl(t *testing.T) {
 	if err == nil {
 		t.Error("Dovrebbe essere Error")
 	}
+
+	valueType := "test"
+	valueTypePtr := &valueType
+
+	if GetType(valueType) != "string" {
+		t.Error("value should be 'string'")
+	}
+	if GetType(valueTypePtr) != "*string" {
+		t.Error("value should be '*string'")
+	}
 }

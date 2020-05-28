@@ -71,3 +71,9 @@ func GetStructFieldsNameAndTagByTagName(c interface{}, tagName string) (tagField
 
 	return
 }
+
+// GetType - Returns the name of var, appends "*" if var is ptr to value
+func GetType(val interface{}) (typeName string) {
+	typeName = reflect.TypeOf(val).String()
+	return
+}
