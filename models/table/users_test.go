@@ -16,7 +16,7 @@ func TestTableMirror(t *testing.T) {
 	if err := gotenv.Load("./../../.env"); err != nil {
 		t.Fatal("Errore caricamento configurazione")
 	}
-	db.InitConnection("mysql", os.Getenv("STRING_CONNECTION"))
+	db.InitConnection(os.Getenv("SQL_DRIVER"), os.Getenv("STRING_CONNECTION"))
 
 	u := NewUser(db.GetConnection())
 
@@ -56,7 +56,7 @@ func TestTableMirror(t *testing.T) {
 		t.Error("Chiave primaria è cambiata durante l'update")
 	}
 
-	usersList, err := LoadAllUsers()
+	usersList, err := LoadAllUsers(db.GetConnection())
 	if err != nil {
 		t.Error(err.Error())
 	}

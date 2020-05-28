@@ -32,12 +32,12 @@ const (
 // getDefaultMessage - Restituisce il messaggio default
 func getDefaultMessage() string {
 	return `
-		commands:
-			-fire go!               -> start the Server 
-			-fire go-migrate        -> migrate database 
-			-fire go-rollback       -> rollback database 
-			-fire go-migrate-status -> show migrations status  
-			-fire go-config         -> show the current environment 
+commands:
+-fire go!               -> start the Server 
+-fire go-migrate        -> migrate database 
+-fire go-rollback       -> rollback database 
+-fire go-migrate-status -> show migrations status  
+-fire go-config         -> show the current environment 
 	`
 }
 
@@ -96,7 +96,7 @@ func InterpretingHumanWord() {
 
 	flag.Parse()
 	config := config.GetInstance()
-	dbm.InitConnection("mysql", config.StringConnection)
+	dbm.InitConnection(config.SQLDriver, config.StringConnection)
 
 	switch *start {
 

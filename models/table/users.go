@@ -28,11 +28,11 @@ type User struct {
 var du = &User{}
 
 // LoadAllUsers - Si occupa di restituire tutti gli utenti presenti nel database
-func LoadAllUsers() ([]*User, error) {
+func LoadAllUsers(db db.SQLConnector) ([]*User, error) {
 
 	query := "SELECT " + record.AllField(du) + " FROM " + du.GetTableName()
 
-	rows, err := db.Query(query)
+	rows, err := db.Queryx(query)
 	if err != nil {
 		return nil, err
 	}
@@ -43,7 +43,7 @@ func LoadAllUsers() ([]*User, error) {
 
 	for rows.Next() {
 
-		u := NewUser(db.GetConnection())
+		u := NewUser(db)
 
 		if err := record.LoadFromRow(rows, u); err != nil {
 			return nil, err
@@ -74,11 +74,6 @@ func (u User) GetTableRecord() *record.TableRecord {
 // GetPrimaryKeyName - Restituisce il nome della chiave primaria
 func (u User) GetPrimaryKeyName() string {
 	return UsersColRecordID
-}
-
-// GetPrimaryKeyValue - Restituisce l'indirizzo di memoria del valore della chiave primaria
-func (u User) GetPrimaryKeyValue() int64 {
-	return u.RecordID
 }
 
 // GetTableName - Restituisce il nome della tabella

@@ -14,10 +14,23 @@ func createTableTest() error {
 
 	conn := GetConnection()
 
-	query := `CREATE TABLE IF NOT EXISTS testTable (
-		record_id INT AUTO_INCREMENT,
-		PRIMARY KEY (record_id)
+	var query string
+
+	switch conn.DriverName() {
+
+	case DriverMySQL:
+		query = `CREATE TABLE IF NOT EXISTS testTable (
+			record_id INT AUTO_INCREMENT,
+			PRIMARY KEY (record_id)
+			)`
+			
+	case DriverSQLServer:
+		query = `IF NOT EXISTS (SELECT * FROM sysobjects WHERE name='testTable' and xtype='U')
+		CREATE TABLE testTable (
+			record_id BIGINT IDENTITY(1, 1) NOT NULL PRIMARY KEY
 		)`
+	}
+
 
 	_, err := conn.Exec(query)
 
@@ -147,7 +160,7 @@ func TestConnectionConcurrency(t *testing.T) {
 
 	time.Sleep(500 * time.Millisecond)
 
-	InitConnection("mysql", os.Getenv("STRING_CONNECTION"))
+	InitConnection(os.Getenv("SQL_DRIVER"), os.Getenv("STRING_CONNECTION"))
 
 	GetConnection()
 
@@ -158,5 +171,5 @@ func loadEnv() {
 	if err := gotenv.Load("../../../.env"); err != nil {
 		panic(err)
 	}
-	InitConnection("mysql", os.Getenv("STRING_CONNECTION"))
+	InitConnection(os.Getenv("SQL_DRIVER"), os.Getenv("STRING_CONNECTION"))
 }

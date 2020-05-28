@@ -1,8 +1,31 @@
 package refl
 
 import (
+	"errors"
 	"reflect"
 )
+
+// GetStructFieldValueByTagName - Returns a value ptr to struct field by tag type and tag name
+func GetStructFieldValueByTagName(c interface{}, tagType string, tagName string) (interface{}, error) {
+
+	vPtr := reflect.ValueOf(c)
+
+	t := reflect.TypeOf(c)
+	v := reflect.Indirect(vPtr)
+
+	for i := 0; i < v.NumField(); i++ {
+
+		name := t.Elem().Field(i).Tag.Get(tagType)
+
+		if !v.Field(i).CanInterface() || !v.Field(i).CanSet() || name != tagName {
+			continue
+		}
+
+		return v.Field(i).Addr().Interface(), nil
+	}
+
+	return nil, errors.New("Field value not found for " + tagName)
+}
 
 // GetStructFieldsMapperByTagName - Restituisce i campi di mappatura di una struct, i due slice rappresentato:
 // il primo uno slice con i nomi dei tag
@@ -33,8 +56,8 @@ func GetStructFieldsMapperByTagName(c interface{}, tagName string) (fieldsName [
 func GetStructFieldsNameAndTagByTagName(c interface{}, tagName string) (tagFields []string, structFields []string) {
 
 	s := reflect.ValueOf(c)
-	i := reflect.Indirect(s)
-	t := i.Type()
+	v := reflect.Indirect(s)
+	t := v.Type()
 
 	for i := 0; i < t.NumField(); i++ {
 
@@ -46,5 +69,11 @@ func GetStructFieldsNameAndTagByTagName(c interface{}, tagName string) (tagField
 		structFields = append(structFields, t.Field(i).Name)
 	}
 
+	return
+}
+
+// GetType - Returns the name of var, appends "*" if var is ptr to value
+func GetType(val interface{}) (typeName string) {
+	typeName = reflect.TypeOf(val).String()
 	return
 }

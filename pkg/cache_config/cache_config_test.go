@@ -10,9 +10,7 @@ import (
 // CacheConfigTest - struttura dove immagazzinare le configurazioni
 type CacheConfigTest struct {
 	DefaultCacheConfig
-	StringConnection  string `config:"APP_NAME"`
-	AppPort           string `config:"STRING_CONNECTION"`
-	UserTimeToRefresh int    `config:"APP_PORT"`
+	UserTimeToRefresh int `config:"USER_TIME_TO_REFRESH"`
 }
 
 var (
@@ -42,4 +40,8 @@ func TestCacheConfigBoot(t *testing.T) {
 	}
 
 	GetCurrentConfig()
+
+	if !Debug() {
+		t.Error("Errore: assicurarsi che il flag debug sia a true")
+	}
 }

@@ -69,11 +69,6 @@ func (t TestStruct) GetPrimaryKeyName() string {
 	return "record_id"
 }
 
-// GetPrimaryKeyValue - Restituisce l'indirizzo di memoria del valore della chiave primaria
-func (t TestStruct) GetPrimaryKeyValue() int64 {
-	return t.RecordID
-}
-
 // GetTableName - Restituisce il nome della tabella
 func (t TestStruct) GetTableName() string {
 	return "users"
@@ -108,11 +103,6 @@ func (t TestStructReadOnly) GetPrimaryKeyName() string {
 	return "record_id"
 }
 
-// GetPrimaryKeyValue - Restitusice l'indirizzo di memoria del valore della chiave primaria
-func (t TestStructReadOnly) GetPrimaryKeyValue() int64 {
-	return t.RecordID
-}
-
 // GetTableName - Restituisce il nome della tabella
 
 func (t TestStructReadOnly) GetTableName() string {
@@ -129,7 +119,7 @@ func TestTableRecord(t *testing.T) {
 	if err := gotenv.Load("./../../../.env"); err != nil {
 		t.Fatal("Errore caricamento configurazione")
 	}
-	db.InitConnection("mysql", os.Getenv("STRING_CONNECTION"))
+	db.InitConnection(os.Getenv("SQL_DRIVER"), os.Getenv("STRING_CONNECTION"))
 
 	db := db.GetConnection()
 
@@ -250,7 +240,7 @@ func TestTableRecord(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	if tsr.RecordID < 0 {
+	if !tsr.GeetTableRecord().IsLoaded() {
 		t.Fatal("Errore: record id non valido")
 	}
 }

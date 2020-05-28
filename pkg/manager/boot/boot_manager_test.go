@@ -78,7 +78,7 @@ func TestBootManager(t *testing.T) {
 
 	bm.SetAppPort(port)
 	bm.SetConnectionSting(conn)
-	bm.SetDriverSQL("mysql")
+	bm.SetDriverSQL(os.Getenv("SQL_DRIVER"))
 
 	bm.RegisterDDataProc(GeDurationDataTest)
 
