@@ -1,14 +1,10 @@
 package migration
 
 import (
-	"errors"
 	"os"
 	"testing"
 
-	"github.com/jmoiron/sqlx"
-
 	"github.com/IacopoMelani/Go-Starter-Project/pkg/manager/db"
-	"github.com/IacopoMelani/Go-Starter-Project/pkg/manager/db/transactions"
 
 	"github.com/IacopoMelani/Go-Starter-Project/pkg/models/table_record/table"
 
@@ -26,14 +22,46 @@ func (t TestTable) GetMigrationName() string {
 }
 
 // Down - Example
-func (t TestTable) Down() string { return "DROP TABLE IF EXISTS test" }
+func (t TestTable) Down() string {
+
+	var query string
+
+	switch db.DriverName() {
+
+	case db.DriverMySQL:
+		query = "DROP TABLE IF EXISTS test"
+	case db.DriverSQLServer:
+		query = `
+		IF EXISTS (SELECT * FROM sysobjects WHERE name='test' and xtype='U')
+		DROP TABLE test`
+	}
+
+	return query
+}
 
 // Up - Example
 func (t TestTable) Up() string {
-	return `CREATE TABLE IF NOT EXISTS test (
-    record_id INT AUTO_INCREMENT,
-    PRIMARY KEY (record_id)
-	)`
+
+	var query string
+
+	switch db.DriverName() {
+
+	case db.DriverMySQL:
+		query = `CREATE TABLE IF NOT EXISTS test (
+		record_id INT AUTO_INCREMENT,
+		PRIMARY KEY (record_id)
+		)`
+
+	case db.DriverSQLServer:
+		query = `
+		IF NOT EXISTS (SELECT * FROM sysobjects WHERE name='test' and xtype='U')
+		CREATE TABLE test (
+			record_id BIGINT IDENTITY(1, 1) NOT NULL PRIMARY KEY
+		)`
+	}
+
+	return query
+
 }
 
 func TestMigrationManager(t *testing.T) {
@@ -41,59 +69,66 @@ func TestMigrationManager(t *testing.T) {
 	if err := gotenv.Load("./../../../.env"); err != nil {
 		t.Fatal("Errore caricamento configurazione")
 	}
-	db.InitConnection("mysql", os.Getenv("STRING_CONNECTION"))
+	db.InitConnection(os.Getenv("SQL_DRIVER"), os.Getenv("STRING_CONNECTION"))
 
-	err := transactions.WithTransactionx(db.GetConnection().(*sqlx.DB), func(tx db.SQLConnector) error {
+	var migrationsList = []Migrable{
+		TestTable{},
+	}
 
-		var migrationsList = []Migrable{
-			TestTable{},
-		}
+	InitMigrationsList(migrationsList)
 
-		InitMigrationsList(migrationsList)
+	var query string
 
-		_, err := tx.Exec("DROP TABLE IF EXISTS migrations")
-		if err != nil {
-			t.Fatal(err.Error())
-		}
+	tx := db.GetConnection()
 
-		migrator := GetMigratorInstance()
+	switch tx.DriverName() {
 
-		err = migrator.DoDownMigrations()
-		if err != nil {
-			t.Fatal(err.Error())
-		}
+	case db.DriverMySQL:
+		query = "DROP TABLE IF EXISTS migrations"
 
-		err = DoUpMigrations()
-		if err != nil {
-			t.Fatal(err.Error())
-		}
+	case db.DriverSQLServer:
+		query = `
+			IF EXISTS (SELECT * FROM sysobjects WHERE name='migrations' and xtype='U')
+			DROP TABLE migrations
+			`
+	}
 
-		err = DoDownMigrations()
-		if err != nil {
-			t.Fatal(err.Error())
-		}
+	_, err := tx.Exec(query)
+	if err != nil {
+		t.Fatal(err.Error())
+	}
 
-		err = DoUpMigrations()
-		if err != nil {
-			t.Fatal(err.Error())
-		}
+	migrator := GetMigratorInstance()
 
-		migration := table.NewMigration(tx)
+	err = migrator.DoDownMigrations()
+	if err != nil {
+		t.Fatal(err.Error())
+	}
 
-		err = table.LoadMigrationByName("create_test_table", migration)
-		if err != nil {
-			t.Fatal(err.Error())
-		}
+	err = DoUpMigrations()
+	if err != nil {
+		t.Fatal(err.Error())
+	}
 
-		_, err = record.Delete(migration)
-		if err != nil {
-			t.Fatal(err.Error())
-		}
+	err = DoDownMigrations()
+	if err != nil {
+		t.Fatal(err.Error())
+	}
 
-		return errors.New("Rollback")
-	})
+	err = DoUpMigrations()
+	if err != nil {
+		t.Fatal(err.Error())
+	}
 
-	if err.Error() != "Rollback" {
+	migration := table.NewMigration(tx)
+
+	err = table.LoadMigrationByName("create_test_table", migration)
+	if err != nil {
+		t.Fatal(err.Error())
+	}
+
+	_, err = record.Delete(migration)
+	if err != nil {
 		t.Fatal(err.Error())
 	}
 }

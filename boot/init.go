@@ -32,11 +32,14 @@ func InitServer() {
 
 	bm.SetAppPort(config.AppPort)
 	bm.SetConnectionSting(config.StringConnection)
-	bm.SetDriverSQL("mysql")
+	bm.SetDriverSQL(config.SQLDriver)
 
 	bm.RegisterEchoRoutes(initEchoRoutes)
 
-	bm.UseEchoLogger()
+	if config.Debug {
+		bm.UseEchoLogger()
+	}
+
 	bm.UseEchoRecover()
 
 	bm.RegisterDDataProc(durationmodel.GetUsersData)
@@ -61,7 +64,9 @@ func InitServer() {
 
 		logger := log.GetLogger()
 
-		logger.Debug("App avviata")
+		if config.Debug {
+			logger.Debug("App avviata")
+		}
 	})
 
 	bm.StartApp()

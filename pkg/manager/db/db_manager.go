@@ -5,7 +5,8 @@ import (
 
 	"github.com/jmoiron/sqlx"
 
-	// Carica il driver mysql per la connessione al db
+	// Carica il driver sql per la connessione al db
+	_ "github.com/denisenkom/go-mssqldb"
 	_ "github.com/go-sql-driver/mysql"
 
 	"log"
@@ -14,19 +15,32 @@ import (
 
 // SQLConnector - Generalizes a sql connection
 type SQLConnector interface {
+	DriverName() string
 	Exec(string, ...interface{}) (sql.Result, error)
 	Prepare(string) (*sql.Stmt, error)
 	Preparex(string) (*sqlx.Stmt, error)
 	Query(string, ...interface{}) (*sql.Rows, error)
 	Queryx(string, ...interface{}) (*sqlx.Rows, error)
 	QueryRow(string, ...interface{}) *sql.Row
+	QueryRowx(string, ...interface{}) *sqlx.Row
 }
+
+// Defines all possible sql drivers
+const (
+	DriverSQLServer = "mssql"
+	DriverMySQL     = "mysql"
+)
 
 var (
 	db   *sqlx.DB
 	ok   = make(chan bool, 1)
 	once sync.Once
 )
+
+// DriverName - Returns driver name
+func DriverName() string {
+	return GetConnection().DriverName()
+}
 
 // GetConnection - Returns an instance of the db connection
 func GetConnection() SQLConnector {
@@ -80,7 +94,14 @@ func QueryOrPanic(query string, args ...interface{}) *sqlx.Rows {
 // TableExists - Returns true if table exists otherwise false
 func TableExists(tableName string) bool {
 
-	query := "SELECT * FROM " + tableName + " LIMIT 1"
+	var query string
+
+	switch DriverName() {
+	case DriverMySQL:
+		query = "SELECT * FROM " + tableName + " LIMIT 1"
+	case DriverSQLServer:
+		query = "SELECT TOP 1 * FROM " + tableName
+	}
 
 	db := GetConnection()
 

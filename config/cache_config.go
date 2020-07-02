@@ -26,3 +26,8 @@ func GetInstance() *CacheConfig {
 	})
 	return cacheConfig
 }
+
+// GetDefaultCacheConfig - Return the instance of CacheConfigInterface
+func (c *CacheConfig) GetDefaultCacheConfig() cacheconf.CacheConfigInterface {
+	return &(c.DefaultCacheConfig)
+}

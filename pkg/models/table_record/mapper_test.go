@@ -37,11 +37,6 @@ func (t TestMapperTableRecord) GetPrimaryKeyName() string {
 	return "wrong_id"
 }
 
-// GetPrimaryKeyValue - Restituisce l'indirizzo di memoria del valore della chiave primaria
-func (t TestMapperTableRecord) GetPrimaryKeyValue() int64 {
-	return t.RecordID
-}
-
 // GetTableName - Restituisce il nome della tabella
 func (t TestMapperTableRecord) GetTableName() string {
 	return "users"
@@ -52,7 +47,7 @@ func TestMapper(t *testing.T) {
 	if err := gotenv.Load("./../../../.env"); err != nil {
 		t.Fatal("Errore caricamento configurazione")
 	}
-	db.InitConnection("mysql", os.Getenv("STRING_CONNECTION"))
+	db.InitConnection(os.Getenv("SQL_DRIVER"), os.Getenv("STRING_CONNECTION"))
 
 	tr := NewTestMapperTableRecord(db.GetConnection())
 

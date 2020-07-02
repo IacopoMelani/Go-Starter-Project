@@ -2,6 +2,8 @@ package record
 
 import (
 	"strings"
+
+	"github.com/IacopoMelani/Go-Starter-Project/pkg/manager/db"
 )
 
 // genDeleteQuery - Si occupa di generare la query per la cancellazione del record
@@ -17,7 +19,16 @@ func genSaveQuery(ti TableRecordInterface) string {
 
 	fName := getFieldsNameNoPrimary(ti)
 
-	query := "INSERT INTO " + ti.GetTableName() + " (" + strings.Join(fName, ", ") + ") VALUES ( " + strings.Join(getSaveFieldParams(ti), ", ") + " )"
+	var query string
+
+	switch ti.GetTableRecord().DriverName() {
+
+	case db.DriverSQLServer:
+		query = "INSERT INTO " + ti.GetTableName() + " (" + strings.Join(fName, ", ") + ") OUTPUT INSERTED.* VALUES ( " + strings.Join(getSaveFieldParams(ti), ", ") + " )"
+
+	case db.DriverMySQL:
+		query = "INSERT INTO " + ti.GetTableName() + " (" + strings.Join(fName, ", ") + ") VALUES ( " + strings.Join(getSaveFieldParams(ti), ", ") + " )"
+	}
 
 	return query
 }
@@ -25,7 +36,17 @@ func genSaveQuery(ti TableRecordInterface) string {
 // genUpdateQuery - Si occupa di generare la query di aggiornamento
 func genUpdateQuery(ti TableRecordInterface) string {
 
-	query := "UPDATE  " + ti.GetTableName() + " SET " + strings.Join(getUpdateFieldParams(ti), ", ") + " WHERE " + ti.GetPrimaryKeyName() + " = ?"
+	var query string
+
+	switch ti.GetTableRecord().DriverName() {
+
+	case db.DriverSQLServer:
+		query = "UPDATE  " + ti.GetTableName() + " SET " + strings.Join(getUpdateFieldParams(ti), ", ") + " OUTPUT INSERTED.* WHERE " + ti.GetPrimaryKeyName() + " = ?"
+
+	case db.DriverMySQL:
+		query = "UPDATE  " + ti.GetTableName() + " SET " + strings.Join(getUpdateFieldParams(ti), ", ") + " WHERE " + ti.GetPrimaryKeyName() + " = ?"
+	}
+
 	return query
 }
 

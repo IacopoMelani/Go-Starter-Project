@@ -28,11 +28,11 @@ type User struct {
 var du = &User{}
 
 // LoadAllUsers - Returns all users
-func LoadAllUsers() ([]*User, error) {
+func LoadAllUsers(db db.SQLConnector) ([]*User, error) {
 
 	query := "SELECT " + record.AllField(du) + " FROM " + du.GetTableName()
 
-	rows, err := db.Query(query)
+	rows, err := db.Queryx(query)
 	if err != nil {
 		return nil, err
 	}
@@ -43,7 +43,7 @@ func LoadAllUsers() ([]*User, error) {
 
 	for rows.Next() {
 
-		u := NewUser(db.GetConnection())
+		u := NewUser(db)
 
 		if err := record.LoadFromRow(rows, u); err != nil {
 			return nil, err

@@ -3,6 +3,8 @@ package controllers
 import (
 	"time"
 
+	"github.com/IacopoMelani/Go-Starter-Project/pkg/manager/db"
+
 	durationdata "github.com/IacopoMelani/Go-Starter-Project/models/duration_data"
 	"github.com/IacopoMelani/Go-Starter-Project/models/table"
 
@@ -20,7 +22,7 @@ type JwtCustomClaims struct {
 // GetAllUser - Return all users
 func GetAllUser(c echo.Context) error {
 
-	userList, err := table.LoadAllUsers()
+	userList, err := table.LoadAllUsers(db.GetConnection())
 	if err != nil {
 		return c.JSON(500, Response{
 			Status:  1,

@@ -87,22 +87,7 @@ func LoadMigrationByName(name string, m *Migration) error {
 
 	query := "SELECT " + record.AllField(m) + " FROM " + m.GetTableName() + " WHERE " + MigrationsColName + " = ?"
 
-	db := m.GetTableRecord().GetDB()
-
-	rows, err := db.Queryx(query, name)
-	if err != nil {
-		return err
-	}
-	defer rows.Close()
-
-	if rows.Next() {
-
-		if err := record.LoadFromRow(rows, m); err != nil {
-			return err
-		}
-	}
-
-	return nil
+	return record.FetchSingleRow(m, query, name)
 }
 
 // NewMigration - It takes care of instantiating a new Migration object by instantiating its TableRecord and setting it as "new"

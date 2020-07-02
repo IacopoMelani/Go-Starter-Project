@@ -15,7 +15,7 @@ func WithTransactionx(db *sqlx.DB, fn TxFn) (err error) {
 
 	tx, err := db.Beginx()
 	if err != nil {
-		return
+		return err
 	}
 	defer func() {
 		if p := recover(); p != nil {

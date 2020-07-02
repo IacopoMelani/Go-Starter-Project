@@ -88,10 +88,15 @@ func (b *boot) StartApp() {
 	b.runnig = true
 	b.mu.Unlock()
 
-	go func() {
-		defer b.wg.Done()
-		b.initDbConnection()
-	}()
+	if b.connection != "" && b.driverSQL != "" {
+
+		go func() {
+			defer b.wg.Done()
+			b.initDbConnection()
+		}()
+	} else {
+		b.wg.Done()
+	}
 
 	go func() {
 		defer b.wg.Done()

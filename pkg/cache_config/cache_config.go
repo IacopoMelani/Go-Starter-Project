@@ -10,17 +10,24 @@ import (
 
 // CacheConfigInterface - Interface to implements CacheConfig
 // No methods, all you need is to define the tag "config" for your Custom CacheConfig
-type CacheConfigInterface interface{}
+type CacheConfigInterface interface {
+	GetDefaultCacheConfig() CacheConfigInterface
+}
 
 // DefaultCacheConfig - Defines the standard configuration
 type DefaultCacheConfig struct {
 	AppName          string `config:"APP_NAME"`
+	Debug            bool   `config:"DEBUG"`
+	SQLDriver        string `config:"SQL_DRIVER"`
 	StringConnection string `config:"STRING_CONNECTION"`
 	AppPort          string `config:"APP_PORT"`
 }
 
 // ConfigTagName - Defines the tag name to permit CacheConfig stores your configurations
 const ConfigTagName = "config"
+
+// cacheConf - Defines the global instance of CacheConfigInterface
+var cacheConf *DefaultCacheConfig
 
 // config - Stores all configurations for display
 var config string
@@ -39,19 +46,22 @@ func setField(c CacheConfigInterface, name string, value string) {
 
 	rv := reflect.ValueOf(c)
 
-	// Controllo se pointer a una struct
 	if rv.Kind() == reflect.Ptr && rv.Elem().Kind() == reflect.Struct {
 
-		// Prelevo i campi della struct
 		rv = rv.Elem()
 
-		// Controllo che il campo esista
 		fv := rv.FieldByName(name)
 		if fv.IsValid() && fv.CanSet() {
 
-			// Controllo tipo stringa
 			if fv.Kind() == reflect.String {
 				fv.SetString(value)
+			}
+
+			if fv.Kind() == reflect.Bool {
+				content, err := strconv.ParseBool(value)
+				if err == nil {
+					fv.SetBool(content)
+				}
 			}
 
 			if fv.Kind() == reflect.Int {
@@ -69,6 +79,11 @@ func GetCurrentConfig() string {
 	return config
 }
 
+// Debug - Returns if application is in debug
+func Debug() bool {
+	return cacheConf.Debug
+}
+
 // LoadEnvConfig - Try to init the CacheConfigInterface using DefaultCacheConfig for default config fields and the custom CacheConfig passed as CacheConfigInterface, requires that "c" is a pointer to your custom CacheConfig
 func LoadEnvConfig(c CacheConfigInterface) {
 
@@ -81,4 +96,11 @@ func LoadEnvConfig(c CacheConfigInterface) {
 
 	envFields, structFieldsName = refl.GetStructFieldsNameAndTagByTagName(c, ConfigTagName)
 	loadEnvByFieldsMapper(c, envFields, structFieldsName)
+
+	cacheConf = c.GetDefaultCacheConfig().(*DefaultCacheConfig)
+}
+
+// GetDefaultCacheConfig - Return the instance of CacheConfigInterface
+func (d *DefaultCacheConfig) GetDefaultCacheConfig() CacheConfigInterface {
+	return d
 }

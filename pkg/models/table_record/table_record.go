@@ -4,6 +4,8 @@ import (
 	"errors"
 	"strings"
 
+	refl "github.com/IacopoMelani/Go-Starter-Project/pkg/helpers/reflect"
+
 	"github.com/IacopoMelani/Go-Starter-Project/pkg/manager/db"
 	builder "github.com/IacopoMelani/Go-Starter-Project/pkg/manager/db/query_builder"
 	"github.com/jmoiron/sqlx"
@@ -16,17 +18,58 @@ type NewTableModel func() TableRecordInterface
 type TableRecordInterface interface {
 	GetTableRecord() *TableRecord
 	GetPrimaryKeyName() string
-	GetPrimaryKeyValue() int64
 	GetTableName() string
 }
 
 // TableRecord - Struct per l'implementazione di TableRecordInterface
 // implementa QueryBuilderInterface
 type TableRecord struct {
+	builder.Builder
+	isLoaded   bool
 	isNew      bool
 	isReadOnly bool
-	builder.Builder
-	db db.SQLConnector
+	db         db.SQLConnector
+}
+
+// executeSaveUpdateQuery - Si occupa di eseguire fisicamente la query, in caso di successo restituisce l'Id appena inserito
+func executeSaveUpdateQuery(ti TableRecordInterface, query string, params []interface{}) error {
+
+	conn := getTableRecordConnection(ti)
+
+	switch ti.GetTableRecord().DriverName() {
+
+	case db.DriverSQLServer:
+
+		rows, err := conn.Queryx(query, params...)
+		if err != nil {
+			return err
+		}
+
+		if rows.Next() {
+
+			if err := LoadFromRow(rows, ti); err != nil {
+				return err
+			}
+		}
+
+	case db.DriverMySQL:
+
+		res, err := conn.Exec(query, params...)
+		if err != nil {
+			return err
+		}
+
+		lastID, err := res.LastInsertId()
+		if err != nil {
+			return err
+		}
+
+		if err := LoadByID(ti, lastID); err != nil {
+			return err
+		}
+	}
+
+	return nil
 }
 
 // getTableRecordConnection - Restituisce la connessione di un TableRecordInterface
@@ -37,20 +80,12 @@ func getTableRecordConnection(ti TableRecordInterface) db.SQLConnector {
 // save - Si occupa di inserire un nuovo record nella tabella
 func save(ti TableRecordInterface) error {
 
-	t := ti.GetTableRecord()
-
 	query := genSaveQuery(ti)
 	fValue := getFieldsValueNoPrimary(ti)
-	id, err := t.executeSaveUpdateQuery(query, fValue)
+	err := executeSaveUpdateQuery(ti, query, fValue)
 	if err != nil {
 		return err
 	}
-
-	if err := LoadByID(ti, id); err != nil {
-		return err
-	}
-
-	t.SetIsNew(false)
 
 	return nil
 }
@@ -58,38 +93,18 @@ func save(ti TableRecordInterface) error {
 // update - Si occupa di aggiornare il record nel database
 func update(ti TableRecordInterface) error {
 
-	t := ti.GetTableRecord()
-
 	query := genUpdateQuery(ti)
 	fValue := getFieldsValueNoPrimary(ti)
-	_, err := t.executeSaveUpdateQuery(query, append(fValue, ti.GetPrimaryKeyValue()))
+	err := executeSaveUpdateQuery(ti, query, append(fValue, GetPrimaryKeyValue(ti)))
 	if err != nil {
 		return err
 	}
 
-	if err := LoadByID(ti, ti.GetPrimaryKeyValue()); err != nil {
+	if err := LoadByID(ti, GetPrimaryKeyValue(ti)); err != nil {
 		return err
 	}
 
 	return nil
-}
-
-// executeSaveUpdateQuery - Si occupa di eseguire fisicamente la query, in caso di successo restituisce l'Id appena inserito
-func (t *TableRecord) executeSaveUpdateQuery(query string, params []interface{}) (int64, error) {
-
-	db := t.db
-
-	res, err := db.Exec(query, params...)
-	if err != nil {
-		return 0, err
-	}
-
-	lastID, err := res.LastInsertId()
-	if err != nil {
-		return 0, err
-	}
-
-	return lastID, nil
 }
 
 // AllField - Restitusice tutti i campi per la select *
@@ -126,7 +141,6 @@ func All(ntm NewTableModel) ([]TableRecordInterface, error) {
 		}
 
 		result = append(result, ti)
-
 	}
 
 	return result, nil
@@ -143,7 +157,7 @@ func Delete(ti TableRecordInterface) (int64, error) {
 	}
 	defer stmt.Close()
 
-	res, err := stmt.Exec(ti.GetPrimaryKeyValue())
+	res, err := stmt.Exec(GetPrimaryKeyValue(ti))
 	if err != nil {
 		return 0, err
 	}
@@ -191,22 +205,12 @@ func ExecQuery(ti TableRecordInterface, ntm NewTableModel) ([]TableRecordInterfa
 	return tiList, nil
 }
 
-// LoadByID - Carica l'istanza passata con i valori della sua tabella ricercando per chiave primaria
-func LoadByID(ti TableRecordInterface, id int64) error {
+// FetchSingleRow -
+func FetchSingleRow(tri TableRecordInterface, query string, params ...interface{}) error {
 
-	db := getTableRecordConnection(ti)
+	db := getTableRecordConnection(tri)
 
-	query := "SELECT " + AllField(ti) + " FROM " + ti.GetTableName() + " WHERE " + ti.GetPrimaryKeyName() + " = ?"
-
-	params := []interface{}{interface{}(id)}
-
-	stmt, err := db.Preparex(query)
-	if err != nil {
-		return err
-	}
-	defer stmt.Close()
-
-	rows, err := stmt.Queryx(params...)
+	rows, err := db.Queryx(query, params...)
 	if err != nil {
 		return err
 	}
@@ -214,12 +218,31 @@ func LoadByID(ti TableRecordInterface, id int64) error {
 
 	if rows.Next() {
 
-		if err := LoadFromRow(rows, ti); err != nil {
+		if err := LoadFromRow(rows, tri); err != nil {
 			return err
 		}
 	}
 
 	return nil
+}
+
+// GetPrimaryKeyValue - Returs the primary key value
+func GetPrimaryKeyValue(ti TableRecordInterface) interface{} {
+	value, err := refl.GetStructFieldValueByTagName(ti, "db", ti.GetPrimaryKeyName())
+	if err != nil {
+		panic(err)
+	}
+	return value
+}
+
+// LoadByID - Carica l'istanza passata con i valori della sua tabella ricercando per chiave primaria
+func LoadByID(ti TableRecordInterface, id interface{}) error {
+
+	query := "SELECT " + AllField(ti) + " FROM " + ti.GetTableName() + " WHERE " + ti.GetPrimaryKeyName() + " = ?"
+
+	params := []interface{}{interface{}(id)}
+
+	return FetchSingleRow(ti, query, params...)
 }
 
 // LoadFromRow - Si occupa di caricare la struct dal result - row della query
@@ -229,7 +252,11 @@ func LoadFromRow(r *sqlx.Rows, tri TableRecordInterface) error {
 		return err
 	}
 
-	tri.GetTableRecord().SetIsNew(false).SetSQLConnection(tri.GetTableRecord().db)
+	tr := tri.GetTableRecord()
+
+	tr.SetIsNew(false)
+	tr.SetSQLConnection(tri.GetTableRecord().db)
+	tr.isLoaded = true
 
 	return nil
 }
@@ -276,9 +303,19 @@ func (t *TableRecord) GetDB() db.SQLConnector {
 	return t.db
 }
 
+// IsLoaded - Restituisce se TableRecord è stato caricato correttamente
+func (t *TableRecord) IsLoaded() bool {
+	return t.isLoaded
+}
+
 // IsNew - Restituisce se il record è nuovo
 func (t *TableRecord) IsNew() bool {
 	return t.isNew
+}
+
+// DriverName - Returns the sql driver name for TableRecord's instance
+func (t *TableRecord) DriverName() string {
+	return t.db.DriverName()
 }
 
 // PrepareStmt - Restituisce lo stmt della query pronta da essere eseguita
