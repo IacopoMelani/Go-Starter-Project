@@ -8,7 +8,7 @@ import (
 
 const dbTagName = "db"
 
-// getFieldsNameNoPrimary - Restituisce tutti i campi del model ad eccezione della chiave primaria
+// getFieldsNameNoPrimary - Returns all fields name except the primary key
 func getFieldsNameNoPrimary(ti TableRecordInterface) []string {
 
 	fName, _ := GetFieldMapper(ti)
@@ -22,7 +22,7 @@ func getFieldsNameNoPrimary(ti TableRecordInterface) []string {
 	return fName
 }
 
-// getFieldsValueNoPrimary - Restituisce tutti i campi di mappatura ad esclusione della chiave primaria
+// getFieldsValueNoPrimary -  Return all struct fields with tags "db" execpt primary key struct field
 func getFieldsValueNoPrimary(ti TableRecordInterface) []interface{} {
 
 	fName, fValue := GetFieldMapper(ti)
@@ -36,7 +36,7 @@ func getFieldsValueNoPrimary(ti TableRecordInterface) []interface{} {
 	return fValue
 }
 
-// GetFieldMapper - Si occupa di recuperare in reflection i nomi dei tag "db" e l'indirizzo del valore del campo
+// GetFieldMapper - Returns a slice of table name fields and a slice of struct field ptr
 func GetFieldMapper(ti TableRecordInterface) (fieldsName []string, fieldsValue []interface{}) {
 	fieldsName, fieldsValue = refl.GetStructFieldsMapperByTagName(ti, dbTagName)
 	return
