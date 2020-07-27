@@ -7,8 +7,6 @@ import (
 
 	"github.com/subosito/gotenv"
 
-	"github.com/jmoiron/sqlx"
-
 	"github.com/IacopoMelani/Go-Starter-Project/pkg/manager/db"
 )
 
@@ -19,21 +17,21 @@ func TestTransactionx(t *testing.T) {
 	}
 	db.InitConnection(os.Getenv("SQL_DRIVER"), os.Getenv("STRING_CONNECTION"))
 
-	err := WithTransactionx(db.GetConnection().(*sqlx.DB), func(tx db.SQLConnector) error {
+	err := WithTransactionx(db.GetSQLXFromSQLConnector(db.GetConnection()), func(tx db.SQLConnector) error {
 		return errors.New("Rollback")
 	})
 	if err == nil {
 		t.Error("err dovrebbe essere valorizzato")
 	}
 
-	err = WithTransactionx(db.GetConnection().(*sqlx.DB), func(tx db.SQLConnector) error {
+	err = WithTransactionx(db.GetSQLXFromSQLConnector(db.GetConnection()), func(tx db.SQLConnector) error {
 		return nil
 	})
 	if err != nil {
 		t.Fatal(err.Error())
 	}
 
-	err = WithTransactionx(db.GetConnection().(*sqlx.DB), func(tx db.SQLConnector) error {
+	err = WithTransactionx(db.GetSQLXFromSQLConnector(db.GetConnection()), func(tx db.SQLConnector) error {
 		panic("panic")
 	})
 	if err != nil {

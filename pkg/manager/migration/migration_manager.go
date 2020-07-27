@@ -3,8 +3,6 @@ package migration
 import (
 	"sync"
 
-	"github.com/jmoiron/sqlx"
-
 	"github.com/IacopoMelani/Go-Starter-Project/pkg/manager/db"
 	"github.com/IacopoMelani/Go-Starter-Project/pkg/manager/db/transactions"
 	"github.com/IacopoMelani/Go-Starter-Project/pkg/models/table_record/table"
@@ -57,7 +55,6 @@ func createMigrationsTable(conn db.SQLConnector) error {
 		PRIMARY KEY (record_id)
 		)`
 	}
-
 
 	_, err := conn.Exec(query)
 
@@ -178,7 +175,7 @@ func (m *Migrator) execUpMigrations(db db.SQLConnector) error {
 // DoDownMigrations - Si occupa di fare il rollback delle tabelle definite in migrations_list
 func (m *Migrator) DoDownMigrations() error {
 
-	return transactions.WithTransactionx(db.GetConnection().(*sqlx.DB), func(tx db.SQLConnector) error {
+	return transactions.WithTransactionx(db.GetSQLXFromSQLConnector(db.GetConnection()), func(tx db.SQLConnector) error {
 
 		exist := db.TableExists(table.MigrationsTableName)
 
@@ -197,7 +194,7 @@ func (m *Migrator) DoDownMigrations() error {
 // DoUpMigrations - Si occupa di migrare le tabelle definite in migrations_list
 func (m *Migrator) DoUpMigrations() error {
 
-	return transactions.WithTransactionx(db.GetConnection().(*sqlx.DB), func(tx db.SQLConnector) error {
+	return transactions.WithTransactionx(db.GetSQLXFromSQLConnector(db.GetConnection()), func(tx db.SQLConnector) error {
 
 		exist := db.TableExists(table.MigrationsTableName)
 

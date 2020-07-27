@@ -7,8 +7,6 @@ import (
 
 	record "github.com/IacopoMelani/Go-Starter-Project/pkg/models/table_record"
 
-	"github.com/jmoiron/sqlx"
-
 	"github.com/IacopoMelani/Go-Starter-Project/pkg/manager/db"
 	"github.com/IacopoMelani/Go-Starter-Project/pkg/manager/db/transactions"
 
@@ -22,7 +20,7 @@ func TestMigration(t *testing.T) {
 	}
 	db.InitConnection(os.Getenv("SQL_DRIVER"), os.Getenv("STRING_CONNECTION"))
 
-	err := transactions.WithTransactionx(db.GetConnection().(*sqlx.DB), func(tx db.SQLConnector) error {
+	err := transactions.WithTransactionx(db.GetSQLXFromSQLConnector(db.GetConnection()), func(tx db.SQLConnector) error {
 
 		mName := "test_migration"
 
