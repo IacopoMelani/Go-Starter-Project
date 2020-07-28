@@ -23,14 +23,13 @@ func createTableTest() error {
 			record_id INT AUTO_INCREMENT,
 			PRIMARY KEY (record_id)
 			)`
-			
+
 	case DriverSQLServer:
 		query = `IF NOT EXISTS (SELECT * FROM sysobjects WHERE name='testTable' and xtype='U')
 		CREATE TABLE testTable (
 			record_id BIGINT IDENTITY(1, 1) NOT NULL PRIMARY KEY
 		)`
 	}
-
 
 	_, err := conn.Exec(query)
 
@@ -53,7 +52,7 @@ func TestGetConnection(t *testing.T) {
 
 	loadEnv()
 
-	GetConnection()
+	GetSQLXFromSQLConnector(GetConnection())
 
 	err := db.Ping()
 

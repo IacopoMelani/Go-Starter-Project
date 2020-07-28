@@ -48,6 +48,11 @@ func GetConnection() SQLConnector {
 	return db
 }
 
+// GetSQLXFromSQLConnector - Returns a ptr of sqlx.DB from a SQLConnector
+func GetSQLXFromSQLConnector(db SQLConnector) *sqlx.DB {
+	return db.(*sqlx.DB)
+}
+
 // InitConnection - Initialize the connection with driver and connection string
 func InitConnection(drvName string, connection string) {
 

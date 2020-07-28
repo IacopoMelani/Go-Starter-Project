@@ -14,13 +14,13 @@ var (
 
 func TestLogger(t *testing.T) {
 
-	if _, err := os.Stat("./" + testLogDirName); os.IsNotExist(err) {
-		err = os.Mkdir("./"+testLogDirName, os.ModePerm)
+	if _, err := os.Stat(testLogDirName); os.IsNotExist(err) {
+		err = os.Mkdir(testLogDirName, os.ModePerm)
 		if err != nil {
 			t.Fatal("Errore durante la creazione della cartella di test")
 		}
 	}
-	file, err := os.OpenFile("./"+testLogDirName+"/"+testLogFileName, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	file, err := os.OpenFile(testLogDirName+"/"+testLogFileName, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 	if err != nil {
 		panic(err)
 	}
