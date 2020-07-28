@@ -54,7 +54,7 @@ func migrateCommand() {
 	migrateStatusCommand()
 }
 
-// migrateStatusCommand - Retrieve the migrations status and display it
+// migrateStatusCommand - Retrieves the migrations status and display it
 func migrateStatusCommand() {
 
 	migrations, err := table.LoadAllMigrations(dbm.GetConnection())
