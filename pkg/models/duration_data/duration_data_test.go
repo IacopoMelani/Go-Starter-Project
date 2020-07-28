@@ -11,15 +11,15 @@ import (
 	"github.com/subosito/gotenv"
 )
 
-// DurationDataTest - Definisce una struct che implementa RemoteData
+// DurationDataTest - Example
 type DurationDataTest struct{}
 
 var ddt *DurationData
-var onceUser sync.Once
+var onceDD sync.Once
 
-// GeDurationDataTest - Restituisce l'istanza di DurantionData relativo agli utenti
+// GeDurationDataTest - Example
 func GeDurationDataTest() *DurationData {
-	onceUser.Do(func() {
+	onceDD.Do(func() {
 		ddt = new(DurationData)
 		ddt.SetDurationDataInterface(DurationDataTest{})
 		ddt.SetTimeToRefresh(1)
@@ -28,25 +28,25 @@ func GeDurationDataTest() *DurationData {
 	return ddt
 }
 
-// EncodeQueryString - Si occupa di aggiungere i paratri dell'header alla request
+// EncodeQueryString - Example
 func (u DurationDataTest) EncodeQueryString(req *http.Request) {}
 
-// GetBody - Restituisce il corpo della request
+// GetBody - Example
 func (u DurationDataTest) GetBody() io.Reader {
 	return nil
 }
 
-// GetMethod - Restituisce il metodo della richiesta remota
+// GetMethod - Example
 func (u DurationDataTest) GetMethod() string {
 	return "GET"
 }
 
-// GetURL - Restituisce la url della richiesta remota
+// GetURL - Example
 func (u DurationDataTest) GetURL() string {
 	return "https://randomuser.me/api/"
 }
 
-// HandlerData - Si occupa di eseguire la funzione di handler per ricevere i dati
+// HandlerData - Example
 func (u DurationDataTest) HandlerData() (interface{}, error) {
 	content, err := request.GetRemoteData(u)
 	return content, err

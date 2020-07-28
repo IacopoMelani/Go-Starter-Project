@@ -13,15 +13,15 @@ import (
 	"github.com/subosito/gotenv"
 )
 
-// TestTable - Definisce la strut per la generazione della tabella test
+// TestTable - Example
 type TestTable struct{}
 
-// GetMigrationName - Restituisce il nome della migrazione
+// GetMigrationName - Example
 func (t TestTable) GetMigrationName() string {
 	return "create_test_table"
 }
 
-// Down - Definisce la query di migrazione down
+// Down - Example
 func (t TestTable) Down() string {
 
 	var query string
@@ -39,7 +39,7 @@ func (t TestTable) Down() string {
 	return query
 }
 
-// Up - Definisce la query di migrazione up
+// Up - Example
 func (t TestTable) Up() string {
 
 	var query string

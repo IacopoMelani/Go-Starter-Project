@@ -6,7 +6,7 @@ import (
 	"github.com/IacopoMelani/Go-Starter-Project/pkg/manager/db"
 )
 
-// genDeleteQuery - Si occupa di generare la query per la cancellazione del record
+// genDeleteQuery - Returns the delete query
 func genDeleteQuery(ti TableRecordInterface) string {
 
 	query := "DELETE FROM " + ti.GetTableName() + " WHERE " + ti.GetPrimaryKeyName() + " = ?"
@@ -14,7 +14,7 @@ func genDeleteQuery(ti TableRecordInterface) string {
 	return query
 }
 
-// genSaveQuery - Si occupa di generare la query di salvataggio
+// genSaveQuery - Returns the insert query
 func genSaveQuery(ti TableRecordInterface) string {
 
 	fName := getFieldsNameNoPrimary(ti)
@@ -33,7 +33,7 @@ func genSaveQuery(ti TableRecordInterface) string {
 	return query
 }
 
-// genUpdateQuery - Si occupa di generare la query di aggiornamento
+// genUpdateQuery - Returns the update query
 func genUpdateQuery(ti TableRecordInterface) string {
 
 	var query string
@@ -50,7 +50,7 @@ func genUpdateQuery(ti TableRecordInterface) string {
 	return query
 }
 
-// getSaveFieldParams -  Si occupa di generare uno slice di "?" tanti quanti sono i parametri della query di inserimento
+// getSaveFieldParams - Returns a slice of "?" as many as the parameters of the insert query
 func getSaveFieldParams(ti TableRecordInterface) []string {
 
 	fName := getFieldsNameNoPrimary(ti)
@@ -64,7 +64,7 @@ func getSaveFieldParams(ti TableRecordInterface) []string {
 	return s
 }
 
-// getUpdateFiledParams - Si occupa di generare uno slice di "?" tanti quanti sono i parametri della query di aggiornamento
+// getUpdateFiledParams - Returns a slice of "?" as many as the parameters of the update query
 func getUpdateFieldParams(ti TableRecordInterface) []string {
 
 	fName := getFieldsNameNoPrimary(ti)

@@ -23,7 +23,7 @@ type Builder struct {
 	Where        string
 }
 
-// orderBy - Costruisce un espressione di order by specificando oltre al nome del campo anche la direzione
+// orderBy - Build "order by" expression specifying the direction in addition to the field name
 func (b *Builder) orderBy(direction string, fields ...string) *Builder {
 
 	if !b.isOrderBySet {
@@ -38,7 +38,7 @@ func (b *Builder) orderBy(direction string, fields ...string) *Builder {
 	return b
 }
 
-// BuildQuery - Si occupa di costrutire la query
+// BuildQuery - It takes care of building the query
 func (b *Builder) BuildQuery(tableName string) string {
 
 	var querySQL string
@@ -66,6 +66,7 @@ func (b *Builder) BuildQuery(tableName string) string {
 	return querySQL
 }
 
+// GroupByField - Builds "group by" expression
 // GroupByField - Costruisce una condizione di group by
 func (b *Builder) GroupByField(fields ...string) *Builder {
 
@@ -82,17 +83,17 @@ func (b *Builder) GroupByField(fields ...string) *Builder {
 	return b
 }
 
-// OrderByAsc - Si occupa di impostare un'espressione di order by Asc
+// OrderByAsc - Build "order by" expression ASC
 func (b *Builder) OrderByAsc(fields ...string) *Builder {
 	return b.orderBy("Asc", fields...)
 }
 
-// OrderByDesc - Si occupa di impostare un'espressione di order by Desc
+// OrderByDesc - Build "order by" expression DESC
 func (b *Builder) OrderByDesc(fields ...string) *Builder {
 	return b.orderBy("DESC", fields...)
 }
 
-// ResetStmt - Si occupa di reimpostare tutti i campi del Builder al valore iniziale
+// ResetStmt - Resets stmt fields with initial values
 func (b *Builder) ResetStmt() {
 
 	b.isGroupBySet = false
@@ -109,7 +110,7 @@ func (b *Builder) ResetStmt() {
 
 }
 
-// SelectField - Costrutisce gli n campi passati in select
+// SelectField - Builds the n-fields passed in "select" expression
 func (b *Builder) SelectField(fields ...string) *Builder {
 
 	if !b.isSelectSet {
@@ -130,7 +131,7 @@ func (b *Builder) SelectField(fields ...string) *Builder {
 	return b
 }
 
-// WhereEqual - Costruisce una condizione di where con operatore "="
+// WhereEqual - Builds "where" expression with "=" operator
 func (b *Builder) WhereEqual(field string, value interface{}) *Builder {
 
 	if b.isWhereSet {
@@ -147,7 +148,7 @@ func (b *Builder) WhereEqual(field string, value interface{}) *Builder {
 	return b
 }
 
-// WhereNull - Construisce una condizione di where sulla presenza del valore, se isNull è TRUE effettua il controllo "IS NULL" altrimenti "IS NOT NULL"
+// WhereNull - Builds "where" expression on nullable field, if isNull is TRUE checks for "IS NULL" otherwise "IS NOT NULL"
 func (b *Builder) WhereNull(field string, isNull bool) *Builder {
 
 	if b.isWhereSet {
@@ -178,7 +179,7 @@ func (b *Builder) WhereNull(field string, isNull bool) *Builder {
 	return b
 }
 
-// WhereOperator - Construisce una condizione di where con un operatore specifico, al momento non viene fatto nessun controllo sull'operatore, è compito dell'utilizzatore accertarsi della validità dell'operatore passato
+// WhereOperator - Builds "where" expression with passed operator, no checks if is valid operator
 func (b *Builder) WhereOperator(field string, operator string, value interface{}) *Builder {
 
 	if b.isWhereSet {

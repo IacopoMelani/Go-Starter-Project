@@ -9,28 +9,28 @@ import (
 	"github.com/IacopoMelani/Go-Starter-Project/pkg/helpers/request"
 )
 
-// RemoteDataTest - Definisce una struct che implementa RemoteData
+// RemoteDataTest - Example
 type RemoteDataTest struct{}
 
-// EncodeQueryString - Si occupa di aggiungere i paratri dell'header alla request
+// EncodeQueryString - Example
 func (u RemoteDataTest) EncodeQueryString(req *http.Request) {}
 
-// GetBody - Restituisce il corpo della request
+// GetBody - Example
 func (u RemoteDataTest) GetBody() io.Reader {
 	return nil
 }
 
-// GetMethod - Restituisce il metodo della richiesta remota
+// GetMethod - Example
 func (u RemoteDataTest) GetMethod() string {
 	return "GET"
 }
 
-// GetURL - Restituisce la url della richiesta remota
+// GetURL - Example
 func (u RemoteDataTest) GetURL() string {
 	return "https://randomuser.me/api/"
 }
 
-// HandlerData - Si occupa di eseguire la funzione di handler per ricevere i dati
+// HandlerData - Example
 func (u RemoteDataTest) HandlerData() (interface{}, error) {
 	content, err := request.GetRemoteData(u)
 	return content, err

@@ -6,7 +6,7 @@ import (
 	"github.com/IacopoMelani/Go-Starter-Project/pkg/manager/db"
 )
 
-// executeSaveUpdateQuery - Si occupa di eseguire fisicamente la query, in caso di successo restituisce l'Id appena inserito
+// executeSaveUpdateQuery - Execs the insert/update query and update the current TableRecordInterface passed
 func executeSaveUpdateQuery(ti TableRecordInterface, query string, params []interface{}) error {
 
 	conn := getTableRecordConnection(ti)
@@ -47,7 +47,7 @@ func executeSaveUpdateQuery(ti TableRecordInterface, query string, params []inte
 	return nil
 }
 
-// save - Si occupa di inserire un nuovo record nella tabella
+// save - Saves the model into the database
 func save(ti TableRecordInterface) error {
 
 	query := genSaveQuery(ti)
@@ -60,7 +60,7 @@ func save(ti TableRecordInterface) error {
 	return nil
 }
 
-// update - Si occupa di aggiornare il record nel database
+// update - Updates the model into the database
 func update(ti TableRecordInterface) error {
 
 	query := genUpdateQuery(ti)
@@ -77,7 +77,7 @@ func update(ti TableRecordInterface) error {
 	return nil
 }
 
-// All - Restituisce tutti i risultati per il costruttore del table record passato
+// All - Returns all models from database, requires a func constructor that return a TableRecordInterface
 func All(ntm NewTableModel) ([]TableRecordInterface, error) {
 
 	var result []TableRecordInterface
@@ -108,7 +108,7 @@ func All(ntm NewTableModel) ([]TableRecordInterface, error) {
 	return result, nil
 }
 
-// Delete - Si occupa di cancellare un record sul database
+// Delete - Deletes the model from database
 func Delete(ti TableRecordInterface) (int64, error) {
 
 	db := getTableRecordConnection(ti)
@@ -132,7 +132,7 @@ func Delete(ti TableRecordInterface) (int64, error) {
 	return rows, nil
 }
 
-// ExecQuery - Esegue la query costruita con QueryBuilder
+// ExecQuery - Execs the query built with QueryBuilder
 func ExecQuery(ti TableRecordInterface, ntm NewTableModel) ([]TableRecordInterface, error) {
 
 	t := ti.GetTableRecord()
@@ -167,7 +167,7 @@ func ExecQuery(ti TableRecordInterface, ntm NewTableModel) ([]TableRecordInterfa
 	return tiList, nil
 }
 
-// FetchSingleRow -
+// FetchSingleRow - Execs the query and retrieves only the first result
 func FetchSingleRow(tri TableRecordInterface, query string, params ...interface{}) error {
 
 	db := getTableRecordConnection(tri)
@@ -188,7 +188,7 @@ func FetchSingleRow(tri TableRecordInterface, query string, params ...interface{
 	return nil
 }
 
-// LoadByID - Carica l'istanza passata con i valori della sua tabella ricercando per chiave primaria
+// LoadByID -  Loads the model passed by primary key value
 func LoadByID(ti TableRecordInterface, id interface{}) error {
 
 	query := "SELECT " + AllField(ti) + " FROM " + ti.GetTableName() + " WHERE " + ti.GetPrimaryKeyName() + " = ?"
@@ -198,7 +198,7 @@ func LoadByID(ti TableRecordInterface, id interface{}) error {
 	return FetchSingleRow(ti, query, params...)
 }
 
-// Save - Si occupa di eseguire il salvataggio della TableRecord eseguendo un inserimento se TableRecord::isNew risulta false, altrimenti ne aggiorna il valore
+// Save -  Saves the model to the database, if the model is "new" inserts a new one otherwise update the record
 func Save(ti TableRecordInterface) error {
 
 	t := ti.GetTableRecord()

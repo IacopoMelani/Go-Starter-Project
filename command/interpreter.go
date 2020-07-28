@@ -29,7 +29,7 @@ const (
 	showConfig    = "go-config"
 )
 
-// getDefaultMessage - Restituisce il messaggio default
+// getDefaultMessage - Return default message
 func getDefaultMessage() string {
 	return `
 commands:
@@ -41,7 +41,7 @@ commands:
 	`
 }
 
-// migrateCommand - Si occupa di eseguire la migrazione del database
+// migrateCommand - Performs database up migration
 func migrateCommand() {
 
 	db.InitMigrationsList()
@@ -54,7 +54,7 @@ func migrateCommand() {
 	migrateStatusCommand()
 }
 
-// migrateStatusCommand - Si occupa di recuperare lo stato delle migrazioni
+// migrateStatusCommand - Retrieves the migrations status and display it
 func migrateStatusCommand() {
 
 	migrations, err := table.LoadAllMigrations(dbm.GetConnection())
@@ -76,7 +76,7 @@ func migrateStatusCommand() {
 	table.Render()
 }
 
-// rollbackCommand - Si occupa di richiamare il rollback del database
+// rollbackCommand - Performs database down migrations
 func rollbackCommand() {
 
 	db.InitMigrationsList()
@@ -89,7 +89,7 @@ func rollbackCommand() {
 	migrateStatusCommand()
 }
 
-// InterpretingHumanWord - Si occupa di interpretare i comandi
+// InterpretingHumanWord - It takes care of interpreting the commands
 func InterpretingHumanWord() {
 
 	start := flag.String(fire, "", getDefaultMessage())

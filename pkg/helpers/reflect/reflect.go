@@ -27,9 +27,9 @@ func GetStructFieldValueByTagName(c interface{}, tagType string, tagName string)
 	return nil, errors.New("Field value not found for " + tagName)
 }
 
-// GetStructFieldsMapperByTagName - Restituisce i campi di mappatura di una struct, i due slice rappresentato:
-// il primo uno slice con i nomi dei tag
-// il secondo un ptr al valore del campo
+// GetStructFieldsMapperByTagName - Returns two slices filtered by a tag name,
+// the first is a slice of strings with struct tags value,
+// the seconds is a slice of ptr to struct fields value
 func GetStructFieldsMapperByTagName(c interface{}, tagName string) (fieldsName []string, fieldsValue []interface{}) {
 
 	vPtr := reflect.ValueOf(c)
@@ -50,9 +50,9 @@ func GetStructFieldsMapperByTagName(c interface{}, tagName string) (fieldsName [
 	return
 }
 
-// GetStructFieldsNameAndTagByTagName - Restituisce u campi di mappatura di una struct, i due slice rappresentano:
-// il primo uno slice con i nomi dei tag
-// il secondo uno slice con i nomi dei campi della struct
+// GetStructFieldsNameAndTagByTagName - Returns two slices filtered by a tag name,
+// the first is a slice of strings with struct tags value,
+// the seconds is a slice of string with struct fields name
 func GetStructFieldsNameAndTagByTagName(c interface{}, tagName string) (tagFields []string, structFields []string) {
 
 	s := reflect.ValueOf(c)

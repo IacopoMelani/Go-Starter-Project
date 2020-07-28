@@ -6,14 +6,14 @@ import (
 	"github.com/IacopoMelani/Go-Starter-Project/pkg/helpers/request"
 )
 
-// requestContainer - Struct che defisce una singola richiesta, definisce l'istanza di RemoteData da cui prelevare i dati e un channel su cui scrivere il risultato
+// requestContainer - Defines the single request struct, uses RemoteData to get data and a channel to write response or error if occured
 type requestContainer struct {
 	rd     request.RemoteData
 	result chan interface{}
 	err    chan error
 }
 
-// getData - Si occupa di contattare la risorsa remota tramite RemoteData e in caso di successo, scrivere il risultato
+// getData - Tries to get data from the remote resource
 func (r requestContainer) getData() {
 
 	content, err := request.GetRemoteData(r.rd)
@@ -26,9 +26,8 @@ func (r requestContainer) getData() {
 	close(r.err)
 }
 
-// RequestManager - Struct dedicata alla gestione di una coda di richieste,
-// il channel next serve per far capire al worker che è pronto per eseguire una nuova richiesta,
-// il channeò stopSignal viene usato per interrompere il worker, il suo valore determina se le restanti richieste in coda verrano cancellate o meno
+// RequestManager - Struct dedicated to managing a request queue,
+// channel "next" is used to make the worker understand that he is ready to make a new request,
 type RequestManager struct {
 	requestQueue []requestContainer
 	running      bool
@@ -41,7 +40,7 @@ var (
 	onceRequestManager sync.Once
 )
 
-// newRequestContainer - Restituisce un'istanza di requestContainer prendendo un'istanza che implementa RemoteData
+// newRequestContainer - Returns an instance of requestContainer, accepts type that implements RemoteData
 func newRequestContainer(r request.RemoteData) requestContainer {
 
 	rc := *new(requestContainer)
@@ -52,7 +51,7 @@ func newRequestContainer(r request.RemoteData) requestContainer {
 	return rc
 }
 
-// GetRequestManager - Restituisce l'istanza di RequestManager
+// GetRequestManager - Returns the once instance of RequestManager
 func GetRequestManager() *RequestManager {
 
 	onceRequestManager.Do(func() {
@@ -61,7 +60,7 @@ func GetRequestManager() *RequestManager {
 	return requestManager
 }
 
-// popFromQueue - Si occupa di rimuovere il primo elemento dalla coda
+// popFromQueue - Removes the first element from the queue
 func (rm *RequestManager) popFromQueue() {
 
 	rm.requestQueue = rm.requestQueue[1:]
@@ -70,7 +69,7 @@ func (rm *RequestManager) popFromQueue() {
 	}
 }
 
-// work - Si occupa prelevare le richieste eseguirle e successivamente eliminarle dalla coda
+// work - It takes care of receiving requests and deleting the queue, loops Through "next" channel
 func (rm *RequestManager) work() {
 
 	rm.next = make(chan bool, 1)
@@ -87,7 +86,7 @@ func (rm *RequestManager) work() {
 	}()
 }
 
-// AddRequest - Si occupa di aggiungere una richiesta alla coda
+// AddRequest - Appends a request to the queue, if the worker is not running starts it and return the two channels of requestContainer to read the result or error
 func (rm *RequestManager) AddRequest(r request.RemoteData) (<-chan interface{}, <-chan error) {
 
 	rc := newRequestContainer(r)
@@ -108,7 +107,7 @@ func (rm *RequestManager) AddRequest(r request.RemoteData) (<-chan interface{}, 
 	return rc.result, rc.err
 }
 
-// StartService - Si occupa di avviare il servizio di code
+// StartService - Starts the worker
 func (rm *RequestManager) StartService() {
 
 	if !rm.running {

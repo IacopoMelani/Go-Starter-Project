@@ -13,7 +13,7 @@ import (
 	"sync"
 )
 
-// SQLConnector - Interfaccia per gestire operazioni sotto transaction
+// SQLConnector - Generalizes a sql connection
 type SQLConnector interface {
 	DriverName() string
 	Exec(string, ...interface{}) (sql.Result, error)
@@ -42,13 +42,18 @@ func DriverName() string {
 	return GetConnection().DriverName()
 }
 
-// GetConnection - restituisce un'istanza di connessione al database
+// GetConnection - Returns an instance of the db connection
 func GetConnection() SQLConnector {
 	<-ok
 	return db
 }
 
-// InitConnection - Inizializza la connessione impostando il driver e la stringa di connessione
+// GetSQLXFromSQLConnector - Returns a ptr of sqlx.DB from a SQLConnector
+func GetSQLXFromSQLConnector(db SQLConnector) *sqlx.DB {
+	return db.(*sqlx.DB)
+}
+
+// InitConnection - Initialize the connection with driver and connection string
 func InitConnection(drvName string, connection string) {
 
 	once.Do(func() {
@@ -68,7 +73,7 @@ func InitConnection(drvName string, connection string) {
 	})
 }
 
-// Query - Esegue fisicamente la query e restituisce l'istanza di *Rows
+// Query - Executes the query and return a *Rows instance
 func Query(query string, args ...interface{}) (*sqlx.Rows, error) {
 
 	db := GetConnection()
@@ -80,7 +85,7 @@ func Query(query string, args ...interface{}) (*sqlx.Rows, error) {
 	return rows, err
 }
 
-// QueryOrPanic - Esegue fisicamente la query e restituisce l'istanza di *Rows, panic in caso di errore
+// QueryOrPanic - Executes the query and return a *Rows instance, panics if error occurs
 func QueryOrPanic(query string, args ...interface{}) *sqlx.Rows {
 
 	rows, err := Query(query, args...)
@@ -91,7 +96,7 @@ func QueryOrPanic(query string, args ...interface{}) *sqlx.Rows {
 	return rows
 }
 
-// TableExists - Restituisce true se la tabella esiste altrimenti false
+// TableExists - Returns true if table exists otherwise false
 func TableExists(tableName string) bool {
 
 	var query string

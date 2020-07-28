@@ -6,7 +6,6 @@ import (
 
 	"github.com/IacopoMelani/Go-Starter-Project/pkg/manager/db"
 	"github.com/IacopoMelani/Go-Starter-Project/pkg/manager/db/transactions"
-	"github.com/jmoiron/sqlx"
 )
 
 // Pipeline - Defines generics interface to implemtns a pipeline
@@ -30,7 +29,7 @@ func RunPipelines(conn db.SQLConnector, pipelines ...Pipeline) error {
 
 // RunpipelinesWithTransactionx - Takes a slice of Pipeline and execs all them under transaction
 func RunpipelinesWithTransactionx(conn db.SQLConnector, pipelines ...Pipeline) error {
-	return transactions.WithTransactionx(conn.(*sqlx.DB), func(tx db.SQLConnector) error {
+	return transactions.WithTransactionx(db.GetSQLXFromSQLConnector(conn), func(tx db.SQLConnector) error {
 		return RunPipelines(tx, pipelines...)
 	})
 }
@@ -68,7 +67,7 @@ func (pm *PipelineManager) RunPipelines() error {
 
 // RunPipelinesWithTransactionx - Runs all added Pipeline interfaces under transaction
 func (pm *PipelineManager) RunPipelinesWithTransactionx() error {
-	return transactions.WithTransactionx(pm.conn.(*sqlx.DB), func(tx db.SQLConnector) error {
+	return transactions.WithTransactionx(db.GetSQLXFromSQLConnector(pm.conn), func(tx db.SQLConnector) error {
 		return pm.RunPipelines()
 	})
 }
@@ -97,7 +96,7 @@ func RunPipelineStmts(conn db.SQLConnector, stmts ...*PipelineStmt) error {
 
 // RunPipelineStmtsWithTransactionx - Runs a slice of *PipelineStmt under transaction
 func RunPipelineStmtsWithTransactionx(conn db.SQLConnector, stmts ...*PipelineStmt) error {
-	return transactions.WithTransactionx(conn.(*sqlx.DB), func(tx db.SQLConnector) error {
+	return transactions.WithTransactionx(db.GetSQLXFromSQLConnector(conn), func(tx db.SQLConnector) error {
 		return RunPipelineStmts(tx, stmts...)
 	})
 }

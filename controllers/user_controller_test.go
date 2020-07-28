@@ -9,8 +9,6 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/jmoiron/sqlx"
-
 	"github.com/IacopoMelani/Go-Starter-Project/pkg/manager/db"
 
 	"github.com/stretchr/testify/assert"
@@ -49,7 +47,7 @@ func TestGetAllUser(t *testing.T) {
 		assert.Equal(t, http.StatusOK, rec.Code)
 	}
 
-	db := db.GetConnection().(*sqlx.DB)
+	db := db.GetSQLXFromSQLConnector(db.GetConnection())
 
 	db.Close()
 

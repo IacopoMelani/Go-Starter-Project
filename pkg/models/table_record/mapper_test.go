@@ -8,7 +8,7 @@ import (
 	"github.com/subosito/gotenv"
 )
 
-// TestMapperTableRecord . Struct per test dei metodi di mapper
+// TestMapperTableRecord - Example
 type TestMapperTableRecord struct {
 	tr       *TableRecord
 	RecordID int64   `json:"id" db:"record_id"`
@@ -17,7 +17,7 @@ type TestMapperTableRecord struct {
 	Gender   *string `json:"gender" db:"gender"`
 }
 
-// NewTestMapperTableRecord - Restitusice una nuova istaza di TestMapperTableRecord
+// NewTestMapperTableRecord - Example
 func NewTestMapperTableRecord(db db.SQLConnector) *TestMapperTableRecord {
 
 	ts := new(TestMapperTableRecord)
@@ -27,17 +27,17 @@ func NewTestMapperTableRecord(db db.SQLConnector) *TestMapperTableRecord {
 	return ts
 }
 
-// GetTableRecord - Restituisce l'istanza di TableRecord
+// GetTableRecord - Example
 func (t TestMapperTableRecord) GetTableRecord() *TableRecord {
 	return t.tr
 }
 
-// GetPrimaryKeyName - Restituisce il nome della chiave primaria
+// GetPrimaryKeyName - Example
 func (t TestMapperTableRecord) GetPrimaryKeyName() string {
 	return "wrong_id"
 }
 
-// GetTableName - Restituisce il nome della tabella
+// GetTableName - Example
 func (t TestMapperTableRecord) GetTableName() string {
 	return "users"
 }

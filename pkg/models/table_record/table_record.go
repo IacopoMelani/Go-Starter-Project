@@ -10,18 +10,18 @@ import (
 	"github.com/jmoiron/sqlx"
 )
 
-// NewTableModel - Tipo per definire una funzione che restituisce una TableRecordInterface
+// NewTableModel -  Defines a func that return a TableRecordInterface
 type NewTableModel func() TableRecordInterface
 
-// TableRecordInterface - interfaccia che definisce una generica struct che permette l'interazione con TableRecord
+// TableRecordInterface - Defines a generics struct to interact with database
 type TableRecordInterface interface {
 	GetTableRecord() *TableRecord
 	GetPrimaryKeyName() string
 	GetTableName() string
 }
 
-// TableRecord - Struct per l'implementazione di TableRecordInterface
-// implementa QueryBuilderInterface
+// TableRecord - Common struct to access all utility func with TableRecordInterface
+// implements QueryBuilderInterface
 type TableRecord struct {
 	builder.Builder
 	isLoaded   bool
@@ -30,12 +30,12 @@ type TableRecord struct {
 	db         db.SQLConnector
 }
 
-// getTableRecordConnection - Restituisce la connessione di un TableRecordInterface
+// getTableRecordConnection - Returns the connection of TableRecordInterface
 func getTableRecordConnection(ti TableRecordInterface) db.SQLConnector {
 	return ti.GetTableRecord().db
 }
 
-// AllField - Restitusice tutti i campi per la select *
+// AllField - Return all select fields
 func AllField(ti TableRecordInterface) string {
 
 	fieldName, _ := GetFieldMapper(ti)
@@ -52,7 +52,7 @@ func GetPrimaryKeyValue(ti TableRecordInterface) interface{} {
 	return value
 }
 
-// LoadFromRow - Si occupa di caricare la struct dal result - row della query
+// LoadFromRow - Loads the passed TableRecordInterface with the row sql result
 func LoadFromRow(r *sqlx.Rows, tri TableRecordInterface) error {
 
 	if err := r.StructScan(tri); err != nil {
@@ -68,7 +68,7 @@ func LoadFromRow(r *sqlx.Rows, tri TableRecordInterface) error {
 	return nil
 }
 
-// NewTableRecord - Restituisce una nuova istanza di TableRecord
+// NewTableRecord - Returns a new instance of TableRecord
 func NewTableRecord(isNew bool, isReadOnly bool) *TableRecord {
 
 	tr := new(TableRecord)
@@ -78,17 +78,17 @@ func NewTableRecord(isNew bool, isReadOnly bool) *TableRecord {
 	return tr
 }
 
-// GetDB - Restituisce la risorsa di connessione al database
+// GetDB - Returns TableRecord db resource instance
 func (t *TableRecord) GetDB() db.SQLConnector {
 	return t.db
 }
 
-// IsLoaded - Restituisce se TableRecord è stato caricato correttamente
+// IsLoaded - Returns if TableRecord is loaded successfully, might useful after a LoadByID or similar func
 func (t *TableRecord) IsLoaded() bool {
 	return t.isLoaded
 }
 
-// IsNew - Restituisce se il record è nuovo
+// IsNew - Returns if the record is new
 func (t *TableRecord) IsNew() bool {
 	return t.isNew
 }
@@ -98,7 +98,7 @@ func (t *TableRecord) DriverName() string {
 	return t.db.DriverName()
 }
 
-// PrepareStmt - Restituisce lo stmt della query pronta da essere eseguita
+// PrepareStmt - Returns the query stmt built with QueryBuilder
 func (t *TableRecord) PrepareStmt(tableName string) (*sqlx.Stmt, error) {
 
 	db := t.db
@@ -113,13 +113,13 @@ func (t *TableRecord) PrepareStmt(tableName string) (*sqlx.Stmt, error) {
 	return stmt, nil
 }
 
-// SetIsNew - Si occupa di impostare il valore del campo TableRecord::isNews
+// SetIsNew - Sets isNew field
 func (t *TableRecord) SetIsNew(new bool) *TableRecord {
 	t.isNew = new
 	return t
 }
 
-// SetSQLConnection - Imposta la connessione
+// SetSQLConnection - Sets the db resource instance
 func (t *TableRecord) SetSQLConnection(db db.SQLConnector) *TableRecord {
 	t.db = db
 	return t

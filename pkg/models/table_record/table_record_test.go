@@ -10,7 +10,7 @@ import (
 	"github.com/subosito/gotenv"
 )
 
-// TestStruct - struct di test che implementa TableRecordInterface
+// TestStruct - Example
 type TestStruct struct {
 	tr       *TableRecord
 	RecordID int64   `json:"id" db:"record_id"`
@@ -19,7 +19,7 @@ type TestStruct struct {
 	Gender   *string `json:"gender" db:"gender"`
 }
 
-// NewTestStruct - Restitusice una nuova istaza di TestStruct
+// NewTestStruct - Example
 func NewTestStruct(db db.SQLConnector) *TestStruct {
 
 	ts := new(TestStruct)
@@ -29,7 +29,7 @@ func NewTestStruct(db db.SQLConnector) *TestStruct {
 	return ts
 }
 
-// loadAllTestTableRecordStruct - carica tutte le istanze della classe
+// loadAllTestTableRecordStruct - Example
 func loadAllTestTableRecordStruct() ([]*TestStruct, error) {
 
 	db := db.GetConnection()
@@ -59,22 +59,22 @@ func loadAllTestTableRecordStruct() ([]*TestStruct, error) {
 	return result, nil
 }
 
-// GetTableRecord - Restituisce l'istanza di TableRecord
+// GetTableRecord - Example
 func (t TestStruct) GetTableRecord() *TableRecord {
 	return t.tr
 }
 
-// GetPrimaryKeyName - Restituisce il nome della chiave primaria
+// GetPrimaryKeyName - Example
 func (t TestStruct) GetPrimaryKeyName() string {
 	return "record_id"
 }
 
-// GetTableName - Restituisce il nome della tabella
+// GetTableName - Example
 func (t TestStruct) GetTableName() string {
 	return "users"
 }
 
-// TestStructReadOnly - Struct di test readonly che implementa TableRecordInterface
+// TestStructReadOnly - Example
 type TestStructReadOnly struct {
 	tr       *TableRecord
 	RecordID int64   `json:"id" db:"record_id"`
@@ -83,7 +83,7 @@ type TestStructReadOnly struct {
 	Gender   *string `json:"gender" db:"gender"`
 }
 
-// NewTestStructReadOnly - Restituisce una nuova istanza di TestStructReadOnly
+// NewTestStructReadOnly - Example
 func NewTestStructReadOnly(db db.SQLConnector) *TestStructReadOnly {
 
 	tsro := new(TestStructReadOnly)
@@ -93,23 +93,23 @@ func NewTestStructReadOnly(db db.SQLConnector) *TestStructReadOnly {
 	return tsro
 }
 
-// GeetTableRecord - Restituisce l'istanza di TableRecord
+// GeetTableRecord - Example
 func (t TestStructReadOnly) GeetTableRecord() *TableRecord {
 	return t.tr
 }
 
-// GetPrimaryKeyName - Restituisce il nome della chiave primaria
+// GetPrimaryKeyName - Example
 func (t TestStructReadOnly) GetPrimaryKeyName() string {
 	return "record_id"
 }
 
-// GetTableName - Restituisce il nome della tabella
+// GetTableName - Example
 
 func (t TestStructReadOnly) GetTableName() string {
 	return "users"
 }
 
-// GetTableRecord - Restituisce l'istanza di TableRecord
+// GetTableRecord - Example
 func (t TestStructReadOnly) GetTableRecord() *TableRecord {
 	return t.tr
 }

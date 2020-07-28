@@ -6,17 +6,18 @@ import (
 	"testing"
 )
 
+// exampleRemoteData - An example of remote data with success response
 type exampleRemoteData struct{}
 
-// EncodeQueryString - Si occupa di aggiungere i paratri dell'header alla request
+// EncodeQueryString -
 func (u exampleRemoteData) EncodeQueryString(req *http.Request) {}
 
-// GetBody - Restituisce il corpo della request
+// GetBody -
 func (u exampleRemoteData) GetBody() io.Reader {
 	return nil
 }
 
-// GetMethod - Restituisce il metodo della richiesta remota
+// GetMethod -
 func (u exampleRemoteData) GetMethod() string {
 	return "GET"
 }
@@ -26,62 +27,65 @@ func (u exampleRemoteData) GetURL() string {
 	return "https://randomuser.me/api/"
 }
 
+// exampleRemoteDataEmpty -An example of remote data with empty fields passed to pkg http
 type exampleRemoteDataEmpty struct{}
 
-// EncodeQueryString - Si occupa di aggiungere i paratri dell'header alla request
+// EncodeQueryString -
 func (u exampleRemoteDataEmpty) EncodeQueryString(req *http.Request) {}
 
-// GetBody - Restituisce il corpo della request
+// GetBody -
 func (u exampleRemoteDataEmpty) GetBody() io.Reader {
 	return nil
 }
 
-// GetMethod - Restituisce il metodo della richiesta remota
+// GetMethod -
 func (u exampleRemoteDataEmpty) GetMethod() string {
 	return "GET"
 }
 
-// GetURL - Restituisce la url della richiesta remota
+// GetURL -
 func (u exampleRemoteDataEmpty) GetURL() string {
 	return ""
 }
 
+// exampleRemoteDataErrorURL - An example of remote data with wrong method and url
 type exampleRemoteDataErrorURL struct{}
 
-// EncodeQueryString - Si occupa di aggiungere i paratri dell'header alla request
+// EncodeQueryString -
 func (u exampleRemoteDataErrorURL) EncodeQueryString(req *http.Request) {}
 
-// GetBody - Restituisce il corpo della request
+// GetBody -
 func (u exampleRemoteDataErrorURL) GetBody() io.Reader {
 	return nil
 }
 
-// GetMethod - Restituisce il metodo della richiesta remota
+// GetMethod -
 func (u exampleRemoteDataErrorURL) GetMethod() string {
 	return "435_34543"
 }
 
-// GetURL - Restituisce la url della richiesta remota
+// GetURL -
 func (u exampleRemoteDataErrorURL) GetURL() string {
 	return "--:233::"
 }
 
+// exampleRemoteDataErrorParseJSON - An example of remote data with error during parsing JSON
 type exampleRemoteDataErrorParseJSON struct{}
 
-// EncodeQueryString - Si occupa di aggiungere i paratri dell'header alla request
+// EncodeQueryString -
 func (u exampleRemoteDataErrorParseJSON) EncodeQueryString(req *http.Request) {}
 
-// GetBody - Restituisce il corpo della request
+// GetBody -
 func (u exampleRemoteDataErrorParseJSON) GetBody() io.Reader {
 	return nil
 }
 
-// GetMethod - Restituisce il metodo della richiesta remota
+// GetMethod -
 func (u exampleRemoteDataErrorParseJSON) GetMethod() string {
 	return "GET"
 }
 
-// GetURL - Restituisce la url della richiesta remota
+// GetURL -
 func (u exampleRemoteDataErrorParseJSON) GetURL() string {
 	return "http://www.mocky.io/v2/5e3b4cd32f00006be356c9f7"
 }

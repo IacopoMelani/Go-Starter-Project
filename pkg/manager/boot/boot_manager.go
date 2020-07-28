@@ -12,7 +12,7 @@ import (
 	"github.com/IacopoMelani/Go-Starter-Project/pkg/manager/db"
 )
 
-// BManager - Interfaccia che generalizza il boot manager
+// BManager - Generalize a boot manager
 type BManager interface {
 	StartApp()
 	RegisterDDataProc(func() *durationdata.DurationData)
@@ -25,7 +25,8 @@ type BManager interface {
 	UseEchoRecover()
 }
 
-// boot - Struct che si occupa di gestire il boot dell'app
+// boot - Manage the app boot,
+// implements BManager to impone the user to use the method GetBootManager to retrive the instance of boot
 type boot struct {
 	appPort                string
 	connection             string
@@ -38,6 +39,7 @@ type boot struct {
 	wg                     sync.WaitGroup
 }
 
+// define the min cap for WaitGroup in the boot phase
 const minWaitGroupCap = 2
 
 var (
@@ -45,12 +47,12 @@ var (
 	onceB   = sync.Once{}
 )
 
-// initDbConnection - Si occupa di inizializzare la connessione
+// initDbConnection - Initializes connection to database
 func (b *boot) initDbConnection() {
 	db.InitConnection(b.driverSQL, b.connection)
 }
 
-// initDurationData - Si occupa di inizializzare tutti i componenti che utilizzano DurationData
+// initDurationData - Initializes all DurationData registered before the the boot phase, to register a component use RegisterDDataProc
 func (b *boot) initDurationData() {
 	for _, d := range b.durationDataRegistered {
 		durationdata.RegisterInitDurationData(d)
@@ -58,7 +60,7 @@ func (b *boot) initDurationData() {
 	durationdata.InitDurationData()
 }
 
-// GetBootManager - Restituisce il boot manager dell'applicazione
+// GetBootManager - Returns the one BManager
 func GetBootManager() BManager {
 	onceB.Do(func() {
 		bmanger = new(boot)
@@ -67,7 +69,7 @@ func GetBootManager() BManager {
 	return bmanger
 }
 
-// startProc - Si occupa di avviare tutte le procedure generiche durante l'avvio dell'applicazione
+// startProc - Exec all generics procedure define before the boot phase, to register a proc use RegisterProc
 func (b *boot) startProc() {
 	for _, f := range b.procRegistered {
 		go func(f func()) {
@@ -77,7 +79,7 @@ func (b *boot) startProc() {
 	}
 }
 
-// StartApp - Si occupa di effettuare il boot dell'applicazione e avviare tutte le procedure registrate, al termine viene avviata l'applicazione sulla porta designata
+// StartApp - Try to boot the app, exec all registered procedures and finaly start listeing on the designed port
 func (b *boot) StartApp() {
 
 	b.wg.Add(minWaitGroupCap + len(b.procRegistered))
@@ -110,7 +112,7 @@ func (b *boot) StartApp() {
 	b.e.Logger.Fatal(b.e.Start(b.appPort))
 }
 
-// RegisterDDataProc - Si occupa di registrare tutti i componenti che utilizzano duration Data
+// RegisterDDataProc - Register a DurationData component
 func (b *boot) RegisterDDataProc(f func() *durationdata.DurationData) {
 
 	b.mu.Lock()
@@ -123,7 +125,7 @@ func (b *boot) RegisterDDataProc(f func() *durationdata.DurationData) {
 	b.durationDataRegistered = append(b.durationDataRegistered, f)
 }
 
-// RegisterProc - Si occupa di registrare tutte le generiche procedure da avviare al boot dell'applicazione
+// RegisterProc - Register a generics procedure, you can define whatever func you want, this procedure will start in the boot phase
 func (b *boot) RegisterProc(f func()) {
 
 	b.mu.Lock()
@@ -136,7 +138,7 @@ func (b *boot) RegisterProc(f func()) {
 	b.procRegistered = append(b.procRegistered, f)
 }
 
-// RegisterEchoRoutes - Si occupa di avviare la registrazione delle route con Echo, è compito dell'utilizzatore di assicurarsi di passare una func che effettui la registrazione delle rotte
+// RegisterEchoRoutes - Register a func that register an Echo routes, this func will called in the boot phase
 func (b *boot) RegisterEchoRoutes(f func(e *echo.Echo)) {
 
 	b.mu.Lock()
@@ -145,7 +147,7 @@ func (b *boot) RegisterEchoRoutes(f func(e *echo.Echo)) {
 	f(b.e)
 }
 
-// SetAppPort - Si occupa di impostare la porta su chi gira l'applicazione
+// SetAppPort - Set the listening port
 func (b *boot) SetAppPort(appPort string) {
 
 	b.mu.Lock()
@@ -154,7 +156,7 @@ func (b *boot) SetAppPort(appPort string) {
 	b.appPort = appPort
 }
 
-// SetDriverSQL - imposta il driver SQL
+// SetDriverSQL - Set the SQL driver
 func (b *boot) SetDriverSQL(driver string) {
 
 	b.mu.Lock()
@@ -163,7 +165,7 @@ func (b *boot) SetDriverSQL(driver string) {
 	b.driverSQL = driver
 }
 
-// SetConnectionSting - Imposta la stringa di connessione al database
+// SetConnectionSting - Set the connection string
 func (b *boot) SetConnectionSting(conn string) {
 
 	b.mu.Lock()
@@ -172,7 +174,7 @@ func (b *boot) SetConnectionSting(conn string) {
 	b.connection = conn
 }
 
-// UseEchoLogger - Definisce se utilizzare il logger di richieste di Echo
+// UseEchoLogger - Declare that Echo will uses internal logger
 func (b *boot) UseEchoLogger() {
 
 	b.mu.Lock()
@@ -181,7 +183,7 @@ func (b *boot) UseEchoLogger() {
 	b.e.Use(middleware.Logger())
 }
 
-// UseEchoRecover . Definisce se utilizzare il recover di Echo in caso si verifichi un panic
+// UseEchoRecover - Declare that Echo uses the internal recover
 func (b *boot) UseEchoRecover() {
 
 	b.mu.Lock()

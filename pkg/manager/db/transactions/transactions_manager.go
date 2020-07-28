@@ -7,10 +7,10 @@ import (
 
 // Refs - https://pseudomuto.com/2018/01/clean-sql-transactions-in-golang/
 
-// TxFn - Funzione eseguita per durante la transaction
+// TxFn - Func type to executes during transaction
 type TxFn func(db.SQLConnector) error
 
-// WithTransactionx - Crea una nuova transaction eseguendo l'handle, si interfaccia con la libreria "github.com/jmoiron/sqlx"
+// WithTransactionx - Creates new transaction instance and executes the handler
 func WithTransactionx(db *sqlx.DB, fn TxFn) (err error) {
 
 	tx, err := db.Beginx()

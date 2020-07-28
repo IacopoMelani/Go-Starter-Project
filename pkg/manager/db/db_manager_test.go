@@ -9,7 +9,7 @@ import (
 	"github.com/subosito/gotenv"
 )
 
-// createTableTest - Si occupa di create la tabella di test
+// createTableTest - Query to create table test
 func createTableTest() error {
 
 	conn := GetConnection()
@@ -23,7 +23,7 @@ func createTableTest() error {
 			record_id INT AUTO_INCREMENT,
 			PRIMARY KEY (record_id)
 			)`
-			
+
 	case DriverSQLServer:
 		query = `IF NOT EXISTS (SELECT * FROM sysobjects WHERE name='testTable' and xtype='U')
 		CREATE TABLE testTable (
@@ -31,13 +31,12 @@ func createTableTest() error {
 		)`
 	}
 
-
 	_, err := conn.Exec(query)
 
 	return err
 }
 
-// dropTableTest - Si occupa di distruggere la tabella di test
+// dropTableTest - Query to destoy the table
 func dropTableTest() error {
 
 	conn := GetConnection()
@@ -49,12 +48,11 @@ func dropTableTest() error {
 	return err
 }
 
-// TestGetConnection - Esegue il test della funziona GeTConnection()
 func TestGetConnection(t *testing.T) {
 
 	loadEnv()
 
-	GetConnection()
+	GetSQLXFromSQLConnector(GetConnection())
 
 	err := db.Ping()
 
