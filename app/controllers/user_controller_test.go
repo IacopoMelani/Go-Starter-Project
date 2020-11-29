@@ -31,7 +31,7 @@ type testLoginResponseDTO struct {
 
 func TestGetAllUser(t *testing.T) {
 
-	if err := gotenv.Load("./../.env"); err != nil {
+	if err := gotenv.Load("./../../.env"); err != nil {
 		t.Fatal("Errore caricamento configurazione")
 	}
 	db.InitConnection(os.Getenv("SQL_DRIVER"), os.Getenv("STRING_CONNECTION"))
@@ -63,7 +63,7 @@ func TestGetAllUser(t *testing.T) {
 
 func TestGetDurataionUsers(t *testing.T) {
 
-	if err := gotenv.Load("../.env"); err != nil {
+	if err := gotenv.Load("../../.env"); err != nil {
 		t.Fatal("Errore caricamento configurazione")
 	}
 
@@ -81,7 +81,7 @@ func TestGetDurataionUsers(t *testing.T) {
 
 func TestLogin(t *testing.T) {
 
-	if err := gotenv.Load("../.env"); err != nil {
+	if err := gotenv.Load("../../.env"); err != nil {
 		t.Fatal("Errore caricamento configurazione")
 	}
 

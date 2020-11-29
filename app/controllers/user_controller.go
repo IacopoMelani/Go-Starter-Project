@@ -5,8 +5,8 @@ import (
 
 	"github.com/IacopoMelani/Go-Starter-Project/pkg/manager/db"
 
-	durationdata "github.com/IacopoMelani/Go-Starter-Project/models/duration_data"
-	"github.com/IacopoMelani/Go-Starter-Project/models/table"
+	durationdata "github.com/IacopoMelani/Go-Starter-Project/app/models/duration_data"
+	"github.com/IacopoMelani/Go-Starter-Project/app/models/table"
 
 	"github.com/dgrijalva/jwt-go"
 

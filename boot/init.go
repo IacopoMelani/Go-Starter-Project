@@ -8,7 +8,7 @@ import (
 	"github.com/IacopoMelani/Go-Starter-Project/pkg/manager/log"
 	"github.com/op/go-logging"
 
-	durationmodel "github.com/IacopoMelani/Go-Starter-Project/models/duration_data"
+	durationmodel "github.com/IacopoMelani/Go-Starter-Project/app/models/duration_data"
 
 	"github.com/IacopoMelani/Go-Starter-Project/config"
 	"github.com/IacopoMelani/Go-Starter-Project/routes"

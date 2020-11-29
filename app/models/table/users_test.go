@@ -13,7 +13,7 @@ import (
 
 func TestTableMirror(t *testing.T) {
 
-	if err := gotenv.Load("./../../.env"); err != nil {
+	if err := gotenv.Load("./../../../.env"); err != nil {
 		t.Fatal("Errore caricamento configurazione")
 	}
 	db.InitConnection(os.Getenv("SQL_DRIVER"), os.Getenv("STRING_CONNECTION"))

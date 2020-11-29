@@ -11,7 +11,7 @@ import (
 
 func TestGetUserData(t *testing.T) {
 
-	if err := gotenv.Load("./../../.env"); err != nil {
+	if err := gotenv.Load("./../../../.env"); err != nil {
 		t.Fatal("Errore caricamento configurazione")
 	}
 
