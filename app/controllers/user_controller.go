@@ -1,15 +1,13 @@
 package controllers
 
 import (
+	"net/http"
 	"time"
-
-	"github.com/IacopoMelani/Go-Starter-Project/pkg/manager/db"
 
 	durationdata "github.com/IacopoMelani/Go-Starter-Project/app/models/duration_data"
 	"github.com/IacopoMelani/Go-Starter-Project/app/models/table"
-
+	"github.com/IacopoMelani/Go-Starter-Project/pkg/manager/db"
 	"github.com/dgrijalva/jwt-go"
-
 	"github.com/labstack/echo/v4"
 )
 
@@ -24,33 +22,20 @@ func GetAllUser(c echo.Context) error {
 
 	userList, err := table.LoadAllUsers(db.GetConnection())
 	if err != nil {
-		return c.JSON(500, Response{
-			Status:  1,
-			Success: false,
-			Message: err.Error(),
-		})
-
+		return c.JSON(http.StatusInternalServerError, FailedResponse(c, 1, err.Error(), nil))
 	}
 
-	return c.JSON(200, Response{
-		Status:  0,
-		Success: true,
-		Message: "ok!",
-		Content: userList,
-	})
+	return c.JSON(http.StatusOK, SuccessResponse(c, echo.Map{
+		"users": userList,
+	}))
 }
 
 // GetDurataionUsers - Return users retrived with pkg/model/duration_data
 func GetDurataionUsers(c echo.Context) error {
-
 	data := durationdata.GetUsersData()
-
-	return c.JSON(200, Response{
-		Status:  0,
-		Success: true,
-		Message: "ok!",
-		Content: data.GetSafeContent(),
-	})
+	return c.JSON(http.StatusOK, SuccessResponse(c, echo.Map{
+		"data": data.GetSafeContent(),
+	}))
 }
 
 // Login - Define login controller
@@ -60,12 +45,7 @@ func Login(c echo.Context) error {
 	password := c.FormValue("password")
 
 	if username != "Mario" || password != "123456" {
-
-		return c.JSON(401, Response{
-			Status:  1,
-			Success: false,
-			Message: "Wrong credentials",
-		})
+		return c.JSON(http.StatusUnauthorized, FailedResponse(c, 1, "Wrong credentials", nil))
 	}
 
 	claims := &JwtCustomClaims{
@@ -79,20 +59,10 @@ func Login(c echo.Context) error {
 
 	generatedToken, err := token.SignedString([]byte("bomba"))
 	if err != nil {
-
-		return c.JSON(500, Response{
-			Status:  2,
-			Success: false,
-			Message: "Error",
-		})
+		return c.JSON(http.StatusInternalServerError, FailedResponse(c, 2, err.Error(), nil))
 	}
 
-	return c.JSON(200, Response{
-		Status:  0,
-		Success: true,
-		Message: "ok!",
-		Content: echo.Map{
-			"token": generatedToken,
-		},
-	})
+	return c.JSON(http.StatusOK, SuccessResponse(c, echo.Map{
+		"token": generatedToken,
+	}))
 }

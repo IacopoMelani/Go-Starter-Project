@@ -2,20 +2,23 @@ package controllers
 
 import (
 	"testing"
+
+	"github.com/labstack/echo/v4"
 )
 
 func TestStandardResponse(t *testing.T) {
 
-	response := new(Response)
+	e := echo.New()
+	c := e.NewContext(nil, nil)
 
-	response.SetContent(1)
-	response.SetMessage("ok")
-	response.SetStatus(0)
-	response.SetSuccess(true)
+	response := FailedResponse(c, 1, "Error", echo.Map{"error": "this is an error"})
 
-	if response.Content != 1 || response.Message != "ok" || response.Status != 0 || response.Success != true {
-		t.Fatal("Errrore nella response standard")
+	if response.GetCode() != 1 || response.GetMessage() != "Error" || response.GetSuccess() || response.GetContent() == nil {
+		t.Fatal("Error failed response")
 	}
 
-	InitCustomHandler()
+	response = SuccessResponse(c, nil)
+	if response.GetCode() != 0 || response.GetMessage() != ResponseMessageOk || !response.GetSuccess() || response.GetContent() != nil {
+		t.Fatal("Error failed response")
+	}
 }
