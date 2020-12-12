@@ -3,9 +3,9 @@ package bootmanager
 import (
 	"sync"
 
-	"github.com/labstack/echo/middleware"
+	"github.com/labstack/echo/v4/middleware"
 
-	"github.com/labstack/echo"
+	"github.com/labstack/echo/v4"
 
 	durationdata "github.com/IacopoMelani/Go-Starter-Project/pkg/models/duration_data"
 

@@ -2,8 +2,8 @@ package routes
 
 import (
 	"github.com/IacopoMelani/Go-Starter-Project/app/controllers"
-	"github.com/labstack/echo"
-	"github.com/labstack/echo/middleware"
+	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v4/middleware"
 )
 
 // InitGetRoutes - Declare the GET routes
@@ -14,7 +14,7 @@ func InitGetRoutes(e *echo.Echo) {
 	// Configure middleware with the custom claims type
 	config := middleware.JWTConfig{
 		Claims:     &controllers.JwtCustomClaims{},
-		SigningKey: []byte("bomba"),
+		SigningKey: []byte("secret"),
 	}
 	r.Use(middleware.JWTWithConfig(config))
 	r.GET("/user/duration", controllers.GetDurataionUsers)

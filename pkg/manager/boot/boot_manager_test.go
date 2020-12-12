@@ -8,7 +8,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/labstack/echo"
+	"github.com/labstack/echo/v4"
 
 	"github.com/IacopoMelani/Go-Starter-Project/pkg/helpers/request"
 	durationdata "github.com/IacopoMelani/Go-Starter-Project/pkg/models/duration_data"

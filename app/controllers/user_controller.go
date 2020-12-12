@@ -10,7 +10,7 @@ import (
 
 	"github.com/dgrijalva/jwt-go"
 
-	"github.com/labstack/echo"
+	"github.com/labstack/echo/v4"
 )
 
 // JwtCustomClaims - Define custom claims for token generation

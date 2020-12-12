@@ -1,8 +1,9 @@
 package routes
 
 import (
-	"github.com/labstack/echo"
 	"testing"
+
+	"github.com/labstack/echo/v4"
 )
 
 func TestInitRoutes(t *testing.T) {

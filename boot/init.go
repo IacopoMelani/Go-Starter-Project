@@ -13,7 +13,7 @@ import (
 	"github.com/IacopoMelani/Go-Starter-Project/config"
 	"github.com/IacopoMelani/Go-Starter-Project/routes"
 
-	"github.com/labstack/echo"
+	"github.com/labstack/echo/v4"
 )
 
 // initEchoRoutes - Initialize all defined routes
