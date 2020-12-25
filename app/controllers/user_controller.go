@@ -57,7 +57,7 @@ func Login(c echo.Context) error {
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 
-	generatedToken, err := token.SignedString([]byte("bomba"))
+	generatedToken, err := token.SignedString([]byte("secret here")) // maybe reads from .env file
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, FailedResponse(c, 2, err.Error(), nil))
 	}

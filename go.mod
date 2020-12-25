@@ -12,4 +12,5 @@ require (
 	github.com/op/go-logging v0.0.0-20160315200505-970db520ece7
 	github.com/stretchr/testify v1.6.1
 	github.com/subosito/gotenv v1.2.0
+	gopkg.in/guregu/null.v4 v4.0.0
 )

@@ -4,8 +4,8 @@ import (
 	"os"
 	"testing"
 
-	"github.com/IacopoMelani/Go-Starter-Project/pkg/helpers/copy"
 	"github.com/IacopoMelani/Go-Starter-Project/pkg/manager/db"
+	"gopkg.in/guregu/null.v4"
 
 	record "github.com/IacopoMelani/Go-Starter-Project/pkg/models/table_record"
 	"github.com/subosito/gotenv"
@@ -20,9 +20,9 @@ func TestTableMirror(t *testing.T) {
 
 	u := NewUser(db.GetConnection())
 
-	u.Name = copy.String("Mario")
-	u.Lastname = copy.String("Rossi")
-	u.Gender = copy.String("M")
+	u.Name = null.StringFrom("Mario")
+	u.Lastname = null.StringFrom("Rossi")
+	u.Gender = null.StringFrom("M")
 
 	err := record.Save(u)
 	if err != nil {
@@ -33,7 +33,7 @@ func TestTableMirror(t *testing.T) {
 		t.Error("Chiave non salvata")
 	}
 
-	tempName := *u.Name
+	tempName := u.Name.ValueOrZero()
 	tempID := u.RecordID
 
 	err = record.LoadByID(u, u.RecordID)
@@ -41,11 +41,11 @@ func TestTableMirror(t *testing.T) {
 		t.Error(err.Error())
 	}
 
-	if tempName != *u.Name {
+	if tempName != u.Name.ValueOrZero() {
 		t.Error("Campi non uguali")
 	}
 
-	u.Name = copy.String("Marco")
+	u.Name = null.StringFrom("Marco")
 
 	err = record.Save(u)
 	if err != nil {

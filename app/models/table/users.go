@@ -1,8 +1,11 @@
 package table
 
 import (
+	"github.com/IacopoMelani/Go-Starter-Project/app/models/dto"
 	"github.com/IacopoMelani/Go-Starter-Project/pkg/manager/db"
 	record "github.com/IacopoMelani/Go-Starter-Project/pkg/models/table_record"
+	"github.com/jmoiron/sqlx"
+	"gopkg.in/guregu/null.v4"
 )
 
 // Costanti relative alla tabella users
@@ -15,29 +18,62 @@ const (
 	UsersTableName = "users"
 )
 
+// MARK: User table model & constructor
+
 // User - Define the users table
 // Implements TableRecordInterface
 type User struct {
-	tr       *record.TableRecord
-	RecordID int64   `json:"id" db:"record_id"`
-	Name     *string `json:"name" db:"name"`
-	Lastname *string `json:"lastname" db:"lastname"`
-	Gender   *string `json:"gender" db:"gender"`
+	*record.TableRecord
+	RecordID int64       `json:"id"       db:"record_id"`
+	Name     null.String `json:"name"     db:"name"`
+	Lastname null.String `json:"lastname" db:"lastname"`
+	Gender   null.String `json:"gender"   db:"gender"`
 }
 
-var du = &User{}
+// NewUser - Returns new instance of the struct with the init of TableRecord and set the flag "isNew"
+// It's suggest to use always this to get new instance of the struct
+func NewUser(db db.SQLConnector) *User {
 
-// LoadAllUsers - Returns all users
-func LoadAllUsers(db db.SQLConnector) ([]*User, error) {
+	u := new(User)
+	u.TableRecord = record.NewTableRecord(true, false)
+	u.SetSQLConnection(db)
 
-	query := "SELECT " + record.AllField(du) + " FROM " + du.GetTableName()
+	return u
+}
 
-	rows, err := db.Queryx(query)
-	if err != nil {
-		return nil, err
+// MARK: Mappable implementation
+
+// Map - Implements Mappable interface
+func (u User) Map() dto.DTO {
+	return dto.UserDTO{
+		ID:       u.RecordID,
+		Name:     u.Name,
+		Lastname: u.Lastname,
+		Gender:   u.Gender,
 	}
+}
 
-	defer rows.Close()
+// MARK: TableRecordInterface implementation
+
+// GetTableRecord - Returns TableRecord instance of the User struct
+func (u User) GetTableRecord() *record.TableRecord {
+	return u.TableRecord
+}
+
+// GetPrimaryKeyName - Returns primary key name
+func (u User) GetPrimaryKeyName() string {
+	return UsersColRecordID
+}
+
+// GetTableName - Returns table name
+func (u User) GetTableName() string {
+	return UsersTableName
+}
+
+// MARK: User unexported
+
+// loadAllUsersFromRows - Loads all users from sqlx rows result
+func loadAllUsersFromRows(db db.SQLConnector, rows *sqlx.Rows) ([]*User, error) {
 
 	var result []*User
 
@@ -55,33 +91,19 @@ func LoadAllUsers(db db.SQLConnector) ([]*User, error) {
 	return result, nil
 }
 
-// NewUser - Returns new instance of the struct with the init of TableRecord and set the flag "isNew"
-// It's suggest to use always this to get new instance of the struct
-func NewUser(db db.SQLConnector) *User {
+// MARK: User exported
 
-	u := new(User)
-	u.tr = record.NewTableRecord(true, false)
-	u.tr.SetSQLConnection(db)
+// LoadAllUsers - Returns all users
+func LoadAllUsers(db db.SQLConnector) ([]*User, error) {
 
-	return u
-}
+	query := "SELECT " + record.AllField(&User{}) + " FROM " + UsersTableName
 
-// GetTableRecord - Returns TableRecord instance of the User struct
-func (u User) GetTableRecord() *record.TableRecord {
-	return u.tr
-}
+	rows, err := db.Queryx(query)
+	if err != nil {
+		return nil, err
+	}
 
-// GetPrimaryKeyName - Returns primary key name
-func (u User) GetPrimaryKeyName() string {
-	return UsersColRecordID
-}
+	defer rows.Close()
 
-// GetPrimaryKeyValue - Returns the value of the primary key
-func (u User) GetPrimaryKeyValue() int64 {
-	return u.RecordID
-}
-
-// GetTableName - Returns table name
-func (u User) GetTableName() string {
-	return UsersTableName
+	return loadAllUsersFromRows(db, rows)
 }
