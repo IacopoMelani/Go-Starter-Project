@@ -2,6 +2,7 @@ package db
 
 import (
 	"database/sql"
+	"fmt"
 
 	"github.com/jmoiron/sqlx"
 
@@ -9,7 +10,6 @@ import (
 	_ "github.com/denisenkom/go-mssqldb"
 	_ "github.com/go-sql-driver/mysql"
 
-	"log"
 	"sync"
 )
 
@@ -25,27 +25,131 @@ type SQLConnector interface {
 	QueryRowx(string, ...interface{}) *sqlx.Row
 }
 
+// InvalidConnectionKeyError - Defines the error for an invalid key provided to retrive or use a connection instance
+type InvalidConnectionKeyError struct {
+	msg string
+}
+
+// NewInvalidConnectionKeyError - Returns a new InvalidConnectionKeyError instance
+func NewInvalidConnectionKeyError(msg string) *InvalidConnectionKeyError {
+	return &InvalidConnectionKeyError{msg}
+}
+
+// Error - Implements error interface
+func (e *InvalidConnectionKeyError) Error() string {
+	return e.msg
+}
+
+// DefaultConnectionName - default connection key
+const DefaultConnectionName = "default"
+
 // Defines all possible sql drivers
 const (
 	DriverSQLServer = "mssql"
 	DriverMySQL     = "mysql"
 )
 
+// connectionsPool - Defines a pool of connection
+type connectionsPool struct {
+	ok          map[string]chan bool
+	once        map[string]*sync.Once
+	connections map[string]*dbContainer
+	mu          sync.Mutex
+}
+
 var (
-	db   *sqlx.DB
-	ok   = make(chan bool, 1)
-	once sync.Once
+	pool     *connectionsPool
+	oncePool sync.Once
 )
+
+// getSimpleSelectQueryForTable - Returns a simple select "LIMIT 1" query string for a specific connection key and table
+func getSimpleSelectQueryForTable(driver string, table string) string {
+
+	query := ""
+
+	switch driver {
+	case DriverMySQL:
+		query = "SELECT * FROM " + table + " LIMIT 1"
+	case DriverSQLServer:
+		query = "SELECT TOP 1 * FROM " + table
+	}
+
+	return query
+}
+
+// init - Initialize db package
+func init() {
+
+	pool = new(connectionsPool)
+
+	pool.connections = make(map[string]*dbContainer)
+	pool.ok = make(map[string]chan bool)
+	pool.ok[DefaultConnectionName] = make(chan bool, 1)
+
+	pool.once = make(map[string]*sync.Once)
+}
+
+// initConnection - Intializes the connection for specific key and values
+func initConnection(key string, drvName string, connection string) {
+
+	pool.connections[key] = newDbContainer(drvName, connection)
+	pool.connections[key].initConnection()
+
+	pool.ok[key] <- true
+	close(pool.ok[key])
+}
+
+// initSyncOnceForKey - Initializes sync.once for provided key
+func initSyncOnceForKey(key string) {
+
+	pool.mu.Lock()
+	defer pool.mu.Unlock()
+
+	if _, ok := pool.once[DefaultConnectionName]; !ok {
+		pool.once[DefaultConnectionName] = &sync.Once{}
+	}
+}
 
 // DriverName - Returns driver name
 func DriverName() string {
 	return GetConnection().DriverName()
 }
 
+// DriverNameByKey - Returns driver name for the connection key provided
+func DriverNameByKey(key string) (string, error) {
+
+	conn, err := GetConnectionWithKey(key)
+	if err != nil {
+		return "", err
+	}
+
+	return conn.DriverName(), nil
+}
+
 // GetConnection - Returns an instance of the db connection
 func GetConnection() SQLConnector {
-	<-ok
-	return db
+
+	pool.mu.Lock()
+	defer pool.mu.Unlock()
+
+	<-pool.ok[DefaultConnectionName]
+
+	return pool.connections[DefaultConnectionName].getConnection()
+}
+
+// GetConnectionWithKey - Returns an istance of the db connection by connection key (for multiple connections)
+func GetConnectionWithKey(key string) (SQLConnector, error) {
+
+	pool.mu.Lock()
+	defer pool.mu.Unlock()
+
+	if _, ok := pool.connections[key]; !ok {
+		return nil, NewInvalidConnectionKeyError(fmt.Sprintf("Invalid connection key %s", key))
+	}
+
+	<-pool.ok[key]
+
+	return pool.connections[key].getConnection(), nil
 }
 
 // GetSQLXFromSQLConnector - Returns a ptr of sqlx.DB from a SQLConnector
@@ -56,20 +160,20 @@ func GetSQLXFromSQLConnector(db SQLConnector) *sqlx.DB {
 // InitConnection - Initialize the connection with driver and connection string
 func InitConnection(drvName string, connection string) {
 
-	once.Do(func() {
+	initSyncOnceForKey(DefaultConnectionName)
 
-		conn, err := sqlx.Open(drvName, connection)
-		if err != nil {
-			log.Panic(err.Error())
-		}
+	pool.once[DefaultConnectionName].Do(func() {
+		initConnection(DefaultConnectionName, drvName, connection)
+	})
+}
 
-		if err := conn.Ping(); err != nil {
-			log.Panic(err.Error())
-		}
-		db = conn
+// InitConnectionWithKey - Initialize the connection for specific key with driver and connection string
+func InitConnectionWithKey(key string, drvName string, connection string) {
 
-		ok <- true
-		close(ok)
+	initSyncOnceForKey(key)
+
+	pool.once[key].Do(func() {
+		initConnection(key, drvName, connection)
 	})
 }
 
@@ -82,7 +186,23 @@ func Query(query string, args ...interface{}) (*sqlx.Rows, error) {
 		return nil, err
 	}
 
-	return rows, err
+	return rows, nil
+}
+
+// QueryWithKey - Executes the query for a specific connection key and return a *Rows instance
+func QueryWithKey(key string, query string, args ...interface{}) (*sqlx.Rows, error) {
+
+	db, err := GetConnectionWithKey(key)
+	if err != nil {
+		return nil, err
+	}
+
+	rows, err := db.Queryx(query, args)
+	if err != nil {
+		return nil, err
+	}
+
+	return rows, nil
 }
 
 // QueryOrPanic - Executes the query and return a *Rows instance, panics if error occurs
@@ -96,20 +216,42 @@ func QueryOrPanic(query string, args ...interface{}) *sqlx.Rows {
 	return rows
 }
 
+// QueryOrPanicWithKey - Executes the query for a specific connection key and return a *Rows instance, panics if error occurs
+func QueryOrPanicWithKey(key string, query string, args ...interface{}) *sqlx.Rows {
+
+	rows, err := QueryWithKey(key, query, args)
+	if err != nil {
+		panic(err)
+	}
+
+	return rows
+}
+
 // TableExists - Returns true if table exists otherwise false
 func TableExists(tableName string) bool {
 
-	var query string
-
-	switch DriverName() {
-	case DriverMySQL:
-		query = "SELECT * FROM " + tableName + " LIMIT 1"
-	case DriverSQLServer:
-		query = "SELECT TOP 1 * FROM " + tableName
-	}
+	query := getSimpleSelectQueryForTable(DriverName(), tableName)
 
 	db := GetConnection()
 
+	rows, err := db.Queryx(query)
+	if err != nil {
+		return false
+	}
+	defer rows.Close()
+
+	return true
+}
+
+// TableExistsWithKey - Returns true if table exists otherwise false for a specific connection key
+func TableExistsWithKey(key string, tableName string) bool {
+
+	db, err := GetConnectionWithKey(key)
+	if err != nil {
+		panic(err)
+	}
+
+	query := getSimpleSelectQueryForTable(db.DriverName(), tableName)
 	rows, err := db.Queryx(query)
 	if err != nil {
 		return false

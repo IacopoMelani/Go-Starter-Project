@@ -52,7 +52,7 @@ func TestGetConnection(t *testing.T) {
 
 	loadEnv()
 
-	GetSQLXFromSQLConnector(GetConnection())
+	db := GetSQLXFromSQLConnector(GetConnection())
 
 	err := db.Ping()
 

@@ -14,13 +14,14 @@ import (
 
 // BManager - Generalize a boot manager
 type BManager interface {
-	StartApp()
 	RegisterDDataProc(func() *durationdata.DurationData)
 	RegisterProc(func())
 	RegisterEchoRoutes(func(e *echo.Echo))
-	SetAppPort(string)
-	SetDriverSQL(string)
-	SetConnectionSting(string)
+	SetAdditionalConnection(name string, driver string, conn string)
+	SetAppPort(port string)
+	SetConnectionSting(conn string)
+	SetDriverSQL(driver string)
+	StartApp()
 	UseEchoLogger()
 	UseEchoRecover()
 }
@@ -79,39 +80,6 @@ func (b *boot) startProc() {
 	}
 }
 
-// StartApp - Try to boot the app, exec all registered procedures and finaly start listeing on the designed port
-func (b *boot) StartApp() {
-
-	b.wg.Add(minWaitGroupCap + len(b.procRegistered))
-
-	b.mu.Lock()
-	b.runnig = true
-	b.mu.Unlock()
-
-	if b.connection != "" && b.driverSQL != "" {
-
-		go func() {
-			defer b.wg.Done()
-			b.initDbConnection()
-		}()
-	} else {
-		b.wg.Done()
-	}
-
-	go func() {
-		defer b.wg.Done()
-		go b.initDurationData()
-	}()
-
-	b.startProc()
-
-	b.wg.Wait()
-
-	// start echo
-
-	b.e.Logger.Fatal(b.e.Start(b.appPort))
-}
-
 // RegisterDDataProc - Register a DurationData component
 func (b *boot) RegisterDDataProc(f func() *durationdata.DurationData) {
 
@@ -147,6 +115,9 @@ func (b *boot) RegisterEchoRoutes(f func(e *echo.Echo)) {
 	f(b.e)
 }
 
+// SetAdditionalConnection -
+func (b *boot) SetAdditionalConnection(name string, driver string, conn string) {}
+
 // SetAppPort - Set the listening port
 func (b *boot) SetAppPort(appPort string) {
 
@@ -154,6 +125,15 @@ func (b *boot) SetAppPort(appPort string) {
 	defer b.mu.Unlock()
 
 	b.appPort = appPort
+}
+
+// SetConnectionSting - Set the connection string
+func (b *boot) SetConnectionSting(conn string) {
+
+	b.mu.Lock()
+	defer b.mu.Unlock()
+
+	b.connection = conn
 }
 
 // SetDriverSQL - Set the SQL driver
@@ -165,13 +145,37 @@ func (b *boot) SetDriverSQL(driver string) {
 	b.driverSQL = driver
 }
 
-// SetConnectionSting - Set the connection string
-func (b *boot) SetConnectionSting(conn string) {
+// StartApp - Try to boot the app, exec all registered procedures and finaly start listeing on the designed port
+func (b *boot) StartApp() {
+
+	b.wg.Add(minWaitGroupCap + len(b.procRegistered))
 
 	b.mu.Lock()
-	defer b.mu.Unlock()
+	b.runnig = true
+	b.mu.Unlock()
 
-	b.connection = conn
+	if b.connection != "" && b.driverSQL != "" {
+
+		go func() {
+			defer b.wg.Done()
+			b.initDbConnection()
+		}()
+	} else {
+		b.wg.Done()
+	}
+
+	go func() {
+		defer b.wg.Done()
+		go b.initDurationData()
+	}()
+
+	b.startProc()
+
+	b.wg.Wait()
+
+	// start echo
+
+	b.e.Logger.Fatal(b.e.Start(b.appPort))
 }
 
 // UseEchoLogger - Declare that Echo will uses internal logger
