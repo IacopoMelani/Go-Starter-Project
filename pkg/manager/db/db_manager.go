@@ -87,6 +87,7 @@ func init() {
 	pool.once = make(map[string]*sync.Once)
 }
 
+// initChanForKey - Initializes the the chan bool for provided key
 func initChanForKey(key string) {
 
 	pool.mu.Lock()
@@ -119,9 +120,13 @@ func initSyncOnceForKey(key string) {
 	}
 }
 
-// DriverName - Returns driver name
+// DriverName - Returns default driver name
 func DriverName() string {
-	return GetConnection().DriverName()
+	driver, err := DriverNameByKey(DefaultConnectionName)
+	if err != nil {
+		panic(err)
+	}
+	return driver
 }
 
 // DriverNameByKey - Returns driver name for the connection key provided
@@ -135,15 +140,15 @@ func DriverNameByKey(key string) (string, error) {
 	return conn.DriverName(), nil
 }
 
-// GetConnection - Returns an instance of the db connection
+// GetConnection - Returns the default instance of db connection
 func GetConnection() SQLConnector {
 
-	pool.mu.Lock()
-	defer pool.mu.Unlock()
+	conn, err := GetConnectionWithKey(DefaultConnectionName)
+	if err != nil {
+		panic(err)
+	}
 
-	<-pool.ok[DefaultConnectionName]
-
-	return pool.connections[DefaultConnectionName].getConnection()
+	return conn
 }
 
 // GetConnectionWithKey - Returns an istance of the db connection by connection key (for multiple connections)
@@ -184,14 +189,7 @@ func InitConnectionWithKey(key string, drvName string, connection string) {
 
 // Query - Executes the query and return a *Rows instance
 func Query(query string, args ...interface{}) (*sqlx.Rows, error) {
-
-	db := GetConnection()
-	rows, err := db.Queryx(query, args...)
-	if err != nil {
-		return nil, err
-	}
-
-	return rows, nil
+	return QueryWithKey(DefaultConnectionName, query, args...)
 }
 
 // QueryWithKey - Executes the query for a specific connection key and return a *Rows instance
@@ -202,7 +200,7 @@ func QueryWithKey(key string, query string, args ...interface{}) (*sqlx.Rows, er
 		return nil, err
 	}
 
-	rows, err := db.Queryx(query, args)
+	rows, err := db.Queryx(query, args...)
 	if err != nil {
 		return nil, err
 	}
@@ -212,19 +210,13 @@ func QueryWithKey(key string, query string, args ...interface{}) (*sqlx.Rows, er
 
 // QueryOrPanic - Executes the query and return a *Rows instance, panics if error occurs
 func QueryOrPanic(query string, args ...interface{}) *sqlx.Rows {
-
-	rows, err := Query(query, args...)
-	if err != nil {
-		panic(err)
-	}
-
-	return rows
+	return QueryOrPanicWithKey(DefaultConnectionName, query, args...)
 }
 
 // QueryOrPanicWithKey - Executes the query for a specific connection key and return a *Rows instance, panics if error occurs
 func QueryOrPanicWithKey(key string, query string, args ...interface{}) *sqlx.Rows {
 
-	rows, err := QueryWithKey(key, query, args)
+	rows, err := QueryWithKey(key, query, args...)
 	if err != nil {
 		panic(err)
 	}
@@ -234,18 +226,7 @@ func QueryOrPanicWithKey(key string, query string, args ...interface{}) *sqlx.Ro
 
 // TableExists - Returns true if table exists otherwise false
 func TableExists(tableName string) bool {
-
-	query := getSimpleSelectQueryForTable(DriverName(), tableName)
-
-	db := GetConnection()
-
-	rows, err := db.Queryx(query)
-	if err != nil {
-		return false
-	}
-	defer rows.Close()
-
-	return true
+	return TableExistsWithKey(DefaultConnectionName, tableName)
 }
 
 // TableExistsWithKey - Returns true if table exists otherwise false for a specific connection key
