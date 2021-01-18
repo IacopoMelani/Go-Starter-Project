@@ -119,6 +119,21 @@ func TestQuery(t *testing.T) {
 	if err == nil {
 		t.Fatal("Errore, query dovrebbe essere sbagliata")
 	}
+
+	// _, err = QueryWithKey(DefaultConnectionName, query1)
+	// if err != nil {
+	// 	t.Fatal("Errore esecuzione query")
+	// }
+
+	// _, err = QueryWithKey(DefaultConnectionName, query2)
+	// if err != nil {
+	// 	t.Fatal("Errore esecuzione query parametrizzata")
+	// }
+
+	// _, err = QueryWithKey(DefaultConnectionName, query3)
+	// if err == nil {
+	// 	t.Fatal("Errore, query dovrebbe essere sbagliata")
+	// }
 }
 
 func TestQueryOrPanic(t *testing.T) {
@@ -139,6 +154,7 @@ func TestQueryOrPanic(t *testing.T) {
 
 	query3 := "SELECT * FORM users"
 	QueryOrPanic(query3)
+
 }
 
 func TestTableExists(t *testing.T) {

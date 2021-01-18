@@ -84,9 +84,17 @@ func init() {
 
 	pool.connections = make(map[string]*dbContainer)
 	pool.ok = make(map[string]chan bool)
-	pool.ok[DefaultConnectionName] = make(chan bool, 1)
-
 	pool.once = make(map[string]*sync.Once)
+}
+
+func initChanForKey(key string) {
+
+	pool.mu.Lock()
+	defer pool.mu.Unlock()
+
+	if _, ok := pool.ok[key]; !ok {
+		pool.ok[key] = make(chan bool, 1)
+	}
 }
 
 // initConnection - Intializes the connection for specific key and values
@@ -107,6 +115,7 @@ func initSyncOnceForKey(key string) {
 
 	if _, ok := pool.once[key]; !ok {
 		pool.once[key] = &sync.Once{}
+
 	}
 }
 
@@ -159,18 +168,14 @@ func GetSQLXFromSQLConnector(db SQLConnector) *sqlx.DB {
 
 // InitConnection - Initialize the connection with driver and connection string
 func InitConnection(drvName string, connection string) {
-
-	initSyncOnceForKey(DefaultConnectionName)
-
-	pool.once[DefaultConnectionName].Do(func() {
-		initConnection(DefaultConnectionName, drvName, connection)
-	})
+	InitConnectionWithKey(DefaultConnectionName, drvName, connection)
 }
 
 // InitConnectionWithKey - Initialize the connection for specific key with driver and connection string
 func InitConnectionWithKey(key string, drvName string, connection string) {
 
 	initSyncOnceForKey(key)
+	initChanForKey(key)
 
 	pool.once[key].Do(func() {
 		initConnection(key, drvName, connection)
