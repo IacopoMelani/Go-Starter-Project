@@ -105,8 +105,8 @@ func initSyncOnceForKey(key string) {
 	pool.mu.Lock()
 	defer pool.mu.Unlock()
 
-	if _, ok := pool.once[DefaultConnectionName]; !ok {
-		pool.once[DefaultConnectionName] = &sync.Once{}
+	if _, ok := pool.once[key]; !ok {
+		pool.once[key] = &sync.Once{}
 	}
 }
 

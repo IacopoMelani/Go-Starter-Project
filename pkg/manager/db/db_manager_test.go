@@ -1,11 +1,13 @@
 package db
 
 import (
+	"fmt"
 	"os"
 	"sync"
 	"testing"
 	"time"
 
+	"github.com/IacopoMelani/Go-Starter-Project/config"
 	"github.com/subosito/gotenv"
 )
 
@@ -58,6 +60,40 @@ func TestGetConnection(t *testing.T) {
 
 	if err != nil {
 		t.Error(err.Error())
+	}
+}
+
+func TestMultiConnection(t *testing.T) {
+
+	loadEnv()
+
+	config := config.GetInstance()
+
+	firstKey := "first"
+	secondKey := "second"
+	errorKey := "error"
+
+	InitConnectionWithKey(firstKey, config.SQLDriver, config.StringConnection)
+
+	connFirst, err := GetConnectionWithKey(firstKey)
+	if err != nil {
+		t.Error(err)
+	}
+
+	_, err = GetConnectionWithKey(errorKey)
+	if err == nil {
+		t.Error(fmt.Sprintf("Chiave '%s' non valida, dovrebbe essere error", errorKey))
+	}
+
+	InitConnectionWithKey(secondKey, config.SQLDriver, config.StringConnection)
+
+	connSecond, err := GetConnectionWithKey(secondKey)
+	if err != nil {
+		t.Error(err)
+	}
+
+	if connFirst == connSecond {
+		t.Error("Errore, le due connessione dovrebbero essere diverse")
 	}
 }
 
