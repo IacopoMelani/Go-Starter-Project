@@ -10,6 +10,7 @@ require (
 	github.com/labstack/echo/v4 v4.1.17
 	github.com/olekukonko/tablewriter v0.0.4
 	github.com/op/go-logging v0.0.0-20160315200505-970db520ece7
+	github.com/sirupsen/logrus v1.7.0
 	github.com/stretchr/testify v1.6.1
 	github.com/subosito/gotenv v1.2.0
 	gopkg.in/guregu/null.v4 v4.0.0
