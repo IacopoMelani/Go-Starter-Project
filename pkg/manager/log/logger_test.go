@@ -3,16 +3,19 @@ package log
 import (
 	"os"
 	"testing"
+	"time"
 
 	"github.com/op/go-logging"
 )
 
 var (
 	testLogDirName  = "log-test"
-	testLogFileName = "info-test.log" 
+	testLogFileName = "info-test.log"
 )
 
 func TestLogger(t *testing.T) {
+
+	Now = func() time.Time { return time.Now().Add(24 * time.Hour) }
 
 	if _, err := os.Stat(testLogDirName); os.IsNotExist(err) {
 		err = os.Mkdir(testLogDirName, os.ModePerm)
@@ -21,11 +24,10 @@ func TestLogger(t *testing.T) {
 		}
 	}
 
-	file, err := os.OpenFile(testLogDirName+"/"+testLogFileName, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	file, err := NewRotateFile(testLogDirName+"/"+testLogFileName, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644, true)
 	if err != nil {
 		panic(err)
 	}
-	defer file.Close()
 
 	NewLogBackend(os.Stderr, "", 0, logging.DEBUG, nil)
 	NewLogBackend(file, "", 0, logging.WARNING, VerboseLogFilePathFormatter)

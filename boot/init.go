@@ -46,26 +46,26 @@ func InitServer() {
 
 	bm.RegisterProc(func() {
 
-		var file *os.File
-
 		if _, err := os.Stat("./log"); os.IsNotExist(err) {
 			if err = os.Mkdir("./log", os.ModePerm); err != nil {
 				panic(err)
 			}
 		}
 
-		file, err := os.OpenFile("./log/info.log", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0666)
+		file, err := log.NewRotateFile("log/info.log", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0666, true)
 		if err != nil {
 			panic(err)
 		}
+
 		log.NewLogBackend(os.Stdout, "", 0, logging.DEBUG, log.DefaultLogFormatter)
-		log.NewLogBackend(file, "", 0, logging.WARNING, log.VerboseLogFilePathFormatter)
+		log.NewLogBackend(file, "", 0, logging.INFO, log.VerboseLogFilePathFormatter)
 		log.Init(config.AppName)
 
 		logger := log.GetLogger()
 
 		if config.Debug {
 			logger.Debug("App avviata")
+			logger.Info("App avviata")
 		}
 	})
 
