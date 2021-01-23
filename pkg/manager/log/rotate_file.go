@@ -35,7 +35,7 @@ func NewRotateFile(filename string, flag int, perm os.FileMode, autoRotate bool)
 		return nil, err
 	}
 
-	r.currentDate = Now().Format("2006-01-02")
+	r.currentDate = nowDefaultFormat()
 
 	return r, nil
 }
@@ -61,7 +61,7 @@ func (r *RotateFile) Rotate() error {
 	}
 
 	fullFilename := wd + "/" + r.filename
-	newFilename := wd + "/" + filepath.Dir(r.filename) + "/" + Now().Format("2006-01-02") + "-" + filepath.Base(r.filename)
+	newFilename := wd + "/" + filepath.Dir(r.filename) + "/" + nowDefaultFormat() + "-" + filepath.Base(r.filename)
 
 	_, err = os.Stat(wd + "/" + r.filename)
 	if err == nil {
@@ -71,7 +71,7 @@ func (r *RotateFile) Rotate() error {
 		}
 	}
 
-	r.currentDate = Now().Format("2006-01-02")
+	r.currentDate = nowDefaultFormat()
 
 	return nil
 }
@@ -99,6 +99,11 @@ func (r *RotateFile) closeFile() error {
 	r.file = nil
 
 	return nil
+}
+
+// nowDefaultFormat - Returns formatted now time(Y-m-d)
+func nowDefaultFormat() string {
+	return Now().Format("2006-01-02")
 }
 
 // isToRotate - Returns if it's time to rotate the file :)

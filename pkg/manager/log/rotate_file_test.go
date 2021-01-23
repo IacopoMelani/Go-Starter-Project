@@ -26,4 +26,20 @@ func TestRotateFile(t *testing.T) {
 
 	file.Write([]byte("First log\n"))
 
+	errorTestFile, err := NewRotateFile("./log-test/test.log", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0666, true)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if err := errorTestFile.file.Close(); err != nil {
+		t.Fatal(err)
+	}
+
+	if err := os.Remove("./log-test/test.log"); err != nil {
+		t.Fatal(err)
+	}
+
+	if err := errorTestFile.closeFile(); err == nil {
+		t.Fatal("No errors occured")
+	}
 }
