@@ -35,7 +35,12 @@ func NewRotateFile(filename string, flag int, perm os.FileMode, autoRotate bool)
 		return nil, err
 	}
 
-	r.currentDate = nowDefaultFormat()
+	fileInfo, err := r.file.Stat()
+	if err != nil {
+		return nil, err
+	}
+
+	r.currentDate = fileInfo.ModTime().Format("2006-01-02")
 
 	return r, nil
 }
