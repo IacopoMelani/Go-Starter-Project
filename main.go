@@ -2,14 +2,12 @@ package main
 
 import (
 	"github.com/IacopoMelani/Go-Starter-Project/command"
-	"github.com/subosito/gotenv"
+	"github.com/IacopoMelani/Go-Starter-Project/pkg/helpers/env"
 )
 
 func main() {
 
-	if err := gotenv.Load(); err != nil {
-		panic(err)
-	}
+	env.LoadEnvFile(".env", true)
 
 	command.InterpretingHumanWord()
 }
