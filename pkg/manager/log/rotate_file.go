@@ -7,6 +7,8 @@ import (
 	"time"
 )
 
+const rotateFileDateForma = "2006-01-02"
+
 // Now - time.Now
 var Now = time.Now
 
@@ -40,7 +42,7 @@ func NewRotateFile(filename string, flag int, perm os.FileMode, autoRotate bool)
 		return nil, err
 	}
 
-	r.currentDate = fileInfo.ModTime().Format("2006-01-02")
+	r.currentDate = fileInfo.ModTime().Format(rotateFileDateForma)
 
 	return r, nil
 }
@@ -108,12 +110,12 @@ func (r *RotateFile) closeFile() error {
 
 // nowDefaultFormat - Returns formatted now time(Y-m-d)
 func nowDefaultFormat() string {
-	return Now().Format("2006-01-02")
+	return Now().Format(rotateFileDateForma)
 }
 
 // isToRotate - Returns if it's time to rotate the file :)
 func (r *RotateFile) isToRotate() bool {
-	return time.Now().Format("2006-01-02") != r.currentDate
+	return time.Now().Format(rotateFileDateForma) != r.currentDate
 }
 
 // openFile - Opens the current file
