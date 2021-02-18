@@ -23,7 +23,8 @@ type TestStruct struct {
 func NewTestStruct(db db.SQLConnector) *TestStruct {
 
 	ts := new(TestStruct)
-	ts.tr = NewTableRecord(true, false)
+	ts.tr = NewTableRecord(db, true, false)
+
 	ts.tr.SetSQLConnection(db)
 
 	return ts
@@ -87,8 +88,7 @@ type TestStructReadOnly struct {
 func NewTestStructReadOnly(db db.SQLConnector) *TestStructReadOnly {
 
 	tsro := new(TestStructReadOnly)
-	tsro.tr = NewTableRecord(true, true)
-	tsro.tr.SetSQLConnection(db)
+	tsro.tr = NewTableRecord(db, true, true)
 
 	return tsro
 }

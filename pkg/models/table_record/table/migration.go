@@ -50,7 +50,7 @@ func InsertNewMigration(db db.SQLConnector, name string, status int) (*Migration
 	if err := record.Save(m); err != nil {
 		return nil, err
 	}
-	m.tr.SetIsNew(false).SetSQLConnection(db)
+	m.tr.SetIsNew(false)
 
 	return m, nil
 }
@@ -95,8 +95,7 @@ func LoadMigrationByName(name string, m *Migration) error {
 func NewMigration(db db.SQLConnector) *Migration {
 
 	m := new(Migration)
-	m.tr = record.NewTableRecord(true, false)
-	m.tr.SetSQLConnection(db)
+	m.tr = record.NewTableRecord(db, true, false)
 	return m
 }
 

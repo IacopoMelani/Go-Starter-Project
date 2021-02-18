@@ -62,18 +62,18 @@ func LoadFromRow(r *sqlx.Rows, tri TableRecordInterface) error {
 	tr := tri.GetTableRecord()
 
 	tr.SetIsNew(false)
-	tr.SetSQLConnection(tri.GetTableRecord().db)
 	tr.isLoaded = true
 
 	return nil
 }
 
 // NewTableRecord - Returns a new instance of TableRecord
-func NewTableRecord(isNew bool, isReadOnly bool) *TableRecord {
+func NewTableRecord(db db.SQLConnector, isNew bool, isReadOnly bool) *TableRecord {
 
 	tr := new(TableRecord)
 	tr.isNew = isNew
 	tr.isReadOnly = isReadOnly
+	tr.db = db
 
 	return tr
 }

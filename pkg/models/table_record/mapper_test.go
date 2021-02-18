@@ -21,8 +21,7 @@ type TestMapperTableRecord struct {
 func NewTestMapperTableRecord(db db.SQLConnector) *TestMapperTableRecord {
 
 	ts := new(TestMapperTableRecord)
-	ts.tr = NewTableRecord(true, false)
-	ts.tr.SetSQLConnection(db)
+	ts.tr = NewTableRecord(db, true, false)
 
 	return ts
 }

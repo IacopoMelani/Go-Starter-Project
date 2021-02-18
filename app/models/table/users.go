@@ -35,9 +35,7 @@ type User struct {
 func NewUser(db db.SQLConnector) *User {
 
 	u := new(User)
-	u.TableRecord = record.NewTableRecord(true, false)
-	u.SetSQLConnection(db)
-
+	u.TableRecord = record.NewTableRecord(db, true, false)
 	return u
 }
 
