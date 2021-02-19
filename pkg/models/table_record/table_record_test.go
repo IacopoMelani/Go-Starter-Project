@@ -1,11 +1,13 @@
 package record
 
 import (
+	"errors"
 	"os"
 	"testing"
 
 	"github.com/IacopoMelani/Go-Starter-Project/pkg/helpers/copy"
 	"github.com/IacopoMelani/Go-Starter-Project/pkg/manager/db"
+	"github.com/IacopoMelani/Go-Starter-Project/pkg/manager/db/transactions"
 
 	"github.com/subosito/gotenv"
 )
@@ -24,8 +26,6 @@ func NewTestStruct(db db.SQLConnector) *TestStruct {
 
 	ts := new(TestStruct)
 	ts.tr = NewTableRecord(db, true, false)
-
-	ts.tr.SetSQLConnection(db)
 
 	return ts
 }
@@ -121,11 +121,11 @@ func TestTableRecord(t *testing.T) {
 	}
 	db.InitConnection(os.Getenv("SQL_DRIVER"), os.Getenv("STRING_CONNECTION"))
 
-	db := db.GetConnection()
+	conn := db.GetConnection()
 
-	ts := NewTestStruct(db)
+	ts := NewTestStruct(conn)
 
-	if db != ts.tr.GetDB() {
+	if conn != ts.tr.GetDB() {
 		t.Error("Errore: Database assegnato")
 	}
 
@@ -169,12 +169,12 @@ func TestTableRecord(t *testing.T) {
 		t.Fatal("Chiave primaria è cambiata durante l'update")
 	}
 
-	ts = NewTestStruct(db)
+	ts = NewTestStruct(conn)
 
 	ts.tr.WhereEqual("name", "Marco").OrderByDesc("record_id").WhereOperator("record_id", "<", 23)
 
 	tsList, err := ExecQuery(ts, func() TableRecordInterface {
-		return NewTestStruct(db)
+		return NewTestStruct(conn)
 	})
 	if err != nil {
 		t.Fatal(err.Error())
@@ -184,7 +184,7 @@ func TestTableRecord(t *testing.T) {
 		t.Error("La query sembra non aver restituito zero valori")
 	}
 
-	ts = NewTestStruct(db)
+	ts = NewTestStruct(conn)
 
 	ts.Name = copy.String("Mario")
 	ts.Lastname = copy.String("Rossi")
@@ -214,7 +214,7 @@ func TestTableRecord(t *testing.T) {
 	}
 
 	testAll, err := All(func() TableRecordInterface {
-		return NewTestStruct(db)
+		return NewTestStruct(conn)
 	})
 	if err != nil {
 		t.Fatal(err.Error())
@@ -224,7 +224,7 @@ func TestTableRecord(t *testing.T) {
 		t.Error("La lista restituita sembra vuota")
 	}
 
-	tsr := NewTestStructReadOnly(db)
+	tsr := NewTestStructReadOnly(conn)
 
 	tsr.Name = copy.String("foffo")
 	tsr.Lastname = copy.String("bomba")
@@ -242,5 +242,24 @@ func TestTableRecord(t *testing.T) {
 
 	if !tsr.GeetTableRecord().IsLoaded() {
 		t.Fatal("Errore: record id non valido")
+	}
+
+	testConnStruct := NewTestStruct(conn)
+
+	connStruct := testConnStruct.tr.GetDB()
+
+	err = transactions.WithTransactionx(db.GetSQLXFromSQLConnector(conn), func(s db.SQLConnector) error {
+
+		testConnStruct.tr.SetSQLConnection(s)
+
+		if testConnStruct.tr.GetDB() == connStruct {
+			return errors.New("Connections are the same")
+		}
+
+		return nil
+	})
+
+	if err != nil {
+		t.Fatal(err.Error())
 	}
 }
