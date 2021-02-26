@@ -4,6 +4,7 @@ import (
 	"os"
 	"testing"
 
+	"github.com/IacopoMelani/Go-Starter-Project/app/models/dto"
 	"github.com/IacopoMelani/Go-Starter-Project/pkg/manager/db"
 	"gopkg.in/guregu/null.v4"
 
@@ -50,6 +51,11 @@ func TestTableMirror(t *testing.T) {
 	err = record.Save(u)
 	if err != nil {
 		t.Error(err.Error())
+	}
+
+	userDTO := u.Map().(dto.UserDTO)
+	if u.RecordID != userDTO.ID {
+		t.Fatal("Errors maps user dto")
 	}
 
 	if tempID != u.RecordID {

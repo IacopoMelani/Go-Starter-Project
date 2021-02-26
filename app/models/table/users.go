@@ -4,7 +4,6 @@ import (
 	"github.com/IacopoMelani/Go-Starter-Project/app/models/dto"
 	"github.com/IacopoMelani/Go-Starter-Project/pkg/manager/db"
 	record "github.com/IacopoMelani/Go-Starter-Project/pkg/models/table_record"
-	"github.com/jmoiron/sqlx"
 	"gopkg.in/guregu/null.v4"
 )
 
@@ -68,40 +67,19 @@ func (u User) GetTableName() string {
 	return UsersTableName
 }
 
-// MARK: User unexported
-
-// loadAllUsersFromRows - Loads all users from sqlx rows result
-func loadAllUsersFromRows(db db.SQLConnector, rows *sqlx.Rows) ([]*User, error) {
-
-	var result []*User
-
-	for rows.Next() {
-
-		u := NewUser(db)
-
-		if err := record.LoadFromRow(rows, u); err != nil {
-			return nil, err
-		}
-
-		result = append(result, u)
-	}
-
-	return result, nil
-}
-
 // MARK: User exported
 
 // LoadAllUsers - Returns all users
-func LoadAllUsers(db db.SQLConnector) ([]*User, error) {
+func LoadAllUsers(conn db.SQLConnector) ([]*User, error) {
 
 	query := "SELECT " + record.AllField(&User{}) + " FROM " + UsersTableName
 
-	rows, err := db.Queryx(query)
+	var users []*User
+
+	err := conn.Select(&users, query)
 	if err != nil {
 		return nil, err
 	}
 
-	defer rows.Close()
-
-	return loadAllUsersFromRows(db, rows)
+	return users, nil
 }

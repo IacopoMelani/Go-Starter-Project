@@ -17,12 +17,14 @@ import (
 type SQLConnector interface {
 	DriverName() string
 	Exec(string, ...interface{}) (sql.Result, error)
+	Get(dest interface{}, query string, args ...interface{}) error
 	Prepare(string) (*sql.Stmt, error)
 	Preparex(string) (*sqlx.Stmt, error)
 	Query(string, ...interface{}) (*sql.Rows, error)
 	Queryx(string, ...interface{}) (*sqlx.Rows, error)
 	QueryRow(string, ...interface{}) *sql.Row
 	QueryRowx(string, ...interface{}) *sqlx.Row
+	Select(dest interface{}, query string, args ...interface{}) error
 }
 
 // InvalidConnectionKeyError - Defines the error for an invalid key provided to retrive or use a connection instance
