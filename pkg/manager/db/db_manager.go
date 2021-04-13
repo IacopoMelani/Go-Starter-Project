@@ -60,8 +60,7 @@ type connectionsPool struct {
 }
 
 var (
-	pool     *connectionsPool
-	oncePool sync.Once
+	pool *connectionsPool
 )
 
 // getSimpleSelectQueryForTable - Returns a simple select "LIMIT 1" query string for a specific connection key and table

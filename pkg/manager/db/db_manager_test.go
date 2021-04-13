@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/IacopoMelani/Go-Starter-Project/config"
+	cacheconf "github.com/IacopoMelani/Go-Starter-Project/pkg/cache_config"
 	"github.com/subosito/gotenv"
 )
 
@@ -54,7 +55,9 @@ func TestGetConnection(t *testing.T) {
 
 	loadEnv()
 
-	InitConnection(config.GetInstance().SQLDriver, config.GetInstance().StringConnection)
+	config.GetInstance()
+
+	InitConnection(cacheconf.GetDefaultCacheConfig().SQLDriver, cacheconf.GetDefaultCacheConfig().StringConnection)
 
 	db := GetSQLXFromSQLConnector(GetConnection())
 
@@ -66,7 +69,7 @@ func TestGetConnection(t *testing.T) {
 
 	driver := DriverName()
 
-	if driver != config.GetInstance().SQLDriver {
+	if driver != cacheconf.GetDefaultCacheConfig().SQLDriver {
 		t.Fatalf("Invalid driver name %s", driver)
 	}
 
@@ -88,7 +91,7 @@ func TestMultiConnection(t *testing.T) {
 
 	loadEnv()
 
-	config := config.GetInstance()
+	config := cacheconf.GetDefaultCacheConfig()
 
 	firstKey := "first"
 	secondKey := "second"
