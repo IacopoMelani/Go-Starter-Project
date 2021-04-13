@@ -9,9 +9,9 @@ import (
 )
 
 // CacheConfigInterface - Interface to implements CacheConfig
-// No methods, all you need is to define the tag "config" for your Custom CacheConfig
+// You need is to define the tag "config" for your Custom CacheConfig
 type CacheConfigInterface interface {
-	GetDefaultCacheConfig() CacheConfigInterface
+	GetDefaultCacheConfigInterface() CacheConfigInterface
 }
 
 // DefaultCacheConfig - Defines the standard configuration
@@ -21,6 +21,9 @@ type DefaultCacheConfig struct {
 	SQLDriver        string `config:"SQL_DRIVER"`
 	StringConnection string `config:"STRING_CONNECTION"`
 	AppPort          string `config:"APP_PORT"`
+	JwtSecret        string `config:"JWT_SECRET"`
+	JwtTTL           int    `config:"JWT_TTL"`
+	JwtRefreshTTL    int    `config:"JWT_REFRESH_TTL"`
 }
 
 // ConfigTagName - Defines the tag name to permit CacheConfig stores your configurations
@@ -97,10 +100,15 @@ func LoadEnvConfig(c CacheConfigInterface) {
 	envFields, structFieldsName = refl.GetStructFieldsNameAndTagByTagName(c, ConfigTagName)
 	loadEnvByFieldsMapper(c, envFields, structFieldsName)
 
-	cacheConf = c.GetDefaultCacheConfig().(*DefaultCacheConfig)
+	cacheConf = c.GetDefaultCacheConfigInterface().(*DefaultCacheConfig)
 }
 
-// GetDefaultCacheConfig - Return the instance of CacheConfigInterface
-func (d *DefaultCacheConfig) GetDefaultCacheConfig() CacheConfigInterface {
+// GetDefaultCacheConfig - Returns the default cache config instance
+func GetDefaultCacheConfig() *DefaultCacheConfig {
+	return cacheConf
+}
+
+// GetDefaultCacheConfigInterface - Return the instance of CacheConfigInterface
+func (d *DefaultCacheConfig) GetDefaultCacheConfigInterface() CacheConfigInterface {
 	return d
 }
