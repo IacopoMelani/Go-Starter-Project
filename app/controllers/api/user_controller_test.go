@@ -1,4 +1,4 @@
-package controllers
+package api
 
 import (
 	"encoding/json"
@@ -29,11 +29,17 @@ type testLoginResponseDTO struct {
 	Content testTokenLoginResponseDTO `json:"content"`
 }
 
+func loadEnv() {
+
+	if err := gotenv.Load("../../../.env"); err != nil {
+		panic("Errore caricamento configurazione")
+	}
+}
+
 func TestGetAllUser(t *testing.T) {
 
-	if err := gotenv.Load("./../../.env"); err != nil {
-		t.Fatal("Errore caricamento configurazione")
-	}
+	loadEnv()
+
 	db.InitConnection(os.Getenv("SQL_DRIVER"), os.Getenv("STRING_CONNECTION"))
 
 	e := echo.New()
@@ -63,9 +69,7 @@ func TestGetAllUser(t *testing.T) {
 
 func TestGetDurataionUsers(t *testing.T) {
 
-	if err := gotenv.Load("../../.env"); err != nil {
-		t.Fatal("Errore caricamento configurazione")
-	}
+	loadEnv()
 
 	e := echo.New()
 
@@ -81,9 +85,7 @@ func TestGetDurataionUsers(t *testing.T) {
 
 func TestLogin(t *testing.T) {
 
-	if err := gotenv.Load("../../.env"); err != nil {
-		t.Fatal("Errore caricamento configurazione")
-	}
+	loadEnv()
 
 	e := echo.New()
 

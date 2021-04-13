@@ -1,6 +1,8 @@
 package controllers
 
 import (
+	"net/http"
+
 	"github.com/labstack/echo/v4"
 )
 
@@ -9,6 +11,9 @@ import (
 // constants
 const (
 	ResponseMessageOk = "ok!"
+
+	BasicAuthFailedCode = 4000
+	JwtFailedCode       = 4001
 )
 
 // MARK: Response interface
@@ -74,7 +79,55 @@ func (r ResponseAPI) GetContent() echo.Map {
 	return r.Content
 }
 
+// ResponseWeb -  Definea a standard struct response ideal for web/spa responses
+type ResponseWeb struct {
+	Code    int      `json:"code"`
+	Success bool     `json:"success"`
+	Message string   `json:"message"`
+	Content echo.Map `json:"content"`
+}
+
+// NewResponseWeb - Returns a new ResponseWeb instance
+func NewResponseWeb(success bool, code int, message string, content echo.Map) ResponseWeb {
+	return ResponseWeb{
+		Code:    code,
+		Success: success,
+		Message: message,
+		Content: content,
+	}
+}
+
+// GetCode - Returns the code response
+func (r ResponseWeb) GetCode() int {
+	return r.Code
+}
+
+// GetSuccess - Returns the outcome of the request
+func (r ResponseWeb) GetSuccess() bool {
+	return r.Success
+}
+
+// GetMessage - Returns the response message
+func (r ResponseWeb) GetMessage() string {
+	return r.Message
+}
+
+// GetContent - Returns the content of the response
+func (r ResponseWeb) GetContent() echo.Map {
+	return r.Content
+}
+
 // MARK Exported funcs
+
+// APIAuthBasicFailedResponse - Restituisce l'errore per api basic auth failed
+func APIAuthBasicFailedResponse(c echo.Context) error {
+	return c.JSON(http.StatusForbidden, FailedResponse(c, BasicAuthFailedCode, "Forbidden", nil))
+}
+
+// APIJWTAuthFailedResponse - Restituisce l'errore per api jwt auth check failed
+func APIJWTAuthFailedResponse(c echo.Context, msg string) error {
+	return c.JSON(http.StatusUnauthorized, FailedResponse(c, JwtFailedCode, msg, nil))
+}
 
 // FailedResponse - Returns a failed Response
 func FailedResponse(c echo.Context, code int, message string, content echo.Map) Response {
