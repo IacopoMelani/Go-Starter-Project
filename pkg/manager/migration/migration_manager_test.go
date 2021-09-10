@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	"github.com/IacopoMelani/Go-Starter-Project/pkg/manager/db"
+	"github.com/IacopoMelani/Go-Starter-Project/pkg/manager/db/driver"
 
 	"github.com/IacopoMelani/Go-Starter-Project/pkg/models/table_record/table"
 
@@ -23,45 +24,12 @@ func (t TestTable) GetMigrationName() string {
 
 // Down - Example
 func (t TestTable) Down() string {
-
-	var query string
-
-	switch db.DriverName() {
-
-	case db.DriverMySQL:
-		query = "DROP TABLE IF EXISTS test"
-	case db.DriverSQLServer:
-		query = `
-		IF EXISTS (SELECT * FROM sysobjects WHERE name='test' and xtype='U')
-		DROP TABLE test`
-	}
-
-	return query
+	return driver.GetDropTableQuery(db.DriverName(), "test")
 }
 
 // Up - Example
 func (t TestTable) Up() string {
-
-	var query string
-
-	switch db.DriverName() {
-
-	case db.DriverMySQL:
-		query = `CREATE TABLE IF NOT EXISTS test (
-		record_id INT AUTO_INCREMENT,
-		PRIMARY KEY (record_id)
-		)`
-
-	case db.DriverSQLServer:
-		query = `
-		IF NOT EXISTS (SELECT * FROM sysobjects WHERE name='test' and xtype='U')
-		CREATE TABLE test (
-			record_id BIGINT IDENTITY(1, 1) NOT NULL PRIMARY KEY
-		)`
-	}
-
-	return query
-
+	return driver.GetCreateEmptyTableQuery(db.DriverName(), "test")
 }
 
 func TestMigrationManager(t *testing.T) {
@@ -77,22 +45,9 @@ func TestMigrationManager(t *testing.T) {
 
 	InitMigrationsList(migrationsList)
 
-	var query string
-
 	tx := db.GetConnection()
 
-	switch tx.DriverName() {
-
-	case db.DriverMySQL:
-		query = "DROP TABLE IF EXISTS migrations"
-
-	case db.DriverSQLServer:
-		query = `
-			IF EXISTS (SELECT * FROM sysobjects WHERE name='migrations' and xtype='U')
-			DROP TABLE migrations
-			`
-	}
-
+	query := driver.GetDropTableQuery(tx.DriverName(), "migrations")
 	_, err := tx.Exec(query)
 	if err != nil {
 		t.Fatal(err.Error())

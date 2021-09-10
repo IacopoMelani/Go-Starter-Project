@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"fmt"
 
+	"github.com/IacopoMelani/Go-Starter-Project/pkg/manager/db/driver"
 	"github.com/jmoiron/sqlx"
 
 	// Carica il driver sql per la connessione al db
@@ -45,12 +46,6 @@ func (e *InvalidConnectionKeyError) Error() string {
 // DefaultConnectionName - default connection key
 const DefaultConnectionName = "default"
 
-// Defines all possible sql drivers
-const (
-	DriverSQLServer = "mssql"
-	DriverMySQL     = "mysql"
-)
-
 // connectionsPool - Defines a pool of connection
 type connectionsPool struct {
 	ok          map[string]chan bool
@@ -62,21 +57,6 @@ type connectionsPool struct {
 var (
 	pool *connectionsPool
 )
-
-// getSimpleSelectQueryForTable - Returns a simple select "LIMIT 1" query string for a specific connection key and table
-func getSimpleSelectQueryForTable(driver string, table string) string {
-
-	query := ""
-
-	switch driver {
-	case DriverMySQL:
-		query = "SELECT * FROM " + table + " LIMIT 1"
-	case DriverSQLServer:
-		query = "SELECT TOP 1 * FROM " + table
-	}
-
-	return query
-}
 
 // init - Initialize db package
 func init() {
@@ -238,7 +218,7 @@ func TableExistsWithKey(key string, tableName string) bool {
 		panic(err)
 	}
 
-	query := getSimpleSelectQueryForTable(db.DriverName(), tableName)
+	query := driver.GetSelectOneRowQuery(db.DriverName(), tableName)
 	rows, err := db.Queryx(query)
 	if err != nil {
 		return false

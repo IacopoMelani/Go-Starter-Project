@@ -3,7 +3,7 @@ package record
 import (
 	"errors"
 
-	"github.com/IacopoMelani/Go-Starter-Project/pkg/manager/db"
+	"github.com/IacopoMelani/Go-Starter-Project/pkg/manager/db/driver"
 )
 
 // executeSaveUpdateQuery - Execs the insert/update query and update the current TableRecordInterface passed
@@ -13,7 +13,7 @@ func executeSaveUpdateQuery(ti TableRecordInterface, query string, params []inte
 
 	switch ti.GetTableRecord().DriverName() {
 
-	case db.DriverSQLServer:
+	case driver.DriverSQLServer:
 
 		rows, err := conn.Queryx(query, params...)
 		if err != nil {
@@ -27,7 +27,7 @@ func executeSaveUpdateQuery(ti TableRecordInterface, query string, params []inte
 			}
 		}
 
-	case db.DriverMySQL:
+	case driver.DriverMySQL:
 
 		res, err := conn.Exec(query, params...)
 		if err != nil {
@@ -204,7 +204,7 @@ func Save(ti TableRecordInterface) error {
 	t := ti.GetTableRecord()
 
 	if t.isReadOnly {
-		return errors.New("Read-only model")
+		return errors.New("read-only model")
 	}
 
 	if t.isNew {

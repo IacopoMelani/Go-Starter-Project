@@ -9,45 +9,23 @@ import (
 
 	"github.com/IacopoMelani/Go-Starter-Project/config"
 	cacheconf "github.com/IacopoMelani/Go-Starter-Project/pkg/cache_config"
+	"github.com/IacopoMelani/Go-Starter-Project/pkg/manager/db/driver"
 	"github.com/subosito/gotenv"
 )
 
 // createTableTest - Query to create table test
 func createTableTest() error {
-
 	conn := GetConnection()
-
-	var query string
-
-	switch conn.DriverName() {
-
-	case DriverMySQL:
-		query = `CREATE TABLE IF NOT EXISTS testTable (
-			record_id INT AUTO_INCREMENT,
-			PRIMARY KEY (record_id)
-			)`
-
-	case DriverSQLServer:
-		query = `IF NOT EXISTS (SELECT * FROM sysobjects WHERE name='testTable' and xtype='U')
-		CREATE TABLE testTable (
-			record_id BIGINT IDENTITY(1, 1) NOT NULL PRIMARY KEY
-		)`
-	}
-
+	query := driver.GetCreateEmptyTableQuery(conn.DriverName(), "testTable")
 	_, err := conn.Exec(query)
-
 	return err
 }
 
 // dropTableTest - Query to destoy the table
 func dropTableTest() error {
-
 	conn := GetConnection()
-
-	query := "DROP TABLE IF EXISTS testTable"
-
+	query := driver.GetDropTableQuery(conn.DriverName(), "testTable")
 	_, err := conn.Exec(query)
-
 	return err
 }
 

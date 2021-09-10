@@ -4,6 +4,7 @@ import (
 	"sync"
 
 	"github.com/IacopoMelani/Go-Starter-Project/pkg/manager/db"
+	"github.com/IacopoMelani/Go-Starter-Project/pkg/manager/db/driver"
 	"github.com/IacopoMelani/Go-Starter-Project/pkg/manager/db/transactions"
 	"github.com/IacopoMelani/Go-Starter-Project/pkg/models/table_record/table"
 
@@ -32,33 +33,8 @@ var (
 // createMigrationsTable - Creates the migrations table
 // createMigrationsTable - Si occupa di creare la tabella delle migrazioni
 func createMigrationsTable(conn db.SQLConnector) error {
-
-	var query string
-
-	switch conn.DriverName() {
-
-	case db.DriverSQLServer:
-		query = `
-		IF NOT EXISTS (SELECT * FROM sysobjects WHERE name='migrations' and xtype='U')
-		CREATE TABLE migrations (
-		record_id BIGINT IDENTITY(1, 1) NOT NULL PRIMARY KEY,
-		created_at DATETIME2(1) NOT NULL,
-		name NVARCHAR(255) NOT NULL,
-		status INT NOT NULL
-		)`
-
-	case db.DriverMySQL:
-		query = `CREATE TABLE IF NOT EXISTS migrations (
-		record_id INT AUTO_INCREMENT,
-		created_at DATETIME NOT NULL,
-		name VARCHAR(255) NOT NULL,
-		status INT NOT NULL,
-		PRIMARY KEY (record_id)
-		)`
-	}
-
+	query := driver.GetCreateMigrationsTableQuery(conn.DriverName())
 	_, err := conn.Exec(query)
-
 	return err
 }
 

@@ -40,7 +40,7 @@ var dm = &Migration{}
 func InsertNewMigration(db db.SQLConnector, name string, status int) (*Migration, error) {
 
 	if name == "" {
-		return nil, errors.New("Empty migration's name")
+		return nil, errors.New("empty migration's name")
 	}
 
 	m := NewMigration(db)
