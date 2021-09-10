@@ -27,17 +27,17 @@ func (u UserDTO) Validate() (bool, []error) {
 
 	if u.Name.IsZero() {
 		valid = false
-		errs = append(errs, errors.New("Missing name"))
+		errs = append(errs, errors.New("missing name"))
 	}
 
 	if u.Lastname.IsZero() {
 		valid = false
-		errs = append(errs, errors.New("Missing lastname"))
+		errs = append(errs, errors.New("missing lastname"))
 	}
 
 	if u.Gender.IsZero() {
 		valid = false
-		errs = append(errs, errors.New("Gender missing"))
+		errs = append(errs, errors.New("gender missing"))
 	}
 
 	return valid, errs

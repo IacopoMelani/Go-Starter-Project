@@ -141,5 +141,5 @@ func GenerateTokens(a Authenticable) (map[string]string, error) {
 	return tokens, nil
 }
 
-// RefreshTokens - Refresh a new pairs token from a refresh token string and an Authenticable interface
-func RefreshTokens(a Authenticable, refreshToken string) (map[string]string, error)
+// // RefreshTokens - Refresh a new pairs token from a refresh token string and an Authenticable interface
+// func RefreshTokens(a Authenticable, refreshToken string) (map[string]string, error)
